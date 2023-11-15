@@ -1,0 +1,14 @@
+---
+title: "LCFS.MART."
+author: "Lutfor Rahman"
+date: "2023-11-15"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+helca <- rbind(LCFS_agg_21,LCFS_agg_21)
+```

@@ -1,0 +1,659 @@
+---
+title: "LCFS_2020_21"
+author: "Lutfor Rahman"
+date: "2023-10-02"
+output:
+  cleanrmd::html_document_clean:
+    theme: superstylin
+    toc: true
+    toc_float: true
+---
+
+```{r setup, include=FALSE, echo=FALSE, message=FALSE}
+knitr::opts_chunk$set(warning = FALSE, message = FALSE) 
+library(tidyverse)
+library(foreign)
+library(srvyr)
+
+
+rm(list=ls())
+
+#Loaded the dataset for FY 2020-21 and then code being turned off for the purpose, otherwise it loads everytime.
+# LCFS_21<-read.spss("lcfs_2020_dvhh_ukanon.sav", #FY 2020-21
+#                  use.value.labels = TRUE,
+#                  use.missings = FALSE,
+#                  to.data.frame = TRUE)
+# 
+# saveRDS(LCFS_21, "LCFS_21.rds")
+
+LCFS_21<-readRDS("LCFS_21.rds")
+```
+
+
+```{r}
+#taking varibales lcfs to be needed for analysis
+LCFS_21_Var<- LCFS_21 %>%
+  select(case,A099, A055, A121, Gorx,weighta, A062, a065p,P389p,EqIncDOp, 
+         P604t,P606t,P607t,P608t, 
+         B038p,B130,B150,B2081, B030,CK3111t,CK3112t, B187,
+         B265,B237,B175,B178,B170,B173,B018,B017,C45112t,
+         C45114t,C45212t,C45214t,
+         P608t, P601t, P602t, P603t,
+         B231, B233, B234, B235, B2331,B2332, B254, B255, A091, Year,
+         P320p, P324p, P328p, P340p,P348, P300p,P308p, P312p,P425, P389p,p344p, P431p,
+         
+         CK5216t, CK5222t, P548t, C95211t,
+         P605t,P609t, P610t , P611t, P612t, P600t, P620tp, P630tp, B050, B188, B029p, B039p, P257, B010) 
+
+```
+
+
+```{r}
+#renaming the variables
+LCFS_21_Name<-LCFS_21_Var %>% 
+  rename( "Sample.Quarter"=A099,
+          "Sample.Month"=A055,
+          
+          "Demographic.Housing.Tenure.LCFS"=A121, 
+          "Demographic.Region.LCFS" =Gorx,
+          "Demographic.Household.Type.LCFS"=A062, 
+          "Demographic.Socio.Econo.Group.LCFS"=A091,
+          "Demographic.Age.Group.HRP"=a065p,
+          "Weight.LCFS"=weighta, 
+          
+          "Expenditure.Housing.LCFS"=P604t,
+          "Expenditure.Health.LCFS"=P606t,
+          "Expenditure.Transport.LCFS"=P607t,
+          "Expenditure.Comms.Mobile.Phone.LCFS"=P608t,
+          "Expenditure.Gift.LCFS"=CK5216t, 
+          "Expenditure.Present.LCFS"=CK5222t, 
+          "Expenditure.Leisure.LCFS"=P548t, 
+          "Expenditure.Newspaper.LCFS"=C95211t,
+          
+          "Expenditure.Council.Tax.LCFS" =B038p,
+          
+          "Expenditure.Mortgage.Interest.LCFS"=B130,
+          "Expenditure.Mortgage.Interest.Principle.LCFS"=B150,
+          "Expenditure.Mortgage.Protection.LCFS"=B2081, 
+          "Expenditure.Domestic.Rate.LCFS"=B030,
+          "Expenditure.Stamp.Duty.LCFS"=CK3111t,
+          "Expenditure.Motor.Fine.LCFS"=CK3112t, 
+          "Expenditure.Road.Tax.LCFS"=B187,
+          "Expenditure.Maintanance.Allowance.LCFS"=B265,
+          "Expenditure.Credit.Card.Payment.LCFS"=B237,
+          
+          "Expenditure.Electricity.Pay.LCFS"=B175,
+          "Expenditure.Electricity.Rebate.LCFS"=B178,
+          "Expenditure.Gas.Pay.LCFS"=B170,
+          "Expenditure.Gas.Rebate.LCFS"=B173,
+          "Expenditure.Bottle.Gas.LCFS"=B018,
+          "Expenditure.Oil.LCFS"=B017,
+          "Expenditure.Electricity.Pay.2nd.LCFS"=C45112t,
+          "Expenditure.Electricity.Meter.Pay.LCFS"=C45114t,
+          "Expenditure.Gas.Pay.2nd.LCFS"=C45212t,
+          "Expenditure.Gas.Meter.Pay.2nd.LCFS"=C45214t,
+          
+          
+          "Expenditure.Gas.Elec.Bill.Account.LCFS"= B231,                                                    
+          "Expenditure.Gas.Elec.Pre.Pay.LCFS" =B233,
+          "Expenditure.Combined.Elec.Rebate.LCFS"=B234,
+          "Expenditure.Combined.Gas.Meter.Rebate.LCFS"=B235,
+          "Expenditure.Combined.Gas.Meter.LCFS"=B2331,
+          "Expenditure.Combined.Elect.Meter.LCFS"=B2332,                                                  
+          "Expenditure.Elect.Meter.Rebate.LCFS"=B254,
+          "Expenditure.Gas.Meter.LCFS"=B255, 
+          
+          "Expenditure.Water.LCFS"=B050,
+          "Expenditure.Vehicle.Insurance.LCFS"=B188,
+          "Expenditure.Council.Tax.After.Support.LCFS"=B029p,
+          "Expenditure.Council.Tax.Support.LCFS"=B039p,
+          "EXpenditure.Rent.LCFS"=P257,
+          "Expenditure.Rent.Rate.Net.LCFS"=B010,
+          
+          "Expenditure.Food.Non.Alcohol.LCFS"=P601t, 
+          "Expenditure.Alcohol.LCFS"=P602t,
+          "Expenditure.Clothes.Footwear.LCFS"=P603t,
+          
+          "Expenditure.Furnishing.LCFS"=P605t,
+          "Expenditure.Recreation.LCFS"=P609t, 
+          "Expenditure.Education.LCFS"=P610t , 
+          "Expenditure.Restuarant.Hotel.LCFS"=P611t, 
+          "Expenditure.Miscellaneous.LCFS"=P612t, 
+          "Expenditure.Consumption.LCFS"=P600t, 
+          "Expenditure.Non.Consumption.LCFS"=P620tp, 
+          "Expenditure.Total.LCFS"=P630tp,
+          
+          "Income.Total.Disposable.LCFS"=P389p,
+          "Income.Equivalised.LCFS"=EqIncDOp, 
+          
+          "Income.Self.Employ.LCFS"=P320p, 
+          "Income.Invest.LCFS"=P324p, 
+          "Income.Annuties.LCFS"=P328p, 
+          "Income.Other.Source.LCFS"=P340p,
+          "Income.Benefit.LCFS"=P348, 
+          "Income.Gross.Wage.LCFS"=P300p,
+          "Income.Gross.Wage.1st.wk.LCFS"=P308p,
+          "Income.Gross.Wage.1st.LCFS"=P312p,
+          "Income.Gross.Weekly.LCFS"=p344p,
+          "Income.Main.Source.LCFS"=P425,
+          "Income.Amount.Main.Source.LCFS"=P431p)
+
+```
+
+
+```{r}
+#categorizing households type according to match with MART and LCFS
+LCFS_21_EW <- LCFS_21_Name %>% 
+    mutate(Demographic.Derived.Household.Type.LCFS=case_when(Demographic.Household.Type.LCFS=="1 man"|
+           Demographic.Household.Type.LCFS=="1 woman" ~ "Single Person",
+           Demographic.Household.Type.LCFS=="1 man and 1 child"|
+           Demographic.Household.Type.LCFS=="1 woman and 1 child"|
+           Demographic.Household.Type.LCFS=="1 man and 2 or more children"|
+           Demographic.Household.Type.LCFS=="1 woman and 2 or more children"~ "Single Person With Dependent Children",
+           Demographic.Household.Type.LCFS=="1 man and 1 woman"|
+           Demographic.Household.Type.LCFS=="2 men or 2 women" ~ "Couple",
+           Demographic.Household.Type.LCFS=="1 man, 1 woman and 1 child" |
+           Demographic.Household.Type.LCFS=="2 men or 2 women and 1 child" |
+           Demographic.Household.Type.LCFS=="1 man, 1 woman and 2 children" |
+           Demographic.Household.Type.LCFS=="2 men or 2 women and 2 children"|
+           Demographic.Household.Type.LCFS=="1 man, 1 woman and 3 children"|
+           Demographic.Household.Type.LCFS=="2 men or 2 women and 3 children" ~ "Couple With Dependent Children",
+           Demographic.Household.Type.LCFS=="2 adults and 4 children"|
+           Demographic.Household.Type.LCFS=="2 adults and 5 children"|
+           Demographic.Household.Type.LCFS=="2 adults and 6 or more children"|
+           Demographic.Household.Type.LCFS=="3 adults and 1 child"|
+           Demographic.Household.Type.LCFS=="3 adults and 2 children"|
+           Demographic.Household.Type.LCFS=="3 adults and 3 children"|
+           Demographic.Household.Type.LCFS=="3 adults and 4 or more children"|
+           Demographic.Household.Type.LCFS=="4 adults and 1 child"|
+           Demographic.Household.Type.LCFS=="4 adults and 2 or more children"|
+           Demographic.Household.Type.LCFS=="5 adults and 1 or more children"~"Other adults and Dependent children", 
+           Demographic.Household.Type.LCFS=="3 adults"|
+           Demographic.Household.Type.LCFS=="4 adults"|
+           Demographic.Household.Type.LCFS=="5 adults"|
+           Demographic.Household.Type.LCFS=="6 or more adults"~"Adults only",
+         TRUE~"Other"))%>% 
+#categorising LCFS households type based on MART child number also for further modelling
+mutate(Demographic.Derived.Household.Type.LCFS.child=case_when(Demographic.Household.Type.LCFS=="1 man"|
+        Demographic.Household.Type.LCFS=="1 woman" ~ "Single Person",
+        Demographic.Household.Type.LCFS=="1 man and 1 child"|
+        Demographic.Household.Type.LCFS=="1 woman and 1 child" ~ "Single With 1 child",
+        
+        
+        Demographic.Household.Type.LCFS=="1 man and 2 or more children"|
+        Demographic.Household.Type.LCFS=="1 woman and 2 or more children"~ "Single With 2 or more child",
+        
+        Demographic.Household.Type.LCFS=="1 man and 1 woman" |
+        Demographic.Household.Type.LCFS=="2 men or 2 women" ~ "Couple",
+        
+        Demographic.Household.Type.LCFS=="1 man, 1 woman and 1 child" |
+        Demographic.Household.Type.LCFS=="1 man, 1 woman and 1 child" ~ "Couple With 1 child",
+        
+        Demographic.Household.Type.LCFS=="1 man, 1 woman and 2 children" |
+        Demographic.Household.Type.LCFS=="2 men or 2 women and 2 children"~ "Couple With 2 child",
+        
+        Demographic.Household.Type.LCFS=="1 man, 1 woman and 3 children"|
+        Demographic.Household.Type.LCFS=="2 men or 2 women and 3 children" ~ "Couple With 3 child",
+        
+        Demographic.Household.Type.LCFS=="2 adults and 4 children"|
+        Demographic.Household.Type.LCFS=="2 adults and 5 children"|
+        Demographic.Household.Type.LCFS=="2 adults and 6 or more children"~"Couple With 4 and more child",
+        
+        
+        Demographic.Household.Type.LCFS=="3 adults and 1 child"|
+        Demographic.Household.Type.LCFS=="3 adults and 2 children"|
+        Demographic.Household.Type.LCFS=="3 adults and 3 children"|
+        Demographic.Household.Type.LCFS=="3 adults and 4 or more children"|
+        Demographic.Household.Type.LCFS=="4 adults and 1 child"|
+        Demographic.Household.Type.LCFS=="4 adults and 2 or more children"|
+        Demographic.Household.Type.LCFS=="5 adults and 1 or more children"~"Adults With 1 or more child",
+        
+        Demographic.Household.Type.LCFS=="3 adults"|
+        Demographic.Household.Type.LCFS=="4 adults"|
+        Demographic.Household.Type.LCFS=="5 adults"|
+        Demographic.Household.Type.LCFS=="6 or more adults"~"Adults Only",
+        
+        TRUE~"Other"))%>% 
+  
+  filter(Demographic.Region.LCFS!="Scotland" & Demographic.Region.LCFS!="Northern Ireland")%>% 
+  #Scotland and Northern Ireland being excluded
+  mutate(Disposable.Derived.Income.Monthly.LCFS=Income.Total.Disposable.LCFS*52/12)%>% 
+  mutate(Income.Band.21.LCFS=case_when(Disposable.Derived.Income.Monthly.LCFS <400 ~ "<400pm",
+                                       Disposable.Derived.Income.Monthly.LCFS==400 | Disposable.Derived.Income.Monthly.LCFS<800~"400-799",
+                                       Disposable.Derived.Income.Monthly.LCFS==800 | Disposable.Derived.Income.Monthly.LCFS<1200~"800-1200",
+                                       Disposable.Derived.Income.Monthly.LCFS==1200 | Disposable.Derived.Income.Monthly.LCFS<1600~"1200-1599",
+                                       Disposable.Derived.Income.Monthly.LCFS==1600 | Disposable.Derived.Income.Monthly.LCFS<2000~"1600-1999",
+                                       Disposable.Derived.Income.Monthly.LCFS==2000 | Disposable.Derived.Income.Monthly.LCFS<2400~"2000-2399",
+                                       Disposable.Derived.Income.Monthly.LCFS==2400 | Disposable.Derived.Income.Monthly.LCFS<2800~ "2400-2799",
+                                       Disposable.Derived.Income.Monthly.LCFS==2800 | Disposable.Derived.Income.Monthly.LCFS<3200~"2800-3199",
+                                       Disposable.Derived.Income.Monthly.LCFS>=3200 ~ "3200+",
+                                       TRUE~ "NA"))
+```
+
+
+```{r}
+#names of the regions being matched between LCFS and MART
+LCFS_21_EW$Demographic.Region.LCFS <- recode_factor(LCFS_21_EW$Demographic.Region.LCFS, 
+                                                                  "North West and Merseyside"  = "North West", 
+                                                                  "Eastern"= "East of England",
+                                                                  "Yorkshire and the Humber"= "Yorkshire")
+
+
+```
+
+```{r}
+#
+# LCFS_21_person<-read.spss("lcfs_2020_rawper_ukanon_final.sav", #FY 2020-21
+#                         use.value.labels = TRUE, 
+#                         use.missings = FALSE, 
+#                         to.data.frame = TRUE)
+# 
+# saveRDS(LCFS_21_person, "LCFS_21_person.rds")
+
+LCFS_21_person<-readRDS("LCFS_21_person.rds")
+
+#could you please check the logic 
+
+LCFS_21_disable<-LCFS_21_person %>% select(case, Person, Nolwm, DisBen1, DisBen2, DisBen3) %>% 
+  mutate(Disability=case_when(DisBen1=="Personal Independence Payment (including"|
+                         DisBen2=="Personal Independence Payment (including"|
+                         DisBen3=="Personal Independence Payment (including"~ "Disability.Benefits",
+                         
+                         DisBen1=="Disability Living Allowance (including t"|
+                         DisBen2=="Disability Living Allowance (including t"|
+                         DisBen3=="Disability Living Allowance (including t"~ "Disability.Benefits",
+                         
+                         DisBen1=="Attendance Allowance"|
+                         DisBen2=="Attendance Allowance"|
+                         DisBen3=="Attendance Allowance"~ "Disability.Benefits",
+                         
+                         DisBen1=="Severe Disablement Allowance"|
+                         DisBen1=="Incapacity Benefit"|
+                         DisBen1=="Industrial Injuries Disablement Benefit"|
+                         DisBen2=="Severe Disablement Allowance"|
+                         DisBen2=="Incapacity Benefit"|
+                         DisBen2=="Industrial Injuries Disablement Benefit"|
+                         DisBen3=="Severe Disablement Allowance"|
+                         DisBen3=="Incapacity Benefit"|
+                         DisBen3=="Industrial Injuries Disablement Benefit" ~"Disability.Benefits",
+                         
+                         Nolwm=="Long-term sick or disabled" ~ "Disability.No.Benefits", 
+                         
+                         TRUE~ "NA")) %>% 
+  filter(Disability!="NA") %>% 
+  group_by(case, Disability) %>% 
+  summarise(n=n()) %>% 
+  distinct(case, .keep_all = TRUE)
+```
+
+
+
+
+```{r}
+#adding disabled households from lcfs person level data 
+LCFS_21_EW<-LCFS_21_EW %>% left_join(LCFS_21_disable, by=c("case"="case"))%>% 
+  replace_na(list(Disability = "None"))
+```
+
+
+```{r}
+#getting UC households
+LCFS_21_UC<-LCFS_21_person %>% select(case, Person, Nolwm, DVUC) %>% 
+  mutate(Demographic.UC=case_when(DVUC>0~"UC",TRUE~ "Non.UC" )) %>% 
+  filter(Demographic.UC=="UC") %>% 
+  group_by(case, Demographic.UC) %>% 
+  summarise(n=n(),
+            Total_UC=sum(DVUC))%>% 
+  distinct(case, .keep_all = TRUE)
+
+
+LCFS_21_EW<-LCFS_21_EW %>% left_join(LCFS_21_UC, by=c("case"="case"))%>% 
+  replace_na(list(Demographic.UC = "Non.UC"))
+
+```
+
+
+```{r}
+#sorting out all expenditures
+LCFS_21_Expenditure<-LCFS_21_EW%>% 
+  mutate(Expenditure.Derived.Housing.21.LCFS=Expenditure.Housing.LCFS-(Expenditure.Electricity.Pay.LCFS+ #all electricity and gas need to remove as housing element
+                                                                         #Expenditure.Electricity.Rebate.LCFS+
+                                                                         Expenditure.Gas.Pay.LCFS+
+                                                                         #Expenditure.Gas.Rebate.LCFS+
+                                                                         Expenditure.Bottle.Gas.LCFS+
+                                                                         Expenditure.Oil.LCFS+
+                                                                         Expenditure.Electricity.Pay.2nd.LCFS+
+                                                                         Expenditure.Electricity.Meter.Pay.LCFS+
+                                                                         Expenditure.Gas.Pay.2nd.LCFS+
+                                                                         Expenditure.Gas.Meter.Pay.2nd.LCFS),
+         Expenditure.Derived.Mortgage.21.LCFS=(Expenditure.Mortgage.Interest.LCFS+
+                                                 Expenditure.Mortgage.Interest.Principle.LCFS+
+                                                 Expenditure.Mortgage.Protection.LCFS),
+         Expenditure.Derived.Other.Essentials.21.LCFS=(Expenditure.Domestic.Rate.LCFS+
+                                                         Expenditure.Stamp.Duty.LCFS+
+                                                         Expenditure.Motor.Fine.LCFS+ 
+                                                         Expenditure.Road.Tax.LCFS+
+                                                         Expenditure.Maintanance.Allowance.LCFS+
+                                                         Expenditure.Credit.Card.Payment.LCFS),
+        #Lutfor ##why there is 13 elements of utilities whereas only 8 utilities elements being excluded from Housing
+         
+         Expenditure.Derived.Utilities.21.LCFS=(Expenditure.Electricity.Pay.LCFS+
+                                                  #Expenditure.Electricity.Rebate.LCFS+
+                                                  Expenditure.Gas.Pay.LCFS+
+                                                  #Expenditure.Gas.Rebate.LCFS+
+                                                  Expenditure.Bottle.Gas.LCFS+
+                                                  Expenditure.Oil.LCFS+
+                                                  Expenditure.Electricity.Pay.2nd.LCFS+
+                                                  Expenditure.Electricity.Meter.Pay.LCFS+
+                                                  Expenditure.Gas.Pay.2nd.LCFS+
+                                                  Expenditure.Gas.Meter.Pay.2nd.LCFS+
+                                                  
+                                                  Expenditure.Gas.Elec.Bill.Account.LCFS+                                                                                        Expenditure.Gas.Elec.Pre.Pay.LCFS+
+                                                  #Expenditure.combined.elec.rebate.LCFS+
+                                                  #Expenditure.combined.gas.meter.rebate.LCFS+
+                                                  Expenditure.Combined.Gas.Meter.LCFS+                                                                                           Expenditure.Combined.Elect.Meter.LCFS+                                                                                        #Expenditure.elect.meter.rebate.LCFS+
+                                                  Expenditure.Gas.Meter.LCFS),
+         
+         Expenditure.Derived.Leisure.Gift.21.LCFS=(Expenditure.Gift.LCFS+ 
+                                                     Expenditure.Present.LCFS+ 
+                                                     Expenditure.Leisure.LCFS+ 
+                                                     Expenditure.Newspaper.LCFS),
+         #Fixed expenditures of lcfs created    
+         Expenditure.Derived.Fixed.Essential.Total.21.LCFS=(Expenditure.Derived.Housing.21.LCFS+
+                                                               Expenditure.Health.LCFS +
+                                                               Expenditure.Transport.LCFS+
+                                                               Expenditure.Comms.Mobile.Phone.LCFS+ 
+                                                               Expenditure.Council.Tax.LCFS+
+                                                               Expenditure.Derived.Mortgage.21.LCFS+
+                                                               Expenditure.Derived.Other.Essentials.21.LCFS),
+         
+        #Lutfor: Create a document of all essential expenditures
+         #all essentials expenditure of lcfs being created
+         Expenditure.Derived.All.Essential.Total.21.LCFS=(Expenditure.Derived.Housing.21.LCFS+
+                                                            Expenditure.Health.LCFS +
+                                                            Expenditure.Transport.LCFS+
+                                                            Expenditure.Comms.Mobile.Phone.LCFS+ 
+                                                            Expenditure.Council.Tax.LCFS+
+                                                            Expenditure.Derived.Mortgage.21.LCFS+ 
+                                                            Expenditure.Derived.Other.Essentials.21.LCFS+
+                                                            
+                                                            Expenditure.Derived.Utilities.21.LCFS+
+                                                            Expenditure.Derived.Leisure.Gift.21.LCFS+
+                                                            Expenditure.Food.Non.Alcohol.LCFS+ 
+                                                            Expenditure.Alcohol.LCFS+
+                                                            Expenditure.Clothes.Footwear.LCFS), 
+        
+        Expenditure.Derived.Non.Essential.21.LCFS=(Expenditure.Furnishing.LCFS+
+                                                      Expenditure.Recreation.LCFS+
+                                                      Expenditure.Education.LCFS+
+                                                      Expenditure.Restuarant.Hotel.LCFS+
+                                                      Expenditure.Miscellaneous.LCFS),
+        
+        Expenditure.All.Food.21.LCFS=Expenditure.Food.Non.Alcohol.LCFS+Expenditure.Alcohol.LCFS)
+
+```
+
+```{r}
+df_inflation<-read.csv("inflation.lookup.csv")
+
+columns_to_match_rename <- c(  
+  "housing.inflation.22", "health.inflation.22", "transport.inflation.22",
+  "coms.mobile.phone.inflaiton.22", "leisure.inflation.22",
+  "council.tax.inflation.22", "mortgage.inflation.22", "water.inflation.22",
+  "others.inflation.22", "utilities.inflation.22",
+  "food.alcohol.inflation.22", "personal.cost.inflation.22", "rent.inflation.22",
+  "insurance.inflation.22",
+  
+  "housing.inflation.23", "health.inflation.23", "transport.inflation.23",
+  "coms.mobile.phone.inflaiton.23", "leisure.inflation.23",
+  "council.tax.inflation.23", "mortgage.inflation.23", "water.inflation.23",
+  "others.inflation.23", "utilities.inflation.23",
+  "food.alcohol.inflation.23", "personal.cost.inflation.23", "rent.inflation.23",
+  "insurance.inflation.23",
+  
+  "housing.inflation.24", "health.inflation.24", "transport.inflation.24",
+  "coms.mobile.phone.inflaiton.24", "leisure.inflation.24",
+  "council.tax.inflation.24", "mortgage.inflation.24", "water.inflation.24",
+  "others.inflation.24", "utilities.inflation.24",
+  "food.alcohol.inflation.24", "personal.cost.inflation.24","rent.inflation.24",
+  "insurance.inflation.24",
+  
+  "wages.inflation.22", "self.emp.inflation.22",
+  "invest.inflation.22", "annuties.inflation.22",
+  "benefit.inflation.22", "other.income.inflation.22",
+  
+  "wages.inflation.23", "self.emp.inflation.23",
+  "invest.inflation.23", "annuties.inflation.23",
+  "benefit.inflation.23", "other.income.inflation.23",
+  
+  "wages.inflation.24", "self.emp.inflation.24",
+  "invest.inflation.24", "annuties.inflation.24",
+  "benefit.inflation.24", "other.income.inflation.24"
+)
+
+# Loop through the columns and perform the matching and renaming
+for (col_name in columns_to_match_rename) {
+  LCFS_21_Expenditure[[col_name]] <- df_inflation[[col_name]][match(LCFS_21_Expenditure$Sample.Month, df_inflation$Sample.Month)]
+}
+```
+
+
+```{r}
+LCFS_21_Expenditure<-LCFS_21_Expenditure %>%    
+  mutate(Expenditure.Housing.22.LCFS=(Expenditure.Derived.Housing.21.LCFS*housing.inflation.22),
+         Expenditure.Health.22.LCFS=(Expenditure.Health.LCFS*health.inflation.22),
+         Expenditure.Transport.22.LCFS=(Expenditure.Transport.LCFS*transport.inflation.22),  
+         Expenditure.Comms.Mobile.Phone.22.LCFS=(Expenditure.Comms.Mobile.Phone.LCFS*coms.mobile.phone.inflaiton.22),
+         Expenditure.Council.Tax.22.LCFS=(Expenditure.Council.Tax.LCFS*council.tax.inflation.22),
+         Expenditure.Mortgage.22.LCFS=(Expenditure.Derived.Mortgage.21.LCFS*mortgage.inflation.22),
+         Expenditure.Other.Essentials.22.LCFS=(Expenditure.Derived.Other.Essentials.21.LCFS*others.inflation.22),
+         Expenditure.Utilities.22.LCFS=(Expenditure.Derived.Utilities.21.LCFS*utilities.inflation.22),
+         Expenditure.Food.Non.Alcohol.22.LCFS=(Expenditure.Food.Non.Alcohol.LCFS*food.alcohol.inflation.22), 
+         Expenditure.Alcohol.22.LCFS=(Expenditure.Alcohol.LCFS*food.alcohol.inflation.22),
+         Expenditure.Clothes.Footwear.22.LCFS=(Expenditure.Clothes.Footwear.LCFS*personal.cost.inflation.22),
+         Expenditure.Leisure.Gift.22.LCFS=(Expenditure.Derived.Leisure.Gift.21.LCFS*leisure.inflation.22),
+         Expenditure.Water.22.LCFS=(Expenditure.Water.LCFS*water.inflation.22),
+         Expenditure.Vehicle.Insurance.22.LCFS=(Expenditure.Vehicle.Insurance.LCFS*insurance.inflation.22),
+         Expenditure.Council.Tax.Support.22.LCFS=(Expenditure.Council.Tax.Support.LCFS*council.tax.inflation.22),
+         Expenditure.Rent.22.LCFS=(EXpenditure.Rent.LCFS*rent.inflation.22),
+         Expenditure.Rent.Rate.Net.22.LCFS=(Expenditure.Rent.Rate.Net.LCFS*rent.inflation.22))%>% 
+  
+  mutate(Expenditure.Derived.Fixed.Essential.Total.22.LCFS=(Expenditure.Derived.Housing.21.LCFS*housing.inflation.22+
+                                                                 Expenditure.Health.LCFS*health.inflation.22+
+                                                                 Expenditure.Transport.LCFS*transport.inflation.22+
+                                                                 Expenditure.Comms.Mobile.Phone.LCFS*coms.mobile.phone.inflaiton.22+ 
+                                                                 Expenditure.Council.Tax.LCFS*council.tax.inflation.22+
+                                                                 Expenditure.Derived.Mortgage.21.LCFS*mortgage.inflation.22+
+                                                                 Expenditure.Derived.Other.Essentials.21.LCFS*others.inflation.22),
+   
+  Expenditure.Derived.All.Essential.Total.22.LCFS=(Expenditure.Derived.Housing.21.LCFS*housing.inflation.22+
+                                                                 Expenditure.Health.LCFS*health.inflation.22+
+                                                                 Expenditure.Transport.LCFS*transport.inflation.22+
+                                                                 Expenditure.Comms.Mobile.Phone.LCFS*coms.mobile.phone.inflaiton.22+ 
+                                                                 Expenditure.Council.Tax.LCFS*council.tax.inflation.22+
+                                                                 Expenditure.Derived.Mortgage.21.LCFS*mortgage.inflation.22+
+                                                                 Expenditure.Derived.Other.Essentials.21.LCFS*others.inflation.22 +
+                                                            
+                                                            Expenditure.Derived.Leisure.Gift.21.LCFS*leisure.inflation.22+
+                                                            Expenditure.Derived.Utilities.21.LCFS*utilities.inflation.22+
+                                                            Expenditure.Food.Non.Alcohol.LCFS*food.alcohol.inflation.22+ 
+                                                            Expenditure.Alcohol.LCFS*food.alcohol.inflation.22+
+                                                            Expenditure.Clothes.Footwear.LCFS*personal.cost.inflation.22)) %>% 
+mutate(Expenditure.All.Food.22.LCFS=(Expenditure.Food.Non.Alcohol.22.LCFS+Expenditure.Alcohol.22.LCFS))
+
+
+```
+
+
+```{r}
+LCFS_21_Expenditure<-LCFS_21_Expenditure %>%    
+  mutate(Expenditure.Housing.23.LCFS=(Expenditure.Housing.22.LCFS*housing.inflation.23),
+         Expenditure.Health.23.LCFS=(Expenditure.Health.22.LCFS*health.inflation.23),
+         Expenditure.Transport.23.LCFS=(Expenditure.Transport.22.LCFS*transport.inflation.23),  
+         Expenditure.Comms.Mobile.Phone.23.LCFS=(Expenditure.Comms.Mobile.Phone.22.LCFS*coms.mobile.phone.inflaiton.23),
+         Expenditure.Council.Tax.23.LCFS=(Expenditure.Council.Tax.22.LCFS*council.tax.inflation.23),
+         Expenditure.Mortgage.23.LCFS=(Expenditure.Mortgage.22.LCFS*mortgage.inflation.23),
+         Expenditure.Other.Essentials.23.LCFS=(Expenditure.Other.Essentials.22.LCFS*others.inflation.23),
+         Expenditure.Utilities.23.LCFS=(Expenditure.Utilities.22.LCFS*utilities.inflation.23),
+         Expenditure.Food.Non.Alcohol.23.LCFS=(Expenditure.Food.Non.Alcohol.22.LCFS*food.alcohol.inflation.23), 
+         Expenditure.Alcohol.23.LCFS=(Expenditure.Alcohol.22.LCFS*food.alcohol.inflation.23),
+         Expenditure.Clothes.Footwear.23.LCFS=(Expenditure.Clothes.Footwear.22.LCFS*personal.cost.inflation.23),
+         Expenditure.Leisure.Gift.23.LCFS=(Expenditure.Leisure.Gift.22.LCFS*leisure.inflation.23),
+         Expenditure.Water.23.LCFS=(Expenditure.Water.22.LCFS*water.inflation.23),
+         Expenditure.Vehicle.Insurance.23.LCFS=(Expenditure.Vehicle.Insurance.22.LCFS*insurance.inflation.23),
+         Expenditure.Council.Tax.Support.23.LCFS=(Expenditure.Council.Tax.Support.22.LCFS*council.tax.inflation.23),
+         Expenditure.Rent.23.LCFS=(Expenditure.Rent.22.LCFS*rent.inflation.23),
+         Expenditure.Rent.Rate.Net.23.LCFS=(Expenditure.Rent.Rate.Net.22.LCFS*rent.inflation.23))%>% 
+  
+  mutate(Expenditure.Derived.Fixed.Essential.Total.23.LCFS=(Expenditure.Housing.22.LCFS*housing.inflation.23+
+                                                                 Expenditure.Health.LCFS*health.inflation.23+
+                                                                 Expenditure.Transport.LCFS*transport.inflation.23+
+                                                                 Expenditure.Comms.Mobile.Phone.LCFS*coms.mobile.phone.inflaiton.23+ 
+                                                                 Expenditure.Council.Tax.LCFS*council.tax.inflation.23+
+                                                                 Expenditure.Mortgage.22.LCFS*mortgage.inflation.23+
+                                                                 Expenditure.Other.Essentials.22.LCFS*others.inflation.23),
+   
+  Expenditure.Derived.All.Essential.Total.23.LCFS=(Expenditure.Housing.22.LCFS*housing.inflation.23+
+                                                                 Expenditure.Health.LCFS*health.inflation.23+
+                                                                 Expenditure.Transport.LCFS*transport.inflation.23+
+                                                                 Expenditure.Comms.Mobile.Phone.LCFS*coms.mobile.phone.inflaiton.23+ 
+                                                                 Expenditure.Council.Tax.LCFS*council.tax.inflation.23+
+                                                                 Expenditure.Mortgage.22.LCFS*mortgage.inflation.23+
+                                                                 Expenditure.Other.Essentials.22.LCFS*others.inflation.23 +
+                                                            
+                                                            Expenditure.Leisure.Gift.22.LCFS*leisure.inflation.23+
+                                                            Expenditure.Utilities.22.LCFS*utilities.inflation.23+
+                                                            Expenditure.Food.Non.Alcohol.LCFS*food.alcohol.inflation.23+ 
+                                                            Expenditure.Alcohol.LCFS*food.alcohol.inflation.23+
+                                                            Expenditure.Clothes.Footwear.LCFS*personal.cost.inflation.23)) %>% 
+mutate(Expenditure.All.Food.23.LCFS=(Expenditure.Food.Non.Alcohol.23.LCFS+Expenditure.Alcohol.23.LCFS))
+```
+
+```{r}
+LCFS_21_Expenditure<-LCFS_21_Expenditure %>%    
+  mutate(Expenditure.Housing.24.LCFS=(Expenditure.Housing.23.LCFS*housing.inflation.24),
+         Expenditure.Health.24.LCFS=(Expenditure.Health.23.LCFS*health.inflation.24),
+         Expenditure.Transport.24.LCFS=(Expenditure.Transport.23.LCFS*transport.inflation.24),  
+         Expenditure.Comms.Mobile.Phone.24.LCFS=(Expenditure.Comms.Mobile.Phone.23.LCFS*coms.mobile.phone.inflaiton.24),
+         Expenditure.Council.Tax.24.LCFS=(Expenditure.Council.Tax.23.LCFS*council.tax.inflation.24),
+         Expenditure.Mortgage.24.LCFS=(Expenditure.Mortgage.23.LCFS*mortgage.inflation.24),
+         Expenditure.Other.Essentials.24.LCFS=(Expenditure.Other.Essentials.23.LCFS*others.inflation.24),
+         Expenditure.Utilities.24.LCFS=(Expenditure.Utilities.23.LCFS*utilities.inflation.24),
+         Expenditure.Food.Non.Alcohol.24.LCFS=(Expenditure.Food.Non.Alcohol.23.LCFS*food.alcohol.inflation.24), 
+         Expenditure.Alcohol.24.LCFS=(Expenditure.Alcohol.23.LCFS*food.alcohol.inflation.24),
+         Expenditure.Clothes.Footwear.24.LCFS=(Expenditure.Clothes.Footwear.23.LCFS*personal.cost.inflation.24),
+         Expenditure.Leisure.Gift.24.LCFS=(Expenditure.Leisure.Gift.23.LCFS*leisure.inflation.24),
+         Expenditure.Water.24.LCFS=(Expenditure.Water.23.LCFS*water.inflation.24),
+         Expenditure.Vehicle.Insurance.24.LCFS=(Expenditure.Vehicle.Insurance.23.LCFS*insurance.inflation.24),
+         Expenditure.Council.Tax.Support.24.LCFS=(Expenditure.Council.Tax.Support.23.LCFS*council.tax.inflation.24),
+         Expenditure.Rent.24.LCFS=(Expenditure.Rent.23.LCFS*rent.inflation.24),
+         Expenditure.Rent.Rate.Net.24.LCFS=(Expenditure.Rent.Rate.Net.23.LCFS*rent.inflation.24)) %>% 
+  
+  mutate(Expenditure.Derived.Fixed.Essential.Total.24.LCFS=(Expenditure.Housing.23.LCFS*housing.inflation.24+
+                                                                 Expenditure.Health.23.LCFS*health.inflation.24+
+                                                                 Expenditure.Transport.23.LCFS*transport.inflation.24+
+                                                                 Expenditure.Comms.Mobile.Phone.23.LCFS*coms.mobile.phone.inflaiton.24+ 
+                                                                 Expenditure.Council.Tax.23.LCFS*council.tax.inflation.24+
+                                                                 Expenditure.Mortgage.23.LCFS*mortgage.inflation.24+
+                                                                 Expenditure.Other.Essentials.23.LCFS*others.inflation.24),
+   
+  Expenditure.Derived.All.Essential.Total.24.LCFS=(Expenditure.Housing.23.LCFS*housing.inflation.24+
+                                                                 Expenditure.Health.LCFS*health.inflation.24+
+                                                                 Expenditure.Transport.LCFS*transport.inflation.24+
+                                                                 Expenditure.Comms.Mobile.Phone.LCFS*coms.mobile.phone.inflaiton.24+ 
+                                                                 Expenditure.Council.Tax.LCFS*council.tax.inflation.24+
+                                                                 Expenditure.Mortgage.22.LCFS*mortgage.inflation.24+
+                                                                 Expenditure.Other.Essentials.22.LCFS*others.inflation.24 +
+                                                            
+                                                            Expenditure.Leisure.Gift.22.LCFS*leisure.inflation.24+
+                                                            Expenditure.Utilities.22.LCFS*utilities.inflation.24+
+                                                            Expenditure.Food.Non.Alcohol.LCFS*food.alcohol.inflation.24+ 
+                                                            Expenditure.Alcohol.LCFS*food.alcohol.inflation.24+
+                                                            Expenditure.Clothes.Footwear.LCFS*personal.cost.inflation.24)) %>% 
+mutate(Expenditure.All.Food.24.LCFS=(Expenditure.Food.Non.Alcohol.23.LCFS+Expenditure.Alcohol.24.LCFS))
+```
+
+
+
+```{r}
+#lcfs income has been estimated and adjusted by income growth; each income categorised by different categories of income
+LCFS_21_Expenditure_Income <- LCFS_21_Expenditure %>% 
+       mutate(Estimated.Income.21=rowSums(select(., Income.Self.Employ.LCFS, 
+                                            Income.Invest.LCFS, 
+                                            Income.Annuties.LCFS, 
+                                            Income.Other.Source.LCFS,
+                                            Income.Benefit.LCFS, 
+                                            Income.Gross.Wage.LCFS,
+                                            Income.Gross.Wage.1st.LCFS)),
+       Estimated.Combined.Salary=rowSums(select(.,Income.Gross.Wage.LCFS,Income.Gross.Wage.1st.LCFS)),
+       Income.Dif=Income.Gross.Weekly.LCFS-Estimated.Income.21,
+       decile=ntile(Income.Gross.Weekly.LCFS, 10)) %>% 
+  #there is a issue with lcfs catogorical income data; many cases if you add all categorical data, it does not add up total gross inocme specially higher decile
+  #in lcfs there is limit on income #that's why following codes being used 
+  mutate(Estimated.Wages=ifelse(Income.Main.Source.LCFS=="Wages salaries" & Income.Amount.Main.Source.LCFS>= Estimated.Combined.Salary, Income.Amount.Main.Source.LCFS,  Estimated.Combined.Salary),
+         Estimated.Self.Emp=ifelse(Income.Main.Source.LCFS=="Self-employment inc." & Income.Amount.Main.Source.LCFS>= Income.Self.Employ.LCFS ,Income.Amount.Main.Source.LCFS, Income.Self.Employ.LCFS ),
+         Estimated.Invest=ifelse(Income.Main.Source.LCFS=="Investment income" & Income.Amount.Main.Source.LCFS>= Income.Self.Employ.LCFS ,Income.Amount.Main.Source.LCFS,Income.Invest.LCFS ),
+         Estimated.Annuties=ifelse(Income.Main.Source.LCFS=="Annuities pensions" & Income.Amount.Main.Source.LCFS>= Income.Self.Employ.LCFS ,Income.Amount.Main.Source.LCFS,Income.Annuties.LCFS ),
+         Estimated.Benefit=ifelse(Income.Main.Source.LCFS=="Social sec. benefits" & Income.Amount.Main.Source.LCFS>= Income.Self.Employ.LCFS ,Income.Amount.Main.Source.LCFS,Income.Benefit.LCFS ),
+         Estimated.Other=ifelse(Income.Main.Source.LCFS=="Income-other sources" & Income.Amount.Main.Source.LCFS>= Income.Self.Employ.LCFS ,Income.Amount.Main.Source.LCFS,Income.Other.Source.LCFS )) %>% 
+  mutate(Estimated.Gross.Income.21=rowSums(select(., Estimated.Wages,
+                                                       Estimated.Self.Emp, 
+                                                       Estimated.Invest, 
+                                                       Estimated.Annuties, 
+                                                       Estimated.Benefit, 
+                                                       Estimated.Other)),
+         Revised.Diff.=round(Income.Gross.Weekly.LCFS-Estimated.Gross.Income.21)) %>% 
+  
+  mutate(Estimated.disposable.income.21=Estimated.Gross.Income.21*(Income.Total.Disposable.LCFS/Income.Gross.Weekly.LCFS)) %>% 
+  
+  #easy later
+  mutate(Estimated.Wages.22=Estimated.Wages*wages.inflation.22, #adjusted wages growth
+         Estimated.Self.Emp.22=Estimated.Self.Emp*self.emp.inflation.22,
+         Estimated.Invest.22=Estimated.Invest*invest.inflation.22,
+         Estimated.Annuties.22=Estimated.Annuties*annuties.inflation.22,
+         Estimated.Benefit.22=Estimated.Benefit*benefit.inflation.22,
+         Estimated.Other.22=Estimated.Other*other.income.inflation.22) %>% 
+  mutate(Estimated.Gross.Income.22=rowSums(select(., Estimated.Wages.22, 
+                                                    Estimated.Self.Emp.22, 
+                                                    Estimated.Invest.22, 
+                                                    Estimated.Annuties.22, 
+                                                    Estimated.Benefit.22, 
+                                                    Estimated.Other.22)),
+          Estimated.Disposable.Income.22=Estimated.Gross.Income.22*(Income.Total.Disposable.LCFS/Income.Gross.Weekly.LCFS)) %>%
+
+
+mutate(Estimated.Wages.23=Estimated.Wages.22*wages.inflation.23,#adjusted wages growth
+       Estimated.Self.Emp.23=Estimated.Self.Emp.22*self.emp.inflation.23,
+       Estimated.Invest.23=Estimated.Invest.22*invest.inflation.23,
+       Estimated.Annuties.23=Estimated.Annuties.22*annuties.inflation.23,
+       Estimated.Benefit.23=Estimated.Benefit.22*benefit.inflation.23,
+       Estimated.Other.23=Estimated.Other.22*other.income.inflation.23) %>%
+mutate(Estimated.Gross.Income.23=rowSums(select(., Estimated.Wages.23,
+                                                  Estimated.Self.Emp.23,
+                                                  Estimated.Invest.23,
+                                                  Estimated.Annuties.23,
+                                                  Estimated.Benefit.23,
+                                                  Estimated.Other.23)),
+       Estimated.Disposable.Income.23=Estimated.Gross.Income.23*(Income.Total.Disposable.LCFS/Income.Gross.Weekly.LCFS)) %>%
+
+
+mutate(Estimated.Wages.24=Estimated.Wages.23*wages.inflation.24,#adjusted wages growth
+       Estimated.Self.Emp.24=Estimated.Self.Emp.23*self.emp.inflation.24,
+       Estimated.Invest.24=Estimated.Invest.23*invest.inflation.24,
+       Estimated.Annuties.24=Estimated.Annuties.23*annuties.inflation.24,
+       Estimated.Benefit.24=Estimated.Benefit.23*benefit.inflation.24,
+       Estimated.Other.24=Estimated.Other.23*other.income.inflation.24) %>%
+mutate(Estimated.Gross.Income.24=rowSums(select(., Estimated.Wages.24,
+                                                  Estimated.Self.Emp.24,
+                                                  Estimated.Invest.24,
+                                                  Estimated.Annuties.24,
+                                                  Estimated.Benefit.24,
+                                                  Estimated.Other.24)),
+       Estimated.Disposable.Income.24=Estimated.Gross.Income.24*(Income.Total.Disposable.LCFS/Income.Gross.Weekly.LCFS))
+
+
+saveRDS(LCFS_21_Expenditure_Income, "LCFS_21_Expenditure_Income.rds")
+#options(scipen = 999)
+```
+
+

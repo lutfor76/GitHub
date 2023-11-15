@@ -208,14 +208,14 @@ saveRDS(LCFS_MART_22_24, "LCFS_MART_22_24.rds")
 
 
 ```{r}
-LCFS.agg.21<-LCFS_MART_22_24 %>% left_join(LCFS_Benefits_22_24, by=c("case", "Year")) %>% #adding all benefits
+LCFS.agg.22<-LCFS_MART_22_24 %>% left_join(LCFS_22_benefits, by=c("case", "Year")) %>% #adding all benefits
                               left_join(LCFS_22_child_summary, by=c("case")) %>% 
                               left_join(LCFS_Child_22_Gender, by=c("case")) %>% 
-                              left_join(LCFS_Work_22_24, by=c("case", "Year")) %>% 
-                              left_join(LCFS_Age_2021_2023,by=c("case", "Year")) %>% 
-                              left_join(df_ethnicity, by=c("case"))
+                              left_join(LCFS_22_Work, by=c("case", "Year")) %>% 
+                              left_join(LCFS_22_Age,by=c("case", "Year")) %>% 
+                              left_join(LCFS_22_ethnicity, by=c("case"))
 
-saveRDS(LCFS.agg.21, "LCFS.agg.21.rds")
+saveRDS(LCFS.agg.22, "LCFS.agg.22.rds")
 ```
 
 

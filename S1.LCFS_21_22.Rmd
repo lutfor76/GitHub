@@ -47,7 +47,7 @@ LCFS_22_Var<- LCFS_22 %>%
 ```
 
 ```{r}
-LCFS_22_Name<-LCFS_22_var %>% 
+LCFS_22_Name<-LCFS_22_Var %>% 
   rename( "Sample.Quarter"=A099,
           "Sample.Month"=A055,
           

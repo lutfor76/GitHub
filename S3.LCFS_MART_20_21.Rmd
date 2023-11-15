@@ -1,0 +1,332 @@
+---
+title: "LCFS.MART 2020-21"
+author: "Lutfor Rahman"
+date: "2023-09-28"
+output:
+  cleanrmd::html_document_clean:
+    theme: superstylin
+    toc: true
+    toc_float: true
+---
+
+```{r setup, include=FALSE, echo=FALSE, message=FALSE}
+knitr::opts_chunk$set(warning = FALSE, message = FALSE) 
+library(tidyverse)
+library(foreign)
+library(srvyr)
+
+LCFS_21_Expenditure_Income<-readRDS("LCFS_21_Expenditure_Income.rds")
+
+Expenditure.Flexible.MART.21<-readRDS("Expenditure.Flexible.MART.21.rds")
+Expenditure.Flexible.MART.22<-readRDS("Expenditure.Flexible.MART.22.rds")
+Expenditure.Flexible.MART.23<-readRDS("Expenditure.Flexible.MART.23.rds")
+Expenditure.Flexible.MART.24<-readRDS("Expenditure.Flexible.MART.24.rds")
+```
+
+
+```{r}
+####
+LCFS_MART_21<-LCFS_21_Expenditure_Income%>% 
+  left_join(Expenditure.Flexible.MART.21, by=c("Demographic.Derived.Household.Type.LCFS.child"="Household.Type.Child", 
+                                               "Demographic.Region.LCFS"="Demographic.Region",
+                                               "Disability"="Disability")) %>%
+  left_join(Expenditure.Flexible.MART.22, by=c("Demographic.Derived.Household.Type.LCFS.child"="Household.Type.Child", 
+                                               "Demographic.Region.LCFS"="Demographic.Region",
+                                               "Disability"="Disability")) %>%
+  left_join(Expenditure.Flexible.MART.23, by=c("Demographic.Derived.Household.Type.LCFS.child"="Household.Type.Child", 
+                                               "Demographic.Region.LCFS"="Demographic.Region",
+                                               "Disability"="Disability"))%>%
+  left_join(Expenditure.Flexible.MART.24, by=c("Demographic.Derived.Household.Type.LCFS.child"="Household.Type.Child", 
+                                               "Demographic.Region.LCFS"="Demographic.Region",
+                                               "Disability"="Disability"))
+```
+
+
+```{r}
+LCFS_MART_21<-LCFS_MART_21 %>% mutate(
+  Income.Total.Disposable.21.LCFS = Income.Total.Disposable.LCFS,
+  Income.Total.Disposable.22.LCFS = Estimated.Disposable.Income.22,
+  Income.Total.Disposable.23.LCFS = Estimated.Disposable.Income.23,
+  Income.Total.Disposable.24.LCFS = Estimated.Disposable.Income.24,
+  
+  Expenditure.Derived.Fixed.Essential.Total.21.LCFS = Expenditure.Derived.Fixed.Essential.Total.21.LCFS,
+  Expenditure.Derived.Fixed.Essential.Total.22.LCFS = Expenditure.Derived.Fixed.Essential.Total.22.LCFS,
+  Expenditure.Derived.Fixed.Essential.Total.23.LCFS = Expenditure.Derived.Fixed.Essential.Total.23.LCFS,
+  Expenditure.Derived.Fixed.Essential.Total.24.LCFS = Expenditure.Derived.Fixed.Essential.Total.24.LCFS)
+```
+
+
+```{r}
+LCFS.MART21<-LCFS_MART_21%>% mutate(Year="2020-21")
+LCFS.MART22<-LCFS_MART_21%>% mutate(Year="2021-22P")
+LCFS.MART23<-LCFS_MART_21%>% mutate(Year="2022-23P")
+LCFS.MART24<-LCFS_MART_21%>% mutate(Year="2023-24P")
+
+LCFS_MART_21_24 <- rbind(LCFS.MART21, LCFS.MART22,LCFS.MART23, LCFS.MART24)
+  # mutate_all(~replace(., is.na(.), 0)) %>% 
+  # mutate_if(is.character, as.factor)
+```
+
+
+```{r}
+LCFS_MART_21_24 <- LCFS_MART_21_24 %>% 
+  mutate(Income.Total.Disposable = case_when(Year == "2020-21" ~ Income.Total.Disposable.21.LCFS,
+                                             Year == "2021-22P" ~ Income.Total.Disposable.22.LCFS,
+                                             Year == "2022-23P" ~ Income.Total.Disposable.23.LCFS,
+                                             Year == "2023-24P" ~ Income.Total.Disposable.24.LCFS)) %>% 
+  mutate(Income.Total.Benefits = case_when(Year == "2020-21" ~ Estimated.Benefit,
+                                           Year == "2021-22P" ~ Estimated.Benefit.22,
+                                             Year == "2022-23P" ~ Estimated.Benefit.23,
+                                             Year == "2023-24P" ~ Estimated.Benefit.24)) %>% 
+
+  mutate(Expenditure.Housing = case_when(Year == "2020-21" ~ Expenditure.Derived.Housing.21.LCFS,
+                                         Year == "2021-22P" ~ Expenditure.Housing.22.LCFS,
+                                         Year == "2022-23P" ~ Expenditure.Housing.23.LCFS,
+                                         Year == "2023-24P" ~ Expenditure.Housing.24.LCFS)) %>% 
+  
+  mutate(Expenditure.Health = case_when(Year == "2020-21" ~ Expenditure.Health.LCFS,
+                                        Year == "2021-22P" ~ Expenditure.Health.22.LCFS,
+                                        Year == "2022-23P" ~ Expenditure.Health.23.LCFS,
+                                        Year == "2023-24P" ~ Expenditure.Health.24.LCFS)) %>% 
+  
+  mutate(Expenditure.Transport = case_when(Year == "2020-21" ~ Expenditure.Transport.LCFS,
+                                           Year == "2021-22P" ~ Expenditure.Transport.22.LCFS,
+                                           Year == "2022-23P" ~ Expenditure.Transport.23.LCFS,
+                                           Year == "2023-24P" ~ Expenditure.Transport.24.LCFS)) %>% 
+  
+  mutate(Expenditure.Comms.Mobile.Phone = case_when(Year == "2020-21" ~ Expenditure.Comms.Mobile.Phone.LCFS,
+                                                    Year == "2021-22P" ~ Expenditure.Comms.Mobile.Phone.22.LCFS,
+                                                    Year == "2022-23P" ~ Expenditure.Comms.Mobile.Phone.23.LCFS,
+                                                    Year == "2023-24P" ~ Expenditure.Comms.Mobile.Phone.24.LCFS)) %>% 
+  
+  mutate(Expenditure.Council.Tax = case_when(Year == "2020-21" ~ Expenditure.Council.Tax.LCFS,
+                                             Year == "2021-22P" ~ Expenditure.Council.Tax.22.LCFS,
+                                             Year == "2022-23P" ~ Expenditure.Council.Tax.23.LCFS,
+                                             Year == "2023-24P" ~ Expenditure.Council.Tax.24.LCFS)) %>% 
+  
+  mutate(Expenditure.Mortgage = case_when(Year == "2020-21" ~ Expenditure.Derived.Mortgage.21.LCFS,
+                                          Year == "2021-22P" ~ Expenditure.Mortgage.23.LCFS,
+                                          Year == "2022-23P" ~ Expenditure.Mortgage.23.LCFS,
+                                          Year == "2023-24P" ~ Expenditure.Mortgage.24.LCFS)) %>% 
+  
+  mutate(Expenditure.Others = case_when(Year == "2020-21" ~ Expenditure.Derived.Other.Essentials.21.LCFS,
+                                        Year == "2021-22P" ~ Expenditure.Other.Essentials.22.LCFS,
+                                        Year == "2022-23P" ~ Expenditure.Other.Essentials.23.LCFS,
+                                        Year == "2023-24P" ~ Expenditure.Other.Essentials.24.LCFS)) %>% 
+  
+  mutate(Expenditure.Utilities = case_when(Year == "2020-21" ~ Expenditure.Derived.Utilities.21.LCFS,
+                                           Year == "2021-22P" ~ Expenditure.Utilities.22.LCFS,
+                                           Year == "2022-23P" ~ Expenditure.Utilities.23.LCFS,
+                                           Year == "2023-24P" ~ Expenditure.Utilities.24.LCFS)) %>% 
+  
+  mutate(Expenditure.Food.House.Keeping = case_when(Year == "2020-21" ~ Expenditure.All.Food.21.LCFS,
+                                                    Year == "2021-22P" ~ Expenditure.All.Food.22.LCFS,
+                                                    Year == "2022-23P" ~ Expenditure.All.Food.23.LCFS,
+                                                    Year == "2023-24P" ~ Expenditure.All.Food.24.LCFS))%>% 
+  
+  mutate(Expenditure.Personal.Cost = case_when(Year == "2020-21" ~ Expenditure.Clothes.Footwear.LCFS,
+                                               Year == "2021-22P" ~ Expenditure.Clothes.Footwear.22.LCFS,
+                                               Year == "2022-23P" ~ Expenditure.Clothes.Footwear.23.LCFS,
+                                               Year == "2023-24P" ~ Expenditure.Clothes.Footwear.24.LCFS)) %>% 
+  
+  mutate(Expenditure.Leisure.Cost = case_when(Year == "2020-21" ~ Expenditure.Derived.Leisure.Gift.21.LCFS,
+                                              Year == "2021-22P" ~ Expenditure.Leisure.Gift.22.LCFS,
+                                              Year == "2022-23P" ~ Expenditure.Leisure.Gift.23.LCFS,
+                                              Year == "2023-24P" ~ Expenditure.Leisure.Gift.24.LCFS)) %>%
+  
+  mutate(Expenditure.Water = case_when(Year == "2020-21" ~ Expenditure.Water.LCFS,
+                                       Year == "2021-22P" ~ Expenditure.Water.22.LCFS,
+                                              Year == "2022-23P" ~ Expenditure.Water.23.LCFS,
+                                              Year == "2023-24P" ~ Expenditure.Water.24.LCFS)) %>%
+  
+  mutate(Expenditure.Vehicle.Insurance = case_when(Year == "2020-21" ~ Expenditure.Vehicle.Insurance.LCFS,
+                                                Year == "2021-22P" ~ Expenditure.Vehicle.Insurance.22.LCFS,
+                                               Year == "2022-23P" ~ Expenditure.Vehicle.Insurance.23.LCFS,
+                                               Year == "2023-24P" ~ Expenditure.Vehicle.Insurance.24.LCFS)) %>%
+ 
+  mutate(Expenditure.Rent = case_when(Year == "2020-21" ~ EXpenditure.Rent.LCFS,
+                                      Year == "2021-22P" ~ Expenditure.Rent.22.LCFS,
+                                      Year == "2022-23P" ~ Expenditure.Rent.23.LCFS,
+                                      Year == "2023-24P" ~ Expenditure.Rent.24.LCFS))%>%
+  
+  mutate(Expenditure.Rent.Net = case_when(Year == "2020-21" ~ Expenditure.Rent.Rate.Net.LCFS,
+                                          Year == "2021-22P" ~ Expenditure.Rent.Rate.Net.22.LCFS,
+                                          Year == "2022-23P" ~ Expenditure.Rent.Rate.Net.23.LCFS,
+                                          Year == "2023-24P" ~ Expenditure.Rent.Rate.Net.24.LCFS))%>%
+  
+  
+  mutate(Expenditure.Council.Tax.Support = case_when(Year == "2020-21" ~ Expenditure.Council.Tax.Support.LCFS,
+                                                     Year == "2021-22P" ~ Expenditure.Council.Tax.Support.22.LCFS,
+                                                     Year == "2022-23P" ~ Expenditure.Council.Tax.Support.23.LCFS,
+                                                     Year == "2023-24P" ~ Expenditure.Council.Tax.Support.24.LCFS)) %>% 
+  
+  mutate(Expenditure.Utilities.MART = case_when(Year == "2020-21" ~ Expenditure.Utilities.21.MART,
+                                                  Year == "2021-22P" ~ Expenditure.Utilities.22.MART,
+                                                 Year == "2022-23P" ~ Expenditure.Utilities.23.MART,
+                                                 Year == "2023-24P" ~ Expenditure.Utilities.24.MART)) %>% 
+  
+  mutate(Expenditure.Food.House.Keeping.MART = case_when(Year == "2020-21" ~ Expenditure.Food.House.Keeping.21.MART,
+                                                         Year == "2021-22P" ~ Expenditure.Food.House.Keeping.22.MART,
+                                                         Year == "2022-23P" ~ Expenditure.Food.House.Keeping.23.MART,
+                                                         Year == "2023-24P" ~ Expenditure.Food.House.Keeping.24.MART))%>% 
+  
+  mutate(Expenditure.Personal.MART = case_when(Year == "2020-21" ~ Expenditure.Personal.Cost.21.MART,
+                                               Year == "2021-22P" ~ Expenditure.Personal.Cost.22.MART,
+                                               Year == "2022-23P" ~ Expenditure.Personal.Cost.23.MART,
+                                               Year == "2023-24P" ~ Expenditure.Personal.Cost.24.MART)) %>%
+  
+  mutate(Expenditure.Leisure.MART = case_when(Year == "2020-21" ~ Expenditure.Leisure.21.MART,
+                                              Year == "2021-22P" ~ Expenditure.Leisure.23.MART,
+                                              Year == "2022-23P" ~ Expenditure.Leisure.23.MART,
+                                              Year == "2023-24P" ~ Expenditure.Leisure.24.MART)) %>% 
+  
+  mutate(Expenditure.Total.Essential.Flexible.MART = case_when(Year == "2020-21" ~ Derived.Flexible.Expenditure.Total.21.MART,
+                                                               Year == "2021-22P" ~ Derived.Flexible.Expenditure.Total.22.MART,
+                                                               Year == "2022-23P" ~ Derived.Flexible.Expenditure.Total.23.MART,
+                                                               Year == "2023-24P" ~ Derived.Flexible.Expenditure.Total.24.MART)) %>%
+  
+  mutate(Expenditure.Total.Essential.Fixed.LCFS = case_when(Year == "2020-21" ~ Expenditure.Derived.Fixed.Essential.Total.21.LCFS,
+                                                            Year == "2021-22P" ~ Expenditure.Derived.Fixed.Essential.Total.22.LCFS,
+                                                            Year == "2022-23P" ~ Expenditure.Derived.Fixed.Essential.Total.23.LCFS,
+                                                            Year == "2023-24P" ~ Expenditure.Derived.Fixed.Essential.Total.24.LCFS))%>%
+  
+  mutate(Income.Benefits = case_when(Year == "2020-21" ~ Estimated.Benefit,
+                                     Year == "2021-22P" ~ Estimated.Benefit.22,
+                                     Year == "2022-23P" ~ Estimated.Benefit.23,
+                                     Year == "2023-24P" ~ Estimated.Benefit.24)) 
+```
+
+
+```{r}
+LCFS_MART_21_24<-LCFS_MART_21_24 %>% select("case", 
+                                        "Sample.Quarter", 
+                                        "Sample.Month",                                 
+                                        "Demographic.Housing.Tenure.LCFS" ,              
+                                        "Demographic.Region.LCFS",                      
+                                        "Weight.LCFS"  ,                                
+                                        "Demographic.Household.Type.LCFS" , 
+                                        "Year" ,  
+                                        "Demographic.Derived.Household.Type.LCFS" ,     
+                                        "Demographic.Derived.Household.Type.LCFS.child", 
+                                        "Demographic.Age.Group.HRP",
+                                        "Disability" , 
+                                        "Demographic.UC",                
+                                        "Income.Total.Disposable",
+                                        "Income.Total.Benefits",
+                                        "Expenditure.Housing" ,                          
+                                        "Expenditure.Health",                            
+                                        "Expenditure.Transport" ,                       
+                                        "Expenditure.Comms.Mobile.Phone",               
+                                        "Expenditure.Council.Tax",                      
+                                        "Expenditure.Mortgage"  ,   
+                                        "Expenditure.Rent",
+                                        "Expenditure.Rent.Net",
+                                        "Expenditure.Others",                            
+                                        "Expenditure.Utilities",                         
+                                        "Expenditure.Food.House.Keeping" ,              
+                                        "Expenditure.Personal.Cost" ,                    
+                                        "Expenditure.Leisure.Cost" ,                      
+                                        "Expenditure.Water",
+                                        "Expenditure.Council.Tax.Support", 
+                                        "Expenditure.Vehicle.Insurance", 
+                                        "Expenditure.Utilities.MART",                   
+                                        "Expenditure.Food.House.Keeping.MART"   ,       
+                                        "Expenditure.Personal.MART",                     
+                                        "Expenditure.Leisure.MART",                     
+                                        "Expenditure.Total.Essential.Flexible.MART",     
+                                        "Expenditure.Total.Essential.Fixed.LCFS" ) %>% 
+  mutate(Expenditure.Housing.LCFS=(Expenditure.Housing+Expenditure.Mortgage)) %>% 
+  mutate(Expenditure.Total.Essential.LCFS.MART=(Expenditure.Total.Essential.Flexible.MART + Expenditure.Total.Essential.Fixed.LCFS)) %>% 
+  mutate(Expenditure.Total.Essential.Flexible.LCFS=(Expenditure.Utilities+Expenditure.Food.House.Keeping+Expenditure.Personal.Cost+Expenditure.Leisure.Cost)) %>% 
+  mutate(Surplus = (Income.Total.Disposable - (Expenditure.Total.Essential.Flexible.MART + Expenditure.Total.Essential.Fixed.LCFS))) %>% 
+  mutate(Negbud= case_when(Surplus<=0 ~ 'Negative.Budget',
+                           TRUE ~ 'Positive.Budget')) 
+  
+saveRDS(LCFS_MART_21_24, "LCFS_MART_21_24.rds")
+
+
+```
+
+
+
+```{r}
+LCFS.agg_20<-LCFS_MART_21_24 %>% left_join(LCFS_21_benefits_all, by=c("case", "Year")) %>% #adding all benefits
+                              left_join(LCFS_21_child_summary, by=c("case")) %>% 
+                              left_join(LCFS_Child_Gender_21, by=c("case")) %>% 
+                              left_join(LCFS_Work_21_24, by=c("case", "Year")) %>% 
+                              left_join(LCFS_Age_2020_2023,by=c("case", "Year")) %>% 
+                              left_join(LCFS_21__ethnicity, by=c("case"))
+
+saveRDS(LCFS.agg_20, "LCFS.agg_20.rds")
+```
+
+
+```{r}
+
+##What % are in negative budget
+LCFS_MART_21_24 %>% as_survey_design(weights = Weight.LCFS)%>% 
+  group_by(Year,Negbud)%>%
+  summarise(n=survey_total()) %>% 
+  mutate(per_n=n/sum(n))%>%
+  select(-(contains("_se"))) %>%
+  tibble()
+
+#weekly surplus
+LCFS_MART_21_24 %>%
+  as_survey_design(weights=Weight.LCFS) %>% 
+  group_by(Year, Negbud) %>% 
+  summarise(tmean_surplus = survey_mean(Surplus, na.rm=TRUE, trim=0.2),
+            median_surplus = survey_median(Surplus, na.rm=TRUE),
+            tmean_income = survey_mean(Income.Total.Disposable, na.rm=TRUE, trim=0.2),
+            median_income = survey_median(Income.Total.Disposable, na.rm=TRUE)) %>% 
+   select(-(contains("_se"))) %>%
+  tibble()
+
+LCFS_MART_21_24 %>%
+  as_survey_design(weights=Weight.LCFS) %>% 
+  group_by(Year) %>% 
+  summarise(tmean_surplus = survey_mean(Surplus, na.rm=TRUE, trim=0.2),
+            median_surplus = survey_median(Surplus, na.rm=TRUE),
+            tmean_income = survey_mean(Income.Total.Disposable, na.rm=TRUE, trim=0.2),
+            median_income = survey_median(Income.Total.Disposable, na.rm=TRUE)) %>% 
+   select(-(contains("_se"))) %>%
+  tibble()
+
+```
+
+```{r}
+result <- LCFS_MART_21_24 %>%
+  as_survey_design(weights = Weight.LCFS) %>%
+  group_by(Year, Demographic.UC) %>%
+  summarise(across(starts_with("Expenditure"), 
+                   list(
+                     tmean = ~survey_mean(.x, na.rm = TRUE, trim = 0.2),
+                     median = ~survey_median(.x, na.rm = TRUE)
+                   )
+  )) %>% 
+   select(-(contains("_se"))) %>%
+  tibble()
+
+result_flat <- result %>% as.data.frame() %>% ungroup()
+
+write.csv(result, "LCFS_MART_21_24_Expenditure.csv")
+```
+
+
+```{r}
+regional.ratio <- LCFS_MART_21_24 %>%
+  as_survey_design(weights = Weight.LCFS) %>%
+  group_by(Year, Demographic.Region.LCFS) %>%
+  summarise(across(starts_with("Expenditure"), 
+                   list(
+                     tmean = ~survey_mean(.x, na.rm = TRUE, trim = 0.2),
+                     median = ~survey_median(.x, na.rm = TRUE)
+                   )
+  )) %>% 
+   select(-(contains("_se"))) %>%
+  tibble()
+
+result_flat <- result %>% as.data.frame() %>% ungroup()
+
+write.csv(regional.ratio, "regional.ratio.csv")
+```
