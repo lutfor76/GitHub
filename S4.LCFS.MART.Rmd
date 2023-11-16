@@ -7,8 +7,235 @@ output: html_document
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(srvyr)
+
 ```
 
 ```{r}
 helca <- rbind(LCFS_agg_21,LCFS_agg_21)
 ```
+
+#Means tested benefits
+```{r}
+
+LCFS.means.tested.Analysis<-helca %>%   mutate(
+    Income_UC_Category = case_when(
+      Income.UC > 0 ~ "UC",
+      TRUE ~ "Non.UC"
+    ),
+    Income_Housing_Benefit_Category = case_when(
+      Income.Housing.Benefit > 0 ~ "Housing Benefit",
+      TRUE ~ "Non.Housing Benefit"
+    ),
+    Income_WTC_Category = case_when(
+      Income.WTC > 0 ~ "WTC",
+      TRUE ~ "Non.WTC"
+    ),
+    # Add similar categories for other income variables
+    Income_Child_Tax_Credit_Category = case_when(
+      Income.Child.Tax.Credit > 0 ~ "Child Tax Credit",
+      TRUE ~ "Non.Child Tax Credit"
+    ),
+    Income_JSA_Contribution_Based_Category = case_when(
+      Income.JSA.Contribution.Based > 0 ~ "JSA Contribution Based",
+      TRUE ~ "Non.JSA Contribution Based"
+    ),
+    # Repeat the process for other variables
+    Income_JSA_Income_Based_Category = case_when(
+      Income.JSA.Income.Based > 0 ~ "JSA Income Based",
+      TRUE ~ "Non.JSA Income Based"
+    ),
+    Income_JSA_Combined_Category = case_when(
+      Income.JSA.Combined > 0 ~ "JSA Combined",
+      TRUE ~ "Non.JSA Combined"
+    ),
+    Income_ESA_Category = case_when(
+      Income.ESA > 0 ~ "ESA",
+      TRUE ~ "Non.ESA"
+    ),
+    Income_PIP_Car_Category = case_when(
+      Income.PIP.Car > 0 ~ "PIP Car",
+      TRUE ~ "Non.PIP Car"
+    ),
+    Income_PIP_Mob_Category = case_when(
+      Income.PIP.Mob > 0 ~ "PIP Mobility",
+      TRUE ~ "Non.PIP Mobility"
+    ),
+    Income_Child_Benefit_Category = case_when(
+      Income.Child.Benefit > 0 ~ "Child Benefit",
+      TRUE ~ "Non.Child Benefit"
+    ),
+    Income_Pension_Credit_Category = case_when(
+      Income.Pension.Credit > 0 ~ "Pension Credit",
+      TRUE ~ "Non.Pension Credit"
+    ),
+    Income_Income_Support_Category = case_when(
+      Income.Income.Support > 0 ~ "Income Support",
+      TRUE ~ "Non.Income Support"
+    ),
+    Income_ExtPaym_Housing_Benefit_Category = case_when(
+      Income.ExtPaym.Housing.Benefit > 0 ~ "ExtPaym Housing Benefit",
+      TRUE ~ "Non.ExtPaym Housing Benefit"
+    ),
+    Income_Carer_Allowance_Category = case_when(
+      Income.Carer.Allowance > 0 ~ "Carer Allowance",
+      TRUE ~ "Non.Carer Allowance"
+    ))
+```
+
+
+```{r}
+generate_income_category_summary <- function(income_category_variable) {
+  result <- LCFS.means.tested.Analysis %>%
+    as_survey_design(weights = Weight.LCFS) %>%
+    filter(Year == "2023-24") %>%
+    group_by(Year, !!sym(income_category_variable)) %>%
+    summarise(n = survey_total()) %>%
+    mutate(per_n = n / sum(n)) %>%
+    select(-(contains("_se"))) %>%
+    tibble()
+  
+  return(result)
+}
+```
+
+```{r}
+# List of income category variables
+
+income_categories <- c(
+  "Income_UC_Category",
+  "Income_Housing_Benefit_Category",
+  "Income_WTC_Category",
+  "Income_Child_Tax_Credit_Category",
+  "Income_JSA_Contribution_Based_Category",
+  "Income_JSA_Income_Based_Category",
+  "Income_JSA_Combined_Category",
+  "Income_PIP_Car_Category",
+  "Income_ESA_Category",
+  "Income_PIP_Mob_Category",
+  "Income_Child_Benefit_Category",
+  "Income_Pension_Credit_Category",
+  "Income_Carer_Allowance_Category"
+  )
+
+# Use lapply to generate summaries for each variable
+results_list <- lapply(income_categories, function(category) {
+  generate_income_category_summary(category)
+})
+
+# Print or access individual summaries from the results_list
+for (i in seq_along(results_list)) {
+  cat("Summary for", income_categories[i], ":\n")
+  print(results_list[[i]])
+}
+```
+
+
+```{r}
+library(openxlsx)
+install.packages("writexl")
+library(writexl)
+
+# Create a workbook
+workbook <- createWorkbook()
+
+library(openxlsx)
+
+# Create a list of data frames
+results_list <- lapply(income_categories, function(category) {
+  generate_income_category_summary(category)
+})
+
+# Specify the file name
+file_name <- "income_category_summaries.xlsx"
+
+write_xlsx(results_list, path = file_name)
+
+```
+
+
+
+##Overall analysis
+```{r}
+
+##What % are in negative budget
+helca %>% as_survey_design(weights = Weight.LCFS)%>% 
+  filter(Year=="2023-24") %>% 
+  group_by(Year,Negbud, Demographic.UC)%>%
+  summarise(n=survey_total()) %>% 
+  mutate(per_n=n/sum(n))%>%
+  select(-(contains("_se"))) %>%
+  tibble()
+
+
+#weekly surplus and income
+#Surplus by negative budget
+helca %>% 
+  as_survey_design(weights=Weight.LCFS) %>% 
+  group_by(Year, Negbud) %>% 
+  summarise(tmean_surplus = survey_mean(Surplus, na.rm=TRUE, trim=0.2),
+            median_surplus = survey_median(Surplus, na.rm=TRUE),
+            tmean_income = survey_mean(Income.Total.Disposable, na.rm=TRUE, trim=0.2),
+            median_income = survey_median(Income.Total.Disposable, na.rm=TRUE)) %>% 
+   select(-(contains("_se"))) %>%
+  tibble()
+
+
+#Overall surplus
+helca %>% 
+  as_survey_design(weights=Weight.LCFS) %>% 
+  group_by(Year) %>% 
+  summarise(tmean_surplus = survey_mean(Surplus, na.rm=TRUE, trim=0.2),
+            median_surplus = survey_median(Surplus, na.rm=TRUE),
+            tmean_income = survey_mean(Income.Total.Disposable, na.rm=TRUE, trim=0.2),
+            median_income = survey_median(Income.Total.Disposable, na.rm=TRUE)) %>% 
+   select(-(contains("_se"))) %>%
+  tibble()
+```
+
+
+```{r}
+result <- helca %>%
+  as_survey_design(weights = Weight.LCFS) %>%
+  group_by(Year) %>%
+  summarise(across(starts_with("Expenditure"), 
+                   list(
+                     tmean = ~survey_mean(.x, na.rm = TRUE, trim = 0.2),
+                     median = ~survey_median(.x, na.rm = TRUE)
+                   )
+  )) %>% 
+   select(-(contains("_se"))) %>%
+  tibble()
+
+result_flat <- result %>% as.data.frame() %>% ungroup()
+
+write.csv(result_flat, "LCFS_MART_22_24_Expenditure.csv")
+```
+
+
+```{r}
+regional.ratio <- helca %>%
+  as_survey_design(weights = Weight.LCFS) %>%
+  group_by(Year, Demographic.Region.LCFS) %>%
+  summarise(across(starts_with("Expenditure"), 
+                   list(
+                     tmean = ~survey_mean(.x, na.rm = TRUE, trim = 0.2),
+                     median = ~survey_median(.x, na.rm = TRUE)
+                   )
+  )) %>% 
+   select(-(contains("_se"))) %>%
+  tibble()
+
+result_flat <- result %>% as.data.frame() %>% ungroup()
+
+write.csv(regional.ratio, "regional.ratio.csv")
+```
+
+
+```{r}
+
+mortgage<-helca %>% select(Expenditure.Mortgage)
+
+```
+

@@ -16,15 +16,15 @@ library(foreign)
 library(srvyr)
 
 
-rm(list=ls())
+#rm(list=ls())
 
 #Loaded the dataset for FY 2020-21 and then code being turned off for the purpose, otherwise it loads everytime.
-# LCFS_21<-read.spss("lcfs_2020_dvhh_ukanon.sav", #FY 2020-21
-#                  use.value.labels = TRUE,
-#                  use.missings = FALSE,
-#                  to.data.frame = TRUE)
-# 
-# saveRDS(LCFS_21, "LCFS_21.rds")
+LCFS_21<-read.spss("lcfs_2020_dvhh_ukanon.sav", #FY 2020-21
+                 use.value.labels = TRUE,
+                 use.missings = FALSE,
+                 to.data.frame = TRUE)
+
+saveRDS(LCFS_21, "LCFS_21.rds")
 
 LCFS_21<-readRDS("LCFS_21.rds")
 ```
@@ -243,12 +243,12 @@ LCFS_21_EW$Demographic.Region.LCFS <- recode_factor(LCFS_21_EW$Demographic.Regio
 
 ```{r}
 #
-# LCFS_21_person<-read.spss("lcfs_2020_rawper_ukanon_final.sav", #FY 2020-21
-#                         use.value.labels = TRUE, 
-#                         use.missings = FALSE, 
-#                         to.data.frame = TRUE)
-# 
-# saveRDS(LCFS_21_person, "LCFS_21_person.rds")
+LCFS_21_person<-read.spss("lcfs_2020_rawper_ukanon_final.sav", #FY 2020-21
+                        use.value.labels = TRUE,
+                        use.missings = FALSE,
+                        to.data.frame = TRUE)
+
+saveRDS(LCFS_21_person, "LCFS_21_person.rds")
 
 LCFS_21_person<-readRDS("LCFS_21_person.rds")
 

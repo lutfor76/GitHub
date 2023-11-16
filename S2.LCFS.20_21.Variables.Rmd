@@ -145,11 +145,11 @@ LCFS_benefits_22P<-LCFS_21_benefits_result_total%>% mutate(Year="2021-22P")
 LCFS_benefits_23P<-LCFS_21_benefits_result_total%>% mutate(Year="2022-23P")
 LCFS_benefits_24P<-LCFS_21_benefits_result_total%>% mutate(Year="2023-24P")
 
-LCFS_benefits_21_24 <- rbind(LCFS_benefits_21, LCFS_benefits_22P,LCFS_benefits_23P, LCFS_benefits_24P)
+LCFS_21_benefits_all<- rbind(LCFS_benefits_21, LCFS_benefits_22P,LCFS_benefits_23P, LCFS_benefits_24P)
 ```
 
 ```{r}
-LCFS_benefits_21_24 <- LCFS_benefits_21_24 %>%
+LCFS_21_benefits_all <- LCFS_21_benefits_all %>%
   mutate(Income.UC = case_when(Year == "2020-21" ~ Income.UC.21,
                                Year == "2021-22P" ~ Income.UC.22,
                                Year == "2022-23P" ~ Income.UC.23,
@@ -230,7 +230,7 @@ LCFS_benefits_21_24 <- LCFS_benefits_21_24 %>%
 
 
 ```{r}
-LCFS_benefits_21_24<-LCFS_benefits_21_24 %>% select("case", 
+LCFS_21_benefits_all<-LCFS_21_benefits_all %>% select("case", 
                                                 "Year", 
                                                 "Income.UC",
          "Income.Housing.Benefit",
@@ -247,7 +247,7 @@ LCFS_benefits_21_24<-LCFS_benefits_21_24 %>% select("case",
          "Income.Income.Support",
          "Income.ExtPaym.Housing.Benefit",
          "Income.Carer.Allowance") 
-saveRDS(LCFS_benefits_21_24, "LCFS_benefits_21_24.rds")
+saveRDS(LCFS_21_benefits_all, "LCFS_21_benefits_all.rds")
 ```
 
 #Number of children in different age group
@@ -336,7 +336,7 @@ saveRDS(LCFS_21_child_summary, "LCFS_21_child_summary.rds")
 #From households level data
 LCFS_21<-readRDS("LCFS_21.rds")
 
-LCFS_Child_Gender_21<-LCFS_21 %>% select(case, A020,A021,A022, A030,A031, A032) %>% 
+LCFS_Child_21_Gender<-LCFS_21 %>% select(case, A020,A021,A022, A030,A031, A032) %>% 
   mutate(Demographic.Child.Gender=case_when((A020>0|A021>0|A022>0) &
                                             (A030>0|A031>0| A032>0)~ "Male & Female",
                                             A020>0|A021>0|A022>0~ "Male",
@@ -346,19 +346,19 @@ LCFS_Child_Gender_21<-LCFS_21 %>% select(case, A020,A021,A022, A030,A031, A032) 
                                             ))) %>% select(case, Demographic.Child.Gender)
 
 
-saveRDS(LCFS_Child_Gender_21, "LCFS_Child_Gender_21.rds")
-names(LCFS_Child_Gender_21)
+saveRDS(LCFS_Child_21_Gender, "LCFS_Child_21_Gender.rds")
+
 ```
 
 #HRP and Partner wages and hours work
 
 ```{r}
 #To understand HRP total hours and total wages
-# LCFS_21_dv_person<-read.spss("lcfs_2020_dvper_ukanon202021.sav", #FY 2021-22
-#                              use.value.labels = TRUE, 
-#                              use.missings = FALSE, 
-#                              to.data.frame = TRUE)
-# saveRDS(LCFS_21_dv_person, "LCFS_21_dv_person.rds")
+LCFS_21_dv_person<-read.spss("lcfs_2020_dvper_ukanon202021.sav", #FY 2021-22
+                             use.value.labels = TRUE,
+                             use.missings = FALSE,
+                             to.data.frame = TRUE)
+saveRDS(LCFS_21_dv_person, "LCFS_21_dv_person.rds")
  
 
 
@@ -404,7 +404,7 @@ for (col_name in columns_to_match_rename) {
 ```
 
 ```{r}
-LCFS_21_Work<-LCFS_21_Work %>% 
+LCFS_21_Work_Name<-LCFS_21_Work %>% 
   mutate(HRP.Total.Wages.22.LCFS=HRP.Total.Wages.LCFS*wages.inflation.22,
          HRP.Total.Wages.23.LCFS=HRP.Total.Wages.22.LCFS*wages.inflation.23,
          HRP.Total.Wages.24.LCFS=HRP.Total.Wages.23.LCFS*wages.inflation.24,
@@ -412,17 +412,17 @@ LCFS_21_Work<-LCFS_21_Work %>%
          HRP.Partner.Total.Wages.23.LCFS=HRP.Partner.Total.Wages.22.LCFS*wages.inflation.23,
          HRP.Partner.Total.Wages.24.LCFS=HRP.Partner.Total.Wages.23.LCFS*wages.inflation.24
          )
-LCFS_21_Work.21<-LCFS_21_Work%>% mutate(Year="2020-21")
-LCFS_21_Work.22<-LCFS_21_Work%>% mutate(Year="2021-22P")
-LCFS_21_Work.23<<-LCFS_21_Work%>% mutate(Year="2022-23P")
-LCFS_21_Work.24<<-LCFS_21_Work%>% mutate(Year="2023-24P")
+LCFS_21_Work.21<-LCFS_21_Work_Name%>% mutate(Year="2020-21")
+LCFS_21_Work.22<-LCFS_21_Work_Name%>% mutate(Year="2021-22P")
+LCFS_21_Work.23<<-LCFS_21_Work_Name%>% mutate(Year="2022-23P")
+LCFS_21_Work.24<<-LCFS_21_Work_Name%>% mutate(Year="2023-24P")
 
-LCFS_Work_21_24 <- rbind(LCFS_21_Work.21, LCFS_21_Work.22,LCFS_21_Work.23, LCFS_21_Work.24)
+LCFS_21_Work <- rbind(LCFS_21_Work.21, LCFS_21_Work.22,LCFS_21_Work.23, LCFS_21_Work.24)
 
 ```
 
 ```{r}
-LCFS_Work_21_24 <- LCFS_Work_21_24 %>% 
+LCFS_21_Work <- LCFS_21_Work %>% 
   mutate(HRP.Total.Wages.LCFS = case_when(Year == "2020-21" ~ HRP.Total.Wages.LCFS,
                                           Year == "2021-22P" ~ HRP.Total.Wages.22.LCFS,
                                           Year == "2022-23P" ~ HRP.Total.Wages.23.LCFS,
@@ -436,7 +436,7 @@ LCFS_Work_21_24 <- LCFS_Work_21_24 %>%
                    HRP.Partner.Total.Hours.LCFS,HRP.Partner.Total.Wages.LCFS)
 
 
-saveRDS(LCFS_Work_21_24, "LCFS_Work_21_24.rds")
+saveRDS(LCFS_21_Work, "LCFS_21_Work.rds")
 ```
 
 #HRP and Partner age
@@ -474,7 +474,7 @@ dvper_22_23<-dv_hrp_partner_2021%>% mutate(Year="2022-23P")
 dvper_23_24<-dv_hrp_partner_2021%>% mutate(Year="2023-24P")
 
 
-LCFS_Age_20_24 <- rbind(dvper_20_21, dvper_21_22, dvper_22_23, dvper_23_24) %>% select( -Demographic.HRP.LCFS)
+LCFS_21_Age <- rbind(dvper_20_21, dvper_21_22, dvper_22_23, dvper_23_24) %>% select( -Demographic.HRP.LCFS)
 
 ```
 
@@ -484,7 +484,7 @@ df_ethnicity_HRP<-LCFS_21_dv_person %>% select(case, a012p) %>% filter(!is.na(a0
 
 df_ethnicity_HRP_Partner<-LCFS_21_dv_person %>% select(case, a013p) %>% filter(!is.na(a013p))
 
-df_ethnicity_21<-df_ethnicity_HRP %>% left_join(df_ethnicity_HRP_Partner, by=c("case")) %>% rename("Demographic.ethnicity.HRP"=a012p,
+LCFS_21_ethnicity<-df_ethnicity_HRP %>% left_join(df_ethnicity_HRP_Partner, by=c("case")) %>% rename("Demographic.ethnicity.HRP"=a012p,
                                                                                                 "Demographic.ethnicity.HRP.Partner"=a013p)
 
 
