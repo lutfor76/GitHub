@@ -13,9 +13,13 @@ library(srvyr)
 ```
 
 ```{r}
+<<<<<<< HEAD
+helca <- rbind(LCFS_agg_21,LCFS_agg_22)
+=======
 helca <- rbind(LCFS_agg_21,LCFS_agg_21)
 
 saveRDS(helca, file = "lutfor_finished.rds")
+>>>>>>> 9d6ada60c0c856954d19bbc7fb92cd8082b4ae1b
 ```
 
 This section is some exploratory analysis separate from main pipeline.
@@ -165,8 +169,8 @@ write_xlsx(results_list, path = file_name)
 
 ##What % are in negative budget
 helca %>% as_survey_design(weights = Weight.LCFS)%>% 
-  filter(Year=="2023-24") %>% 
-  group_by(Year,Negbud, Demographic.UC)%>%
+  filter(Year=="2023-24"|Year=="2023-24P") %>% 
+  group_by(Year,Negbud)%>%
   summarise(n=survey_total()) %>% 
   mutate(per_n=n/sum(n))%>%
   select(-(contains("_se"))) %>%

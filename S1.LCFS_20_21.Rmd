@@ -43,7 +43,7 @@ LCFS_21_Var<- LCFS_21 %>%
          P320p, P324p, P328p, P340p,P348, P300p,P308p, P312p,P425, P389p,p344p, P431p,
          
          CK5216t, CK5222t, P548t, C95211t,
-         P605t,P609t, P610t , P611t, P612t, P600t, P620tp, P630tp, B050, B188, B029p, B039p, P257, B010) 
+         P605t,P609t, P610t , P611t, P612t, P600t, P620tp, P630tp, B050, B188, B029p, B039p, P257, B010, B200) 
 
 ```
 
@@ -75,6 +75,8 @@ LCFS_21_Name<-LCFS_21_Var %>%
           "Expenditure.Mortgage.Interest.LCFS"=B130,
           "Expenditure.Mortgage.Interest.Principle.LCFS"=B150,
           "Expenditure.Mortgage.Protection.LCFS"=B2081, 
+          "Expenditure.Mortgage.Interest.Principle.Last.Pay.LCFS"=B200,
+          
           "Expenditure.Domestic.Rate.LCFS"=B030,
           "Expenditure.Stamp.Duty.LCFS"=CK3111t,
           "Expenditure.Motor.Fine.LCFS"=CK3112t, 
@@ -327,8 +329,11 @@ LCFS_21_Expenditure<-LCFS_21_EW%>%
                                                                          Expenditure.Gas.Pay.2nd.LCFS+
                                                                          Expenditure.Gas.Meter.Pay.2nd.LCFS),
          Expenditure.Derived.Mortgage.21.LCFS=(Expenditure.Mortgage.Interest.LCFS+
-                                                 Expenditure.Mortgage.Interest.Principle.LCFS+
-                                                 Expenditure.Mortgage.Protection.LCFS),
+                                               Expenditure.Mortgage.Interest.Principle.LCFS+
+                                              (Expenditure.Mortgage.Interest.Principle.Last.Pay.LCFS-Expenditure.Mortgage.Interest.Principle.LCFS)#+
+                                                 
+                                               #Expenditure.Mortgage.Protection.LCFS
+                                               ),
          Expenditure.Derived.Other.Essentials.21.LCFS=(Expenditure.Domestic.Rate.LCFS+
                                                          Expenditure.Stamp.Duty.LCFS+
                                                          Expenditure.Motor.Fine.LCFS+ 
@@ -348,7 +353,7 @@ LCFS_21_Expenditure<-LCFS_21_EW%>%
                                                   Expenditure.Gas.Pay.2nd.LCFS+
                                                   Expenditure.Gas.Meter.Pay.2nd.LCFS+
                                                   
-                                                  Expenditure.Gas.Elec.Bill.Account.LCFS+                                                                                        Expenditure.Gas.Elec.Pre.Pay.LCFS+
+                                                  Expenditure.Gas.Elec.Bill.Account.LCFS+                                                                                          Expenditure.Gas.Elec.Pre.Pay.LCFS+
                                                   #Expenditure.combined.elec.rebate.LCFS+
                                                   #Expenditure.combined.gas.meter.rebate.LCFS+
                                                   Expenditure.Combined.Gas.Meter.LCFS+                                                                                           Expenditure.Combined.Elect.Meter.LCFS+                                                                                        #Expenditure.elect.meter.rebate.LCFS+
@@ -445,7 +450,7 @@ LCFS_21_Expenditure<-LCFS_21_Expenditure %>%
          Expenditure.Transport.22.LCFS=(Expenditure.Transport.LCFS*transport.inflation.22),  
          Expenditure.Comms.Mobile.Phone.22.LCFS=(Expenditure.Comms.Mobile.Phone.LCFS*coms.mobile.phone.inflaiton.22),
          Expenditure.Council.Tax.22.LCFS=(Expenditure.Council.Tax.LCFS*council.tax.inflation.22),
-         Expenditure.Mortgage.22.LCFS=(Expenditure.Derived.Mortgage.21.LCFS*mortgage.inflation.22),
+        
          Expenditure.Other.Essentials.22.LCFS=(Expenditure.Derived.Other.Essentials.21.LCFS*others.inflation.22),
          Expenditure.Utilities.22.LCFS=(Expenditure.Derived.Utilities.21.LCFS*utilities.inflation.22),
          Expenditure.Food.Non.Alcohol.22.LCFS=(Expenditure.Food.Non.Alcohol.LCFS*food.alcohol.inflation.22), 
@@ -457,13 +462,22 @@ LCFS_21_Expenditure<-LCFS_21_Expenditure %>%
          Expenditure.Council.Tax.Support.22.LCFS=(Expenditure.Council.Tax.Support.LCFS*council.tax.inflation.22),
          Expenditure.Rent.22.LCFS=(EXpenditure.Rent.LCFS*rent.inflation.22),
          Expenditure.Rent.Rate.Net.22.LCFS=(Expenditure.Rent.Rate.Net.LCFS*rent.inflation.22))%>% 
+  mutate(Expenditure.Mortgage.Interest.22.LCFS=(Expenditure.Mortgage.Interest.LCFS*mortgage.inflation.22),
+          Expenditure.Mortgage.Interest.Principle.22.LCFS=(Expenditure.Mortgage.Interest.Principle.LCFS*mortgage.inflation.22)) %>% 
+  
+  mutate(Expenditure.Derived.Mortgage.22.LCFS=(Expenditure.Mortgage.Interest.22.LCFS+
+                                               Expenditure.Mortgage.Interest.Principle.22.LCFS+
+                                              (Expenditure.Mortgage.Interest.Principle.Last.Pay.LCFS-Expenditure.Mortgage.Interest.Principle.22.LCFS)#+
+                                                 
+                                               #Expenditure.Mortgage.Protection.LCFS
+                                               )) %>% 
   
   mutate(Expenditure.Derived.Fixed.Essential.Total.22.LCFS=(Expenditure.Derived.Housing.21.LCFS*housing.inflation.22+
                                                                  Expenditure.Health.LCFS*health.inflation.22+
                                                                  Expenditure.Transport.LCFS*transport.inflation.22+
                                                                  Expenditure.Comms.Mobile.Phone.LCFS*coms.mobile.phone.inflaiton.22+ 
                                                                  Expenditure.Council.Tax.LCFS*council.tax.inflation.22+
-                                                                 Expenditure.Derived.Mortgage.21.LCFS*mortgage.inflation.22+
+                                                                 Expenditure.Derived.Mortgage.22.LCFS+
                                                                  Expenditure.Derived.Other.Essentials.21.LCFS*others.inflation.22),
    
   Expenditure.Derived.All.Essential.Total.22.LCFS=(Expenditure.Derived.Housing.21.LCFS*housing.inflation.22+
@@ -471,7 +485,7 @@ LCFS_21_Expenditure<-LCFS_21_Expenditure %>%
                                                                  Expenditure.Transport.LCFS*transport.inflation.22+
                                                                  Expenditure.Comms.Mobile.Phone.LCFS*coms.mobile.phone.inflaiton.22+ 
                                                                  Expenditure.Council.Tax.LCFS*council.tax.inflation.22+
-                                                                 Expenditure.Derived.Mortgage.21.LCFS*mortgage.inflation.22+
+                                                                 Expenditure.Derived.Mortgage.22.LCFS+
                                                                  Expenditure.Derived.Other.Essentials.21.LCFS*others.inflation.22 +
                                                             
                                                             Expenditure.Derived.Leisure.Gift.21.LCFS*leisure.inflation.22+
@@ -492,7 +506,7 @@ LCFS_21_Expenditure<-LCFS_21_Expenditure %>%
          Expenditure.Transport.23.LCFS=(Expenditure.Transport.22.LCFS*transport.inflation.23),  
          Expenditure.Comms.Mobile.Phone.23.LCFS=(Expenditure.Comms.Mobile.Phone.22.LCFS*coms.mobile.phone.inflaiton.23),
          Expenditure.Council.Tax.23.LCFS=(Expenditure.Council.Tax.22.LCFS*council.tax.inflation.23),
-         Expenditure.Mortgage.23.LCFS=(Expenditure.Mortgage.22.LCFS*mortgage.inflation.23),
+         
          Expenditure.Other.Essentials.23.LCFS=(Expenditure.Other.Essentials.22.LCFS*others.inflation.23),
          Expenditure.Utilities.23.LCFS=(Expenditure.Utilities.22.LCFS*utilities.inflation.23),
          Expenditure.Food.Non.Alcohol.23.LCFS=(Expenditure.Food.Non.Alcohol.22.LCFS*food.alcohol.inflation.23), 
@@ -503,14 +517,24 @@ LCFS_21_Expenditure<-LCFS_21_Expenditure %>%
          Expenditure.Vehicle.Insurance.23.LCFS=(Expenditure.Vehicle.Insurance.22.LCFS*insurance.inflation.23),
          Expenditure.Council.Tax.Support.23.LCFS=(Expenditure.Council.Tax.Support.22.LCFS*council.tax.inflation.23),
          Expenditure.Rent.23.LCFS=(Expenditure.Rent.22.LCFS*rent.inflation.23),
-         Expenditure.Rent.Rate.Net.23.LCFS=(Expenditure.Rent.Rate.Net.22.LCFS*rent.inflation.23))%>% 
+         Expenditure.Rent.Rate.Net.23.LCFS=(Expenditure.Rent.Rate.Net.22.LCFS*rent.inflation.23))%>%
+  
+  mutate(Expenditure.Mortgage.Interest.23.LCFS=(Expenditure.Mortgage.Interest.22.LCFS*mortgage.inflation.23),
+         Expenditure.Mortgage.Interest.Principle.23.LCFS=(Expenditure.Mortgage.Interest.Principle.22.LCFS*mortgage.inflation.23)) %>% 
+  
+  mutate(Expenditure.Derived.Mortgage.23.LCFS=(Expenditure.Mortgage.Interest.23.LCFS+
+                                               Expenditure.Mortgage.Interest.Principle.23.LCFS+
+                                            (Expenditure.Mortgage.Interest.Principle.Last.Pay.LCFS-Expenditure.Mortgage.Interest.Principle.23.LCFS)#+
+                                                 
+                                               #Expenditure.Mortgage.Protection.LCFS
+                                               )) %>% 
   
   mutate(Expenditure.Derived.Fixed.Essential.Total.23.LCFS=(Expenditure.Housing.22.LCFS*housing.inflation.23+
                                                                  Expenditure.Health.LCFS*health.inflation.23+
                                                                  Expenditure.Transport.LCFS*transport.inflation.23+
                                                                  Expenditure.Comms.Mobile.Phone.LCFS*coms.mobile.phone.inflaiton.23+ 
                                                                  Expenditure.Council.Tax.LCFS*council.tax.inflation.23+
-                                                                 Expenditure.Mortgage.22.LCFS*mortgage.inflation.23+
+                                                                 Expenditure.Derived.Mortgage.23.LCFS+
                                                                  Expenditure.Other.Essentials.22.LCFS*others.inflation.23),
    
   Expenditure.Derived.All.Essential.Total.23.LCFS=(Expenditure.Housing.22.LCFS*housing.inflation.23+
@@ -518,7 +542,7 @@ LCFS_21_Expenditure<-LCFS_21_Expenditure %>%
                                                                  Expenditure.Transport.LCFS*transport.inflation.23+
                                                                  Expenditure.Comms.Mobile.Phone.LCFS*coms.mobile.phone.inflaiton.23+ 
                                                                  Expenditure.Council.Tax.LCFS*council.tax.inflation.23+
-                                                                 Expenditure.Mortgage.22.LCFS*mortgage.inflation.23+
+                                                                 Expenditure.Derived.Mortgage.23.LCFS+
                                                                  Expenditure.Other.Essentials.22.LCFS*others.inflation.23 +
                                                             
                                                             Expenditure.Leisure.Gift.22.LCFS*leisure.inflation.23+
@@ -536,7 +560,7 @@ LCFS_21_Expenditure<-LCFS_21_Expenditure %>%
          Expenditure.Transport.24.LCFS=(Expenditure.Transport.23.LCFS*transport.inflation.24),  
          Expenditure.Comms.Mobile.Phone.24.LCFS=(Expenditure.Comms.Mobile.Phone.23.LCFS*coms.mobile.phone.inflaiton.24),
          Expenditure.Council.Tax.24.LCFS=(Expenditure.Council.Tax.23.LCFS*council.tax.inflation.24),
-         Expenditure.Mortgage.24.LCFS=(Expenditure.Mortgage.23.LCFS*mortgage.inflation.24),
+         
          Expenditure.Other.Essentials.24.LCFS=(Expenditure.Other.Essentials.23.LCFS*others.inflation.24),
          Expenditure.Utilities.24.LCFS=(Expenditure.Utilities.23.LCFS*utilities.inflation.24),
          Expenditure.Food.Non.Alcohol.24.LCFS=(Expenditure.Food.Non.Alcohol.23.LCFS*food.alcohol.inflation.24), 
@@ -549,12 +573,22 @@ LCFS_21_Expenditure<-LCFS_21_Expenditure %>%
          Expenditure.Rent.24.LCFS=(Expenditure.Rent.23.LCFS*rent.inflation.24),
          Expenditure.Rent.Rate.Net.24.LCFS=(Expenditure.Rent.Rate.Net.23.LCFS*rent.inflation.24)) %>% 
   
+  mutate(Expenditure.Mortgage.Interest.24.LCFS=(Expenditure.Mortgage.Interest.23.LCFS*mortgage.inflation.24),
+         Expenditure.Mortgage.Interest.Principle.24.LCFS=(Expenditure.Mortgage.Interest.Principle.23.LCFS*mortgage.inflation.24)) %>% 
+  
+  mutate(Expenditure.Derived.Mortgage.24.LCFS=(Expenditure.Mortgage.Interest.24.LCFS+
+                                               Expenditure.Mortgage.Interest.Principle.24.LCFS+
+                                            (Expenditure.Mortgage.Interest.Principle.Last.Pay.LCFS-Expenditure.Mortgage.Interest.Principle.24.LCFS)#+
+                                                 
+                                               #Expenditure.Mortgage.Protection.LCFS
+                                               )) %>% 
+  
   mutate(Expenditure.Derived.Fixed.Essential.Total.24.LCFS=(Expenditure.Housing.23.LCFS*housing.inflation.24+
                                                                  Expenditure.Health.23.LCFS*health.inflation.24+
                                                                  Expenditure.Transport.23.LCFS*transport.inflation.24+
                                                                  Expenditure.Comms.Mobile.Phone.23.LCFS*coms.mobile.phone.inflaiton.24+ 
                                                                  Expenditure.Council.Tax.23.LCFS*council.tax.inflation.24+
-                                                                 Expenditure.Mortgage.23.LCFS*mortgage.inflation.24+
+                                                                 Expenditure.Derived.Mortgage.24.LCFS+
                                                                  Expenditure.Other.Essentials.23.LCFS*others.inflation.24),
    
   Expenditure.Derived.All.Essential.Total.24.LCFS=(Expenditure.Housing.23.LCFS*housing.inflation.24+
@@ -562,7 +596,7 @@ LCFS_21_Expenditure<-LCFS_21_Expenditure %>%
                                                                  Expenditure.Transport.LCFS*transport.inflation.24+
                                                                  Expenditure.Comms.Mobile.Phone.LCFS*coms.mobile.phone.inflaiton.24+ 
                                                                  Expenditure.Council.Tax.LCFS*council.tax.inflation.24+
-                                                                 Expenditure.Mortgage.22.LCFS*mortgage.inflation.24+
+                                                                 Expenditure.Derived.Mortgage.24.LCFS+
                                                                  Expenditure.Other.Essentials.22.LCFS*others.inflation.24 +
                                                             
                                                             Expenditure.Leisure.Gift.22.LCFS*leisure.inflation.24+

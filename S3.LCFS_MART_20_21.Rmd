@@ -105,9 +105,9 @@ LCFS_MART_21_24 <- LCFS_MART_21_24 %>%
                                              Year == "2023-24P" ~ Expenditure.Council.Tax.24.LCFS)) %>% 
   
   mutate(Expenditure.Mortgage = case_when(Year == "2020-21" ~ Expenditure.Derived.Mortgage.21.LCFS,
-                                          Year == "2021-22P" ~ Expenditure.Mortgage.23.LCFS,
-                                          Year == "2022-23P" ~ Expenditure.Mortgage.23.LCFS,
-                                          Year == "2023-24P" ~ Expenditure.Mortgage.24.LCFS)) %>% 
+                                          Year == "2021-22P" ~ Expenditure.Derived.Mortgage.22.LCFS,
+                                          Year == "2022-23P" ~ Expenditure.Derived.Mortgage.23.LCFS,
+                                          Year == "2023-24P" ~ Expenditure.Derived.Mortgage.24.LCFS)) %>% 
   
   mutate(Expenditure.Others = case_when(Year == "2020-21" ~ Expenditure.Derived.Other.Essentials.21.LCFS,
                                         Year == "2021-22P" ~ Expenditure.Other.Essentials.22.LCFS,
@@ -247,5 +247,16 @@ saveRDS(LCFS_MART_21_24, "LCFS_MART_21_24.rds")
 
 ```
 
+
+```{r}
+LCFS_agg_21<-LCFS_MART_21_24 %>% left_join(LCFS_21_benefits_all, by=c("case", "Year")) %>% #adding all benefits
+                              left_join(LCFS_21_child_summary, by=c("case")) %>% 
+                              left_join(LCFS_Child_21_Gender, by=c("case")) %>% 
+                              left_join(LCFS_21_Work, by=c("case", "Year")) %>% 
+                              left_join(LCFS_21_Age,by=c("case", "Year")) %>% 
+                              left_join(LCFS_21_ethnicity, by=c("case"))
+
+saveRDS(LCFS_agg_21, "LCFS_agg_21.rds")
+```
 
 

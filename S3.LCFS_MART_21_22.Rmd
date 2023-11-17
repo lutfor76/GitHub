@@ -87,8 +87,8 @@ LCFS_MART_22_24 <- LCFS_MART_22_24 %>%
                                              Year == "2023-24" ~ Expenditure.Council.Tax.24.LCFS)) %>% 
   
   mutate(Expenditure.Mortgage = case_when(Year == "2021-22" ~ Expenditure.Derived.Mortgage.22.LCFS,
-                                          Year == "2022-23" ~ Expenditure.Mortgage.23.LCFS,
-                                          Year == "2023-24" ~ Expenditure.Mortgage.24.LCFS)) %>% 
+                                          Year == "2022-23" ~ Expenditure.Derived.Mortgage.23.LCFS,
+                                          Year == "2023-24" ~ Expenditure.Derived.Mortgage.24.LCFS)) %>% 
 
   mutate(Expenditure.Others = case_when(Year == "2021-22" ~ Expenditure.Derived.Other.Essentials.22.LCFS,
                                         Year == "2022-23" ~ Expenditure.Derived.Other.Essentials.23.LCFS,

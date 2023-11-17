@@ -410,9 +410,8 @@ for (col_name in columns_to_match_rename) {
 ```{r}
 LCFS_22_Expenditure<-LCFS_22_Expenditure %>% 
  
-  
-  mutate(Expenditure.Mortgage.Interest.23.LCFS=(Expenditure.Mortgage.Interest.LCFS*mortgage.inflation.23),
-         Expenditure.Mortgage.Interest.Principle.23.LCFS=(Expenditure.Mortgage.Interest.Principle.LCFS*mortgage.inflation.23)) %>% 
+   mutate(Expenditure.Mortgage.Interest.23.LCFS=(Expenditure.Mortgage.Interest.LCFS*mortgage.inflation.23),
+          Expenditure.Mortgage.Interest.Principle.23.LCFS=(Expenditure.Mortgage.Interest.Principle.LCFS*mortgage.inflation.23)) %>% 
   
   mutate(Expenditure.Derived.Mortgage.23.LCFS=(Expenditure.Mortgage.Interest.23.LCFS+
                                                Expenditure.Mortgage.Interest.Principle.23.LCFS+
