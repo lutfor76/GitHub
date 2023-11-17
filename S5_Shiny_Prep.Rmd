@@ -1,0 +1,204 @@
+---
+title: "S5_Shiny_Prep"
+output: html_document
+date: "2023-11-17"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+# Clear Environment
+rm(list = ls())
+
+# Libraries
+library(tidyverse)
+library(lubridate)
+library(zoo)
+
+# Files
+HELCA <- readRDS(file = "helca_31Oct.rds")
+
+```
+
+This script is a bit of a scribble script that will chop and change depending on what needs to be added or taken away for the app dataset
+```{r}
+
+# Rename some variables to be more MART.Dash like
+HELCA <- HELCA %>% 
+  rename("Demographic.Disabled" = "Disability",
+         "Month" = "Sample.Month",
+         "Quarter" = "Sample.Quarter",
+         "Demographic.Negbud" = "Negbud",
+         "Demographic.Income.Decile" = "Income.Decile",
+         "Yeargroups" = "Year")
+
+# Make factor to allow further adjustments
+HELCA <- HELCA %>% 
+  mutate(Yeargroups = as.factor(Yeargroups))
+
+
+# Financial Year
+HELCA <- HELCA %>% 
+  mutate(Financial.Year = case_when(Yeargroups == "2020-21" ~ '2020-21',
+                                     Yeargroups == "2021-22" | Yeargroups == "2021-22P" ~ '2021-22',
+                                     Yeargroups == "2022-23" | Yeargroups == "2022-23P" ~ '2022-23',
+                                     Yeargroups == "2023-24" | Yeargroups == "2023-24P" ~ '2023-24')) %>% 
+  mutate(Financial.Year = as.factor(Financial.Year))
+
+# test the sample, should be 8000
+HELCA_24 <- HELCA %>% 
+  filter(Financial.Year == "2023-24")
+
+# # # Weights testing ####
+# library(srvyr)
+# survey_design_households <- HELCA_24 %>%
+#   as_survey_design(weights = Weight.LCFS)
+# 
+# ### With deductions
+# # Calculate Number of households
+# household_data <- survey_design_households %>%
+#   summarise(Households = survey_total(vartype = "ci") * 1000) %>% # brings the millions
+#   mutate(across(where(is.numeric), ~round(. ,2)))
+
+# Need to fix Demographic.Income.Decile
+HELCA <- HELCA %>% 
+  mutate(Demographic.Income.Decile = case_when(
+    Demographic.Income.Decile == 1 ~ "Bottom",
+    Demographic.Income.Decile == 2 ~ "Two",
+    Demographic.Income.Decile == 3 ~ "Three",
+    Demographic.Income.Decile == 4 ~ "Four",
+    Demographic.Income.Decile == 5 ~ "Five",
+    Demographic.Income.Decile == 6 ~ "Six",
+    Demographic.Income.Decile == 7 ~ "Seven",
+    Demographic.Income.Decile == 8 ~ "Eight",
+    Demographic.Income.Decile == 9 ~ "Nine",
+    Demographic.Income.Decile == 10 ~ "Top",
+    TRUE ~ "NA"))
+
+# Regions for maps
+HELCA <- HELCA %>%
+  mutate(Plot.Region = case_when(
+    Demographic.Region.LCFS == "North East" ~ "North East (England)",
+    Demographic.Region.LCFS == "North West" ~ "North West (England)",
+    Demographic.Region.LCFS == "Yorkshire" ~ "Yorkshire and The Humber",
+    Demographic.Region.LCFS == "East Midlands" ~ "East Midlands (England)",
+    Demographic.Region.LCFS == "West Midlands" ~ "West Midlands (England)",
+    Demographic.Region.LCFS == "South East" ~ "South East (England)",
+    Demographic.Region.LCFS == "South West" ~ "South West (England)",
+    TRUE ~ Demographic.Region.LCFS
+  )) %>%
+  mutate(Plot.Region = as.factor(Plot.Region))
+
+
+# Rename Yeargroups to fit in with Demographics, I think...
+HELCA <- HELCA %>% 
+  rename("Demographic.Cohort" = "Yeargroups")
+
+# Create more Demographics
+HELCA <- HELCA %>%
+  mutate(
+    Demographic.UC = case_when(Income.UC > 0 ~ 'UC', TRUE ~ 'Not UC'),
+    Demographic.Housing.Benefit = case_when(Income.Housing.Benefit > 0 ~ 'HB', TRUE ~ 'Not HB'),
+    Demographic.WTC = case_when(Income.WTC > 0 ~ 'WTC', TRUE ~ 'Not WTC'),
+    Demographic.Child.Tax.Credit = case_when(Income.Child.Tax.Credit > 0 ~ 'CTC', TRUE ~ 'Not CTC'),
+    Demographic.JSA.Contribution.Based = case_when(Income.JSA.Contribution.Based > 0 ~ 'JSA', TRUE ~ 'Not JSA'),
+    Demographic.JSA.Income.Based = case_when(Income.JSA.Income.Based > 0 ~ 'JSA-I', TRUE ~ 'Not JSA-I'),
+    Demographic.JSA.Combined = case_when(Income.JSA.Combined > 0 ~ 'JSA-C', TRUE ~ 'Not JSA-C'),
+    Demographic.ESA = case_when(Income.ESA > 0 ~ 'ESA', TRUE ~ 'Not ESA'),
+    Demographic.PIP.Car = case_when(Income.PIP.Car > 0 ~ 'PIP-C', TRUE ~ 'Not PIP-C'),
+    Demographic.PIP.Mob = case_when(Income.PIP.Mob > 0 ~ 'PIP-M', TRUE ~ 'Not PIP-M'),
+    Demographic.Child.Benefit = case_when(Income.Child.Benefit > 0 ~ 'CB', TRUE ~ 'Not CB')
+  )
+
+# Change all character columns to factors
+# str(HELCA)
+HELCA[sapply(HELCA, is.character)] <- lapply(HELCA[sapply(HELCA, is.character)], as.factor)
+
+
+# Fix 1 - 16/10/23 - Mortgages
+hist(HELCA$Expenditure.Housing)
+HELCA <- HELCA %>% 
+  mutate(Expenditure.Housing = case_when(Expenditure.Mortgage > 0 ~ Expenditure.Housing+Expenditure.Mortgage,
+                                         TRUE ~ Expenditure.Housing))
+
+
+# create housing variable
+HELCA <- HELCA %>%
+  mutate(Demographic.Housing = case_when(
+    Demographic.Housing.Tenure.LCFS %in% c("Local authority rented unfurn", "Housing association") ~ "Social Housing",
+    Demographic.Housing.Tenure.LCFS %in% c("Other rented unfurnished", "Rented furnished") ~ "Private Rental",
+    Demographic.Housing.Tenure.LCFS == "Owned with mortgage" ~ "Mortgage",
+    Demographic.Housing.Tenure.LCFS == "Owned outright" ~ "Owned Outright",
+    TRUE ~ "Other"  # This will include categories like "Rent free", "Owned by rental purchase", and "Not Recorded"
+  ))
+
+# Create LoE variable
+HELCA <- HELCA %>%
+  mutate(
+    Demographic.Surplus.Bands = case_when(
+      Surplus < 0               ~ "In Deficit",
+      Surplus >= 0 & Surplus < 25   ~ "Struggling",
+      Surplus >= 25 & Surplus < 100 ~ "Getting By",
+      Surplus >= 100 & Surplus < 200 ~ "Comfortable",
+      Surplus >= 200                ~ "Affluent"
+    )
+  )
+
+# Rename Insurance variable so clear
+HELCA <- HELCA %>%
+  select(-Expenditure.Vehicle.Insurance) %>% 
+  rename("Expenditure.Vehicle.Insurance" = "Expenditure.Vehicle.Insurance.weekly")
+
+
+# Make more variables
+HELCA <- HELCA %>% 
+  mutate(Demographic.Pension.Credit = case_when(Income.Pension.Credit > 0 ~ 'Pension.Credit',
+                                                TRUE ~ 'Not.Pension.Credit')) %>% 
+  mutate(Demographic.Income.Support = case_when(Income.Income.Support > 0 ~ 'Income.Support',
+                                                TRUE ~ 'Not.Income.Support'))
+
+
+# Get rid of ones not suited for the app
+HELCA <- HELCA %>% 
+  select(-c(A020,A021,A022,A030,A031,A032))
+
+
+# Rename
+HELCA <- HELCA %>% 
+  rename("Income.Gross.Wages.Respondent" = "HRP.Total.Wages.LCFS",
+         "Income.Gross.Wages.Partner" = "HRP.Partner.Total.Wages.LCFS",
+         "Number.Hours.Worked" = "HRP.Total.Hours.LCFS",
+         "Number.Hours.Worked.Partner" = "HRP.Partner.Total.Hours.LCFS")
+
+# Create an employment variable
+HELCA <- HELCA %>% 
+  mutate(Demographic.Role.Type = case_when(Number.Hours.Worked == 0 ~ 'Unemployed',
+                                           Number.Hours.Worked > 0 & Number.Hours.Worked <16 ~ 'Part-Time 0-15',
+                                           Number.Hours.Worked >= 16 & Number.Hours.Worked <35 ~ 'Part-Time 16-34',
+                                           Number.Hours.Worked >= 35 ~ 'Full-Time',
+                                           TRUE ~ 'Other')) %>% 
+  mutate(Demographic.Role.Type.Partner = case_when(Number.Hours.Worked.Partner == 0 ~ 'Unemployed',
+                                           Number.Hours.Worked > 0 & Number.Hours.Worked <16 ~ 'Part-Time 0-15',
+                                           Number.Hours.Worked >= 16 & Number.Hours.Worked <35 ~ 'Part-Time 16-34',
+                                           Number.Hours.Worked >= 35 ~ 'Full-Time',
+                                           TRUE ~ 'Other'))
+
+```
+
+
+```{r}
+
+# Save final file
+saveRDS(HELCA, file = "appdf31_10_2.rds")
+
+```
+
+
+
+
+
+
+
+
+```
+
