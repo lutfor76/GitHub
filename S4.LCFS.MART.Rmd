@@ -13,13 +13,10 @@ library(srvyr)
 ```
 
 ```{r}
-<<<<<<< HEAD
 helca <- rbind(LCFS_agg_21,LCFS_agg_22)
-=======
-helca <- rbind(LCFS_agg_21,LCFS_agg_21)
+
 
 saveRDS(helca, file = "lutfor_finished.rds")
->>>>>>> 9d6ada60c0c856954d19bbc7fb92cd8082b4ae1b
 ```
 
 This section is some exploratory analysis separate from main pipeline.
