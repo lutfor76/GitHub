@@ -1,0 +1,28 @@
+---
+title: "S5B_Ben_Taper_Cap_Min"
+output: html_document
+date: "2023-11-17"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+# Clear Environment
+rm(list = ls())
+
+# Libraries
+library(tidyverse)
+library(lubridate)
+library(zoo)
+
+# Files
+appdf<- readRDS(file = "appdf31_10_2.rds")
+```
+
+Step 1: Create a workbook with all necessary information
+```{r}
+
+
+
+```
+

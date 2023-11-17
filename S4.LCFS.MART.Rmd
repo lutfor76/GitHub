@@ -14,8 +14,11 @@ library(srvyr)
 
 ```{r}
 helca <- rbind(LCFS_agg_21,LCFS_agg_21)
+
+saveRDS(helca, file = "lutfor_finished.rds")
 ```
 
+This section is some exploratory analysis separate from main pipeline.
 #Means tested benefits
 ```{r}
 
@@ -132,6 +135,7 @@ for (i in seq_along(results_list)) {
 ```
 
 
+This gives all of the household sizes for means-tested-benefits **use this to write conversion function***
 ```{r}
 library(openxlsx)
 install.packages("writexl")
