@@ -467,7 +467,7 @@ LCFS_21_Expenditure<-LCFS_21_Expenditure %>%
   
   mutate(Expenditure.Derived.Mortgage.22.LCFS=(Expenditure.Mortgage.Interest.22.LCFS+
                                                Expenditure.Mortgage.Interest.Principle.22.LCFS+
-                                              (Expenditure.Mortgage.Interest.Principle.Last.Pay.LCFS-Expenditure.Mortgage.Interest.Principle.22.LCFS)#+
+                                              (Expenditure.Mortgage.Interest.Principle.Last.Pay.LCFS-Expenditure.Mortgage.Interest.Principle.LCFS)#+
                                                  
                                                #Expenditure.Mortgage.Protection.LCFS
                                                )) %>% 
@@ -524,7 +524,7 @@ LCFS_21_Expenditure<-LCFS_21_Expenditure %>%
   
   mutate(Expenditure.Derived.Mortgage.23.LCFS=(Expenditure.Mortgage.Interest.23.LCFS+
                                                Expenditure.Mortgage.Interest.Principle.23.LCFS+
-                                            (Expenditure.Mortgage.Interest.Principle.Last.Pay.LCFS-Expenditure.Mortgage.Interest.Principle.23.LCFS)#+
+                                            (Expenditure.Mortgage.Interest.Principle.Last.Pay.LCFS-Expenditure.Mortgage.Interest.Principle.LCFS)#+
                                                  
                                                #Expenditure.Mortgage.Protection.LCFS
                                                )) %>% 
@@ -578,7 +578,7 @@ LCFS_21_Expenditure<-LCFS_21_Expenditure %>%
   
   mutate(Expenditure.Derived.Mortgage.24.LCFS=(Expenditure.Mortgage.Interest.24.LCFS+
                                                Expenditure.Mortgage.Interest.Principle.24.LCFS+
-                                            (Expenditure.Mortgage.Interest.Principle.Last.Pay.LCFS-Expenditure.Mortgage.Interest.Principle.24.LCFS)#+
+                                            (Expenditure.Mortgage.Interest.Principle.Last.Pay.LCFS-Expenditure.Mortgage.Interest.Principle.LCFS)#+
                                                  
                                                #Expenditure.Mortgage.Protection.LCFS
                                                )) %>% 
