@@ -9,13 +9,13 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 library(tidyverse)
 library(srvyr)
+library(stringr)
 
 ```
 
 ```{r}
 
 helca <- rbind(LCFS_agg_21,LCFS_agg_22)
-
 
 saveRDS(helca, file = "lutfor_finished.rds")
 

@@ -16,7 +16,7 @@ library(lubridate)
 library(zoo)
 
 # Files
-HELCA <- readRDS(file = "helca_31Oct.rds")
+HELCA <- readRDS(file = "lutfor_finished.rds")
 
 ```
 
@@ -29,7 +29,6 @@ HELCA <- HELCA %>%
          "Month" = "Sample.Month",
          "Quarter" = "Sample.Quarter",
          "Demographic.Negbud" = "Negbud",
-         "Demographic.Income.Decile" = "Income.Decile",
          "Yeargroups" = "Year")
 
 # Make factor to allow further adjustments
@@ -45,7 +44,7 @@ HELCA <- HELCA %>%
                                      Yeargroups == "2023-24" | Yeargroups == "2023-24P" ~ '2023-24')) %>% 
   mutate(Financial.Year = as.factor(Financial.Year))
 
-# test the sample, should be 8000
+# test the sample, should be 8908
 HELCA_24 <- HELCA %>% 
   filter(Financial.Year == "2023-24")
 
@@ -61,19 +60,19 @@ HELCA_24 <- HELCA %>%
 #   mutate(across(where(is.numeric), ~round(. ,2)))
 
 # Need to fix Demographic.Income.Decile
-HELCA <- HELCA %>% 
-  mutate(Demographic.Income.Decile = case_when(
-    Demographic.Income.Decile == 1 ~ "Bottom",
-    Demographic.Income.Decile == 2 ~ "Two",
-    Demographic.Income.Decile == 3 ~ "Three",
-    Demographic.Income.Decile == 4 ~ "Four",
-    Demographic.Income.Decile == 5 ~ "Five",
-    Demographic.Income.Decile == 6 ~ "Six",
-    Demographic.Income.Decile == 7 ~ "Seven",
-    Demographic.Income.Decile == 8 ~ "Eight",
-    Demographic.Income.Decile == 9 ~ "Nine",
-    Demographic.Income.Decile == 10 ~ "Top",
-    TRUE ~ "NA"))
+# HELCA <- HELCA %>% 
+#   mutate(Demographic.Income.Decile = case_when(
+#     Demographic.Income.Decile == 1 ~ "Bottom",
+#     Demographic.Income.Decile == 2 ~ "Two",
+#     Demographic.Income.Decile == 3 ~ "Three",
+#     Demographic.Income.Decile == 4 ~ "Four",
+#     Demographic.Income.Decile == 5 ~ "Five",
+#     Demographic.Income.Decile == 6 ~ "Six",
+#     Demographic.Income.Decile == 7 ~ "Seven",
+#     Demographic.Income.Decile == 8 ~ "Eight",
+#     Demographic.Income.Decile == 9 ~ "Nine",
+#     Demographic.Income.Decile == 10 ~ "Top",
+#     TRUE ~ "NA"))
 
 # Regions for maps
 HELCA <- HELCA %>%
@@ -133,21 +132,16 @@ HELCA <- HELCA %>%
   ))
 
 # Create LoE variable
-HELCA <- HELCA %>%
-  mutate(
-    Demographic.Surplus.Bands = case_when(
-      Surplus < 0               ~ "In Deficit",
-      Surplus >= 0 & Surplus < 25   ~ "Struggling",
-      Surplus >= 25 & Surplus < 100 ~ "Getting By",
-      Surplus >= 100 & Surplus < 200 ~ "Comfortable",
-      Surplus >= 200                ~ "Affluent"
-    )
-  )
-
-# Rename Insurance variable so clear
-HELCA <- HELCA %>%
-  select(-Expenditure.Vehicle.Insurance) %>% 
-  rename("Expenditure.Vehicle.Insurance" = "Expenditure.Vehicle.Insurance.weekly")
+# HELCA <- HELCA %>%
+#   mutate(
+#     Demographic.Surplus.Bands = case_when(
+#       Surplus < 0               ~ "In Deficit",
+#       Surplus >= 0 & Surplus < 25   ~ "Struggling",
+#       Surplus >= 25 & Surplus < 100 ~ "Getting By",
+#       Surplus >= 100 & Surplus < 200 ~ "Comfortable",
+#       Surplus >= 200                ~ "Affluent"
+#     )
+#   )
 
 
 # Make more variables
@@ -156,11 +150,6 @@ HELCA <- HELCA %>%
                                                 TRUE ~ 'Not.Pension.Credit')) %>% 
   mutate(Demographic.Income.Support = case_when(Income.Income.Support > 0 ~ 'Income.Support',
                                                 TRUE ~ 'Not.Income.Support'))
-
-
-# Get rid of ones not suited for the app
-HELCA <- HELCA %>% 
-  select(-c(A020,A021,A022,A030,A031,A032))
 
 
 # Rename
@@ -188,8 +177,9 @@ HELCA <- HELCA %>%
 
 ```{r}
 
+
 # Save final file
-saveRDS(HELCA, file = "appdf31_10_2.rds")
+saveRDS(HELCA, file = "tom1.rds")
 
 ```
 

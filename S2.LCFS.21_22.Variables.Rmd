@@ -109,7 +109,16 @@ LCFS_22_benefits_result_total<-LCFS_22_benefits_result_total%>%
          Income.Income.Support.24=Income.Income.Support.23*benefit.inflation.24,
          Income.ExtPaym.Housing.Benefit.24=Income.ExtPaym.Housing.Benefit.23*benefit.inflation.24,
          Income.Carer.Allowance.24=Income.Carer.Allowance.23*benefit.inflation.24)
+```
 
+# Taper off benefits
+```{r}
+
+```
+
+
+
+```{r}
 
 LCFS_benefits_22<-LCFS_22_benefits_result_total%>% mutate(Year="2021-22")
 LCFS_benefits_23<-LCFS_22_benefits_result_total%>% mutate(Year="2022-23")
