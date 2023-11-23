@@ -389,7 +389,7 @@ shinyApp(ui = shinyUI(
                                                "Income.Gross.Wages.Respondent", "Income.Housing.Benefit", "Income.Income.Support", 
                                                "Income.JSA.Combined", "Income.JSA.Contribution.Based", "Income.JSA.Income.Based", 
                                                "Income.Pension.Credit", "Income.PIP.Car", "Income.PIP.Mob", "Income.Takehome.Wages.Partner", 
-                                               "Income.Takehome.Wages.Respondent", "Income.Total", "Income.Total.Benefits", "Income.UC", "Income.WTC"))
+                                               "Income.Takehome.Wages.Respondent", "Income.Total", "Income.Total.Benefits", "Income.UC", "Income.WTC", "Surplus"))
                 ),
                 column(width = 6,
                        selectInput(inputId = "TimeVariable",
@@ -450,7 +450,7 @@ shinyApp(ui = shinyUI(
                                                "Income.Gross.Wages.Respondent", "Income.Housing.Benefit", "Income.Income.Support", 
                                                "Income.JSA.Combined", "Income.JSA.Contribution.Based", "Income.JSA.Income.Based", 
                                                "Income.Pension.Credit", "Income.PIP.Car", "Income.PIP.Mob", "Income.Takehome.Wages.Partner", 
-                                               "Income.Takehome.Wages.Respondent", "Income.Total", "Income.Total.Benefits", "Income.UC", "Income.WTC"))
+                                               "Income.Takehome.Wages.Respondent", "Income.Total", "Income.Total.Benefits", "Income.UC", "Income.WTC", "Surplus"))
                 ),
                 column(width = 4,
                        selectInput(inputId = "TimeVariable2",
@@ -557,7 +557,7 @@ shinyApp(ui = shinyUI(
                                                "Income.Gross.Wages.Respondent", "Income.Housing.Benefit", "Income.Income.Support", 
                                                "Income.JSA.Combined", "Income.JSA.Contribution.Based", "Income.JSA.Income.Based", 
                                                "Income.Pension.Credit", "Income.PIP.Car", "Income.PIP.Mob", "Income.Takehome.Wages.Partner", 
-                                               "Income.Takehome.Wages.Respondent", "Income.Total", "Income.Total.Benefits", "Income.UC", "Income.WTC"))
+                                               "Income.Takehome.Wages.Respondent", "Income.Total", "Income.Total.Benefits", "Income.UC", "Income.WTC", "Surplus"))
                 ),
                 column(width = 4,
                        selectInput(inputId = "TimeVariable3",
@@ -635,7 +635,7 @@ shinyApp(ui = shinyUI(
                                                "Income.Gross.Wages.Respondent", "Income.Housing.Benefit", "Income.Income.Support", 
                                                "Income.JSA.Combined", "Income.JSA.Contribution.Based", "Income.JSA.Income.Based", 
                                                "Income.Pension.Credit", "Income.PIP.Car", "Income.PIP.Mob", "Income.Takehome.Wages.Partner", 
-                                               "Income.Takehome.Wages.Respondent", "Income.Total", "Income.Total.Benefits", "Income.UC", "Income.WTC"))),
+                                               "Income.Takehome.Wages.Respondent", "Income.Total", "Income.Total.Benefits", "Income.UC", "Income.WTC", "Surplus"))),
                 column(width = 3,
                        selectInput(inputId = "TimeVariable4",
                                    label = "Time variable:",
@@ -712,7 +712,7 @@ shinyApp(ui = shinyUI(
                                                "Income.Gross.Wages.Respondent", "Income.Housing.Benefit", "Income.Income.Support", 
                                                "Income.JSA.Combined", "Income.JSA.Contribution.Based", "Income.JSA.Income.Based", 
                                                "Income.Pension.Credit", "Income.PIP.Car", "Income.PIP.Mob", "Income.Takehome.Wages.Partner", 
-                                               "Income.Takehome.Wages.Respondent", "Income.Total", "Income.Total.Benefits", "Income.UC", "Income.WTC"))),
+                                               "Income.Takehome.Wages.Respondent", "Income.Total", "Income.Total.Benefits", "Income.UC", "Income.WTC", "Surplus"))),
                 column(width = 3,
                        selectInput(inputId = "TimeVariable5",
                                    label = "Time variable:",
@@ -859,7 +859,7 @@ shinyApp(ui = shinyUI(
                                                "Income.Gross.Wages.Respondent", "Income.Housing.Benefit", "Income.Income.Support", 
                                                "Income.JSA.Combined", "Income.JSA.Contribution.Based", "Income.JSA.Income.Based", 
                                                "Income.Pension.Credit", "Income.PIP.Car", "Income.PIP.Mob", "Income.Takehome.Wages.Partner", 
-                                               "Income.Takehome.Wages.Respondent", "Income.Total", "Income.Total.Benefits", "Income.UC", "Income.WTC")  
+                                               "Income.Takehome.Wages.Respondent", "Income.Total", "Income.Total.Benefits", "Income.UC", "Income.WTC", "Surplus")  
                        )
                 ),
                 column(4, 
@@ -935,7 +935,7 @@ shinyApp(ui = shinyUI(
                                                         "Income.Gross.Wages.Respondent", "Income.Housing.Benefit", "Income.Income.Support", 
                                                         "Income.JSA.Combined", "Income.JSA.Contribution.Based", "Income.JSA.Income.Based", 
                                                         "Income.Pension.Credit", "Income.PIP.Car", "Income.PIP.Mob", "Income.Takehome.Wages.Partner", 
-                                                        "Income.Takehome.Wages.Respondent", "Income.Total", "Income.Total.Benefits", "Income.UC", "Income.WTC")
+                                                        "Income.Takehome.Wages.Respondent", "Income.Total", "Income.Total.Benefits", "Income.UC", "Income.WTC" , "Surplus")
                                 )
                          ),
                          column(4, 
