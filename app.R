@@ -94,15 +94,13 @@ shinyApp(ui = shinyUI(
                                                         "Demographic.Derived.Household.Type.LCFS.child", "Demographic.ESA", "Demographic.Expenditure.Decile", 
                                                         "Demographic.Fishy", "Demographic.FishyV2", "Demographic.FishyV3", "Demographic.Housing", "Demographic.Housing.Benefit", "Demographic.Housing.Tenure.LCFS", 
                                                         "Demographic.HRP.LCFS", "Demographic.Income.Decile", "Demographic.Income.Support", "Demographic.JSA.Combined", 
-                                                        "Demographic.JSA.Contribution.Based", "Demographic.JSA.Income.Based", "Demographic.Negbud", 
-                                                        "Demographic.Number.of.Child.<1.LCFS", "Demographic.Number.of.Child.<5.LCFS", "Demographic.Number.of.Child.10-15.LCFS", 
-                                                        "Demographic.Number.of.Child.16-18.LCFS", "Demographic.Number.of.Child.5-9.LCFS", "Demographic.Number.of.Child.<16.LCFS", 
-                                                        "Demographic.Number.of.Child.LCFS", "Demographic.Number.of.Dependent.Child.LCFS", "Demographic.Number.of.Non.Dependent.Child.LCFS", 
+                                                        "Demographic.JSA.Contribution.Based", "Demographic.JSA.Income.Based", "Demographic.Means.Tested","Demographic.Negbud",
                                                         "Demographic.PIP.Car", "Demographic.PIP.Mob", "Demographic.Pension.Credit", 
                                                         "Demographic.Relationship.LCFS", "Demographic.Role.Type", "Demographic.Role.Type.Partner", 
                                                         "Demographic.Region.LCFS", "Demographic.Surplus.Bands.V1", "Demographic.Surplus.Bands.V2", 
                                                         "Demographic.UC", "Demographic.WTC", "Demographic.ethnicity.HRP", "Demographic.ethnicity.HRP.Partner", 
-                                                        "Demographic.Household.Type.LCFS")), width = 6)),
+                                                        "Demographic.Household.Type.LCFS", "LoE_Equivalised_V1",
+                                                        "LoE_Equivalised_V2")), width = 6)),
                 fluidRow(box(DT::dataTableOutput("table1"), width = 12)),
                 downloadButton("download", "Download Data")
         )
@@ -127,14 +125,13 @@ shinyApp(ui = shinyUI(
                                                "Demographic.Derived.Household.Type.LCFS.child", "Demographic.ESA", "Demographic.Expenditure.Decile", 
                                                "Demographic.Fishy", "Demographic.FishyV2", "Demographic.FishyV3", "Demographic.Housing", "Demographic.Housing.Benefit", "Demographic.Housing.Tenure.LCFS", 
                                                "Demographic.HRP.LCFS", "Demographic.Income.Decile", "Demographic.Income.Support", "Demographic.JSA.Combined", 
-                                               "Demographic.JSA.Contribution.Based", "Demographic.JSA.Income.Based", "Demographic.Negbud", 
-                                               "Demographic.Number.of.Child.<1.LCFS", "Demographic.Number.of.Child.<5.LCFS", "Demographic.Number.of.Child.10-15.LCFS", 
-                                               "Demographic.Number.of.Child.16-18.LCFS", "Demographic.Number.of.Child.5-9.LCFS", "Demographic.Number.of.Child.<16.LCFS", 
-                                               "Demographic.Number.of.Child.LCFS", "Demographic.Number.of.Dependent.Child.LCFS", "Demographic.Number.of.Non.Dependent.Child.LCFS", 
+                                               "Demographic.JSA.Contribution.Based", "Demographic.JSA.Income.Based", "Demographic.Means.Tested","Demographic.Negbud", 
                                                "Demographic.PIP.Car", "Demographic.PIP.Mob", "Demographic.Pension.Credit", 
                                                "Demographic.Relationship.LCFS", "Demographic.Role.Type", "Demographic.Role.Type.Partner", 
                                                "Demographic.Region.LCFS", "Demographic.Surplus.Bands.V1", "Demographic.Surplus.Bands.V2", 
-                                               "Demographic.UC", "Demographic.WTC", "Demographic.ethnicity.HRP", "Demographic.ethnicity.HRP.Partner", "Demographic.Household.Type.LCFS"))
+                                               "Demographic.UC", "Demographic.WTC", "Demographic.ethnicity.HRP", "Demographic.ethnicity.HRP.Partner", 
+                                               "Demographic.Household.Type.LCFS", "LoE_Equivalised_V1",
+                                               "LoE_Equivalised_V2"))
                 )
               ),
               fluidRow(
@@ -162,15 +159,14 @@ shinyApp(ui = shinyUI(
                                                "Demographic.Derived.Household.Type.LCFS.child", "Demographic.ESA", "Demographic.Expenditure.Decile", 
                                                "Demographic.Fishy", "Demographic.FishyV2", "Demographic.FishyV3", "Demographic.Housing", "Demographic.Housing.Benefit", "Demographic.Housing.Tenure.LCFS", 
                                                "Demographic.HRP.LCFS", "Demographic.Income.Decile", "Demographic.Income.Support", "Demographic.JSA.Combined", 
-                                               "Demographic.JSA.Contribution.Based", "Demographic.JSA.Income.Based", "Demographic.Negbud", 
-                                               "Demographic.Number.of.Child.<1.LCFS", "Demographic.Number.of.Child.<5.LCFS", "Demographic.Number.of.Child.10-15.LCFS", 
-                                               "Demographic.Number.of.Child.16-18.LCFS", "Demographic.Number.of.Child.5-9.LCFS", "Demographic.Number.of.Child.<16.LCFS", 
-                                               "Demographic.Number.of.Child.LCFS", "Demographic.Number.of.Dependent.Child.LCFS", "Demographic.Number.of.Non.Dependent.Child.LCFS", 
+                                               "Demographic.JSA.Contribution.Based", "Demographic.JSA.Income.Based", "Demographic.Means.Tested","Demographic.Negbud", 
+                                               
                                                "Demographic.PIP.Car", "Demographic.PIP.Mob", "Demographic.Pension.Credit", 
                                                "Demographic.Relationship.LCFS", "Demographic.Role.Type", "Demographic.Role.Type.Partner", 
                                                "Demographic.Region.LCFS", "Demographic.Surplus.Bands.V1", "Demographic.Surplus.Bands.V2", 
                                                "Demographic.UC", "Demographic.WTC", "Demographic.ethnicity.HRP", "Demographic.ethnicity.HRP.Partner", 
-                                               "Demographic.Household.Type.LCFS", "Demographic.FishyV2"))
+                                               "Demographic.Household.Type.LCFS", "Demographic.FishyV2", "LoE_Equivalised_V1",
+                                               "LoE_Equivalised_V2"))
                 ),
                 column(width = 4, 
                        selectInput(inputId = "Tab3Variable3",
@@ -181,14 +177,14 @@ shinyApp(ui = shinyUI(
                                                "Demographic.Derived.Household.Type.LCFS.child", "Demographic.ESA", "Demographic.Expenditure.Decile", 
                                                "Demographic.Fishy", "Demographic.FishyV2", "Demographic.FishyV3", "Demographic.Housing", "Demographic.Housing.Benefit", "Demographic.Housing.Tenure.LCFS", 
                                                "Demographic.HRP.LCFS", "Demographic.Income.Decile", "Demographic.Income.Support", "Demographic.JSA.Combined", 
-                                               "Demographic.JSA.Contribution.Based", "Demographic.JSA.Income.Based", 
-                                               "Demographic.Number.of.Child.<1.LCFS", "Demographic.Number.of.Child.<5.LCFS", "Demographic.Number.of.Child.10-15.LCFS", 
-                                               "Demographic.Number.of.Child.16-18.LCFS", "Demographic.Number.of.Child.5-9.LCFS", "Demographic.Number.of.Child.<16.LCFS", 
-                                               "Demographic.Number.of.Child.LCFS", "Demographic.Number.of.Dependent.Child.LCFS", "Demographic.Number.of.Non.Dependent.Child.LCFS", 
+                                               "Demographic.JSA.Contribution.Based", "Demographic.JSA.Income.Based", "Demographic.Means.Tested",
+                                               
                                                "Demographic.PIP.Car", "Demographic.PIP.Mob", "Demographic.Pension.Credit", 
                                                "Demographic.Relationship.LCFS", "Demographic.Role.Type", "Demographic.Role.Type.Partner", 
                                                "Demographic.Region.LCFS", "Demographic.Surplus.Bands.V1", "Demographic.Surplus.Bands.V2", 
-                                               "Demographic.UC", "Demographic.WTC", "Demographic.ethnicity.HRP", "Demographic.ethnicity.HRP.Partner", "Demographic.Household.Type.LCFS"))
+                                               "Demographic.UC", "Demographic.WTC", "Demographic.ethnicity.HRP", "Demographic.ethnicity.HRP.Partner", 
+                                               "Demographic.Household.Type.LCFS", "LoE_Equivalised_V1",
+                                               "LoE_Equivalised_V2"))
                 )
               ),
               fluidRow(
@@ -222,7 +218,9 @@ shinyApp(ui = shinyUI(
                                                "Income.Housing.Benefit", "Income.Income.Support", "Income.JSA.Combined", "Income.JSA.Contribution.Based", 
                                                "Income.JSA.Income.Based", "Income.Pension.Credit", "Income.PIP.Car", "Income.PIP.Mob", 
                                                "Income.Takehome.Wages.Partner", "Income.Takehome.Wages.Respondent", "Income.Total", 
-                                               "Income.Total.Benefits", "Income.UC", "Income.WTC"))
+                                               "Income.Total.Benefits", "Income.UC", "Income.WTC","Income.Equivalised",
+                                               "Expenditure.Equivalised",
+                                               "Surplus.Equivalised"))
                 )
               ),
               fluidRow(box(DT::dataTableOutput("table4"), width = 12)),
@@ -247,14 +245,14 @@ shinyApp(ui = shinyUI(
                                                "Demographic.Derived.Household.Type.LCFS.child", "Demographic.ESA", "Demographic.Expenditure.Decile", 
                                                "Demographic.Fishy", "Demographic.FishyV2", "Demographic.FishyV3", "Demographic.Housing", "Demographic.Housing.Benefit", "Demographic.Housing.Tenure.LCFS", 
                                                "Demographic.HRP.LCFS", "Demographic.Income.Decile", "Demographic.Income.Support", "Demographic.JSA.Combined", 
-                                               "Demographic.JSA.Contribution.Based", "Demographic.JSA.Income.Based", "Demographic.Negbud", 
-                                               "Demographic.Number.of.Child.<1.LCFS", "Demographic.Number.of.Child.<5.LCFS", "Demographic.Number.of.Child.10-15.LCFS", 
-                                               "Demographic.Number.of.Child.16-18.LCFS", "Demographic.Number.of.Child.5-9.LCFS", "Demographic.Number.of.Child.<16.LCFS", 
-                                               "Demographic.Number.of.Child.LCFS", "Demographic.Number.of.Dependent.Child.LCFS", "Demographic.Number.of.Non.Dependent.Child.LCFS", 
+                                               "Demographic.JSA.Contribution.Based", "Demographic.JSA.Income.Based", "Demographic.Means.Tested","Demographic.Negbud", 
+                                               
                                                "Demographic.PIP.Car", "Demographic.PIP.Mob", "Demographic.Pension.Credit", 
                                                "Demographic.Relationship.LCFS", "Demographic.Role.Type", "Demographic.Role.Type.Partner", 
                                                "Demographic.Region.LCFS", "Demographic.Surplus.Bands.V1", "Demographic.Surplus.Bands.V2", 
-                                               "Demographic.UC", "Demographic.WTC", "Demographic.ethnicity.HRP", "Demographic.ethnicity.HRP.Partner", "Demographic.Household.Type.LCFS"))),
+                                               "Demographic.UC", "Demographic.WTC", "Demographic.ethnicity.HRP", "Demographic.ethnicity.HRP.Partner", 
+                                               "Demographic.Household.Type.LCFS", "LoE_Equivalised_V1",
+                                               "LoE_Equivalised_V2"))),
                 column(width = 4,
                        selectInput(inputId = "Tab5Variable3",
                                    label = "Choose a numeric variable:",
@@ -270,7 +268,9 @@ shinyApp(ui = shinyUI(
                                                "Income.Housing.Benefit", "Income.Income.Support", "Income.JSA.Combined", "Income.JSA.Contribution.Based", 
                                                "Income.JSA.Income.Based", "Income.Pension.Credit", "Income.PIP.Car", "Income.PIP.Mob", 
                                                "Income.Takehome.Wages.Partner", "Income.Takehome.Wages.Respondent", "Income.Total", 
-                                               "Income.Total.Benefits", "Income.UC", "Income.WTC")))
+                                               "Income.Total.Benefits", "Income.UC", "Income.WTC","Income.Equivalised",
+                                               "Expenditure.Equivalised",
+                                               "Surplus.Equivalised")))
               ),
               fluidRow(
                 column(width = 12,
@@ -329,7 +329,7 @@ shinyApp(ui = shinyUI(
                                                           "Expenditure.Leisure.MART", "Expenditure.Mortgage", "Expenditure.Others", "Expenditure.Personal.Cost", 
                                                           "Expenditure.Personal.MART", "Expenditure.Rent", "Expenditure.Rent.Net", "Expenditure.Total", 
                                                           "Expenditure.Transport", "Expenditure.Utilities", "Expenditure.Utilities.MART", 
-                                                          "Expenditure.Vehicle.Insurance", "Expenditure.Water"))),
+                                                          "Expenditure.Vehicle.Insurance", "Expenditure.Water","Expenditure.Equivalised"))),
                 column(width = 6, selectInput(inputId = "Tab8Variable2",
                                               label = "Choose an expenditure for the slider above:",
                                               choices = c("Expenditure.Water","Expenditure.Comms.Mobile.Phone", "Expenditure.Council.Tax", "Expenditure.Council.Tax.Support", 
@@ -339,7 +339,7 @@ shinyApp(ui = shinyUI(
                                                           "Expenditure.Leisure.MART", "Expenditure.Mortgage", "Expenditure.Others", "Expenditure.Personal.Cost", 
                                                           "Expenditure.Personal.MART", "Expenditure.Rent", "Expenditure.Rent.Net", "Expenditure.Total", 
                                                           "Expenditure.Transport", "Expenditure.Utilities", "Expenditure.Utilities.MART", 
-                                                          "Expenditure.Vehicle.Insurance")))
+                                                          "Expenditure.Vehicle.Insurance","Expenditure.Equivalised")))
               ),
               fluidRow(box(DT::dataTableOutput("table8"), width = 12)),
               downloadButton("download8", "Download Data")   
@@ -363,7 +363,7 @@ shinyApp(ui = shinyUI(
                                                "Income.Income.Support", "Income.JSA.Combined", "Income.JSA.Contribution.Based", 
                                                "Income.JSA.Income.Based", "Income.Pension.Credit", "Income.PIP.Car", "Income.PIP.Mob", 
                                                "Income.Takehome.Wages.Partner", "Income.Takehome.Wages.Respondent", "Income.Total", 
-                                               "Income.Total.Benefits", "Income.UC", "Income.WTC"))
+                                               "Income.Total.Benefits", "Income.UC", "Income.WTC","Income.Equivalised"))
                 )
               ),
               fluidRow(box(DT::dataTableOutput("table9"), width = 12)),
@@ -391,7 +391,9 @@ shinyApp(ui = shinyUI(
                                                "Income.Gross.Wages.Respondent", "Income.Housing.Benefit", "Income.Income.Support", 
                                                "Income.JSA.Combined", "Income.JSA.Contribution.Based", "Income.JSA.Income.Based", 
                                                "Income.Pension.Credit", "Income.PIP.Car", "Income.PIP.Mob", "Income.Takehome.Wages.Partner", 
-                                               "Income.Takehome.Wages.Respondent", "Income.Total", "Income.Total.Benefits", "Income.UC", "Income.WTC", "Surplus"))
+                                               "Income.Takehome.Wages.Respondent", "Income.Total", "Income.Total.Benefits", "Income.UC", "Income.WTC", "Surplus","Income.Equivalised",
+                                               "Expenditure.Equivalised",
+                                               "Surplus.Equivalised"))
                 ),
                 column(width = 6,
                        selectInput(inputId = "TimeVariable",
@@ -428,14 +430,14 @@ shinyApp(ui = shinyUI(
                                                "Demographic.Derived.Household.Type.LCFS.child", "Demographic.ESA", "Demographic.Expenditure.Decile", 
                                                "Demographic.Fishy", "Demographic.FishyV2", "Demographic.FishyV3", "Demographic.Housing", "Demographic.Housing.Benefit", "Demographic.Housing.Tenure.LCFS", 
                                                "Demographic.HRP.LCFS", "Demographic.Income.Decile", "Demographic.Income.Support", "Demographic.JSA.Combined", 
-                                               "Demographic.JSA.Contribution.Based", "Demographic.JSA.Income.Based", "Demographic.Negbud", 
-                                               "Demographic.Number.of.Child.<1.LCFS", "Demographic.Number.of.Child.<5.LCFS", "Demographic.Number.of.Child.10-15.LCFS", 
-                                               "Demographic.Number.of.Child.16-18.LCFS", "Demographic.Number.of.Child.5-9.LCFS", "Demographic.Number.of.Child.<16.LCFS", 
-                                               "Demographic.Number.of.Child.LCFS", "Demographic.Number.of.Dependent.Child.LCFS", "Demographic.Number.of.Non.Dependent.Child.LCFS", 
+                                               "Demographic.JSA.Contribution.Based", "Demographic.JSA.Income.Based", "Demographic.Means.Tested","Demographic.Negbud", 
+                                               
                                                "Demographic.PIP.Car", "Demographic.PIP.Mob", "Demographic.Pension.Credit", 
                                                "Demographic.Relationship.LCFS", "Demographic.Role.Type", "Demographic.Role.Type.Partner", 
                                                "Demographic.Region.LCFS", "Demographic.Surplus.Bands.V1", "Demographic.Surplus.Bands.V2", 
-                                               "Demographic.UC", "Demographic.WTC", "Demographic.ethnicity.HRP", "Demographic.ethnicity.HRP.Partner", "Demographic.Household.Type.LCFS"))
+                                               "Demographic.UC", "Demographic.WTC", "Demographic.ethnicity.HRP", "Demographic.ethnicity.HRP.Partner", 
+                                               "Demographic.Household.Type.LCFS", "LoE_Equivalised_V1",
+                                               "LoE_Equivalised_V2"))
                 ),
                 column(width = 4,
                        selectInput(inputId = "Tab11Variable2",
@@ -452,7 +454,10 @@ shinyApp(ui = shinyUI(
                                                "Income.Gross.Wages.Respondent", "Income.Housing.Benefit", "Income.Income.Support", 
                                                "Income.JSA.Combined", "Income.JSA.Contribution.Based", "Income.JSA.Income.Based", 
                                                "Income.Pension.Credit", "Income.PIP.Car", "Income.PIP.Mob", "Income.Takehome.Wages.Partner", 
-                                               "Income.Takehome.Wages.Respondent", "Income.Total", "Income.Total.Benefits", "Income.UC", "Income.WTC", "Surplus"))
+                                               "Income.Takehome.Wages.Respondent", "Income.Total", "Income.Total.Benefits", "Income.UC", "Income.WTC", "Surplus",
+                                               "Income.Equivalised",
+                                               "Expenditure.Equivalised",
+                                               "Surplus.Equivalised"))
                 ),
                 column(width = 4,
                        selectInput(inputId = "TimeVariable2",
@@ -488,14 +493,14 @@ shinyApp(ui = shinyUI(
                                                "Demographic.Derived.Household.Type.LCFS.child", "Demographic.ESA", "Demographic.Expenditure.Decile", 
                                                "Demographic.Fishy", "Demographic.FishyV2", "Demographic.FishyV3", "Demographic.Housing", "Demographic.Housing.Benefit", "Demographic.Housing.Tenure.LCFS", 
                                                "Demographic.HRP.LCFS", "Demographic.Income.Decile", "Demographic.Income.Support", "Demographic.JSA.Combined", 
-                                               "Demographic.JSA.Contribution.Based", "Demographic.JSA.Income.Based", "Demographic.Negbud", 
-                                               "Demographic.Number.of.Child.<1.LCFS", "Demographic.Number.of.Child.<5.LCFS", "Demographic.Number.of.Child.10-15.LCFS", 
-                                               "Demographic.Number.of.Child.16-18.LCFS", "Demographic.Number.of.Child.5-9.LCFS", "Demographic.Number.of.Child.<16.LCFS", 
-                                               "Demographic.Number.of.Child.LCFS", "Demographic.Number.of.Dependent.Child.LCFS", "Demographic.Number.of.Non.Dependent.Child.LCFS", 
+                                               "Demographic.JSA.Contribution.Based", "Demographic.JSA.Income.Based","Demographic.Means.Tested", "Demographic.Negbud", 
+                                              
                                                "Demographic.PIP.Car", "Demographic.PIP.Mob", "Demographic.Pension.Credit", 
                                                "Demographic.Relationship.LCFS", "Demographic.Role.Type", "Demographic.Role.Type.Partner", 
                                                "Demographic.Region.LCFS", "Demographic.Surplus.Bands.V1", "Demographic.Surplus.Bands.V2", 
-                                               "Demographic.UC", "Demographic.WTC", "Demographic.ethnicity.HRP", "Demographic.ethnicity.HRP.Partner", "Demographic.Household.Type.LCFS"))
+                                               "Demographic.UC", "Demographic.WTC", "Demographic.ethnicity.HRP", "Demographic.ethnicity.HRP.Partner", 
+                                               "Demographic.Household.Type.LCFS", "LoE_Equivalised_V1",
+                                               "LoE_Equivalised_V2"))
                 ),
                 column(width = 4,
                        selectInput(inputId = "TimeVariableNeg",
@@ -535,14 +540,14 @@ shinyApp(ui = shinyUI(
                                                "Demographic.Derived.Household.Type.LCFS.child", "Demographic.ESA", "Demographic.Expenditure.Decile", 
                                                "Demographic.Fishy", "Demographic.FishyV2", "Demographic.FishyV3", "Demographic.Housing", "Demographic.Housing.Benefit", "Demographic.Housing.Tenure.LCFS", 
                                                "Demographic.HRP.LCFS", "Demographic.Income.Decile", "Demographic.Income.Support", "Demographic.JSA.Combined", 
-                                               "Demographic.JSA.Contribution.Based", "Demographic.JSA.Income.Based", "Demographic.Negbud", 
-                                               "Demographic.Number.of.Child.<1.LCFS", "Demographic.Number.of.Child.<5.LCFS", "Demographic.Number.of.Child.10-15.LCFS", 
-                                               "Demographic.Number.of.Child.16-18.LCFS", "Demographic.Number.of.Child.5-9.LCFS", "Demographic.Number.of.Child.<16.LCFS", 
-                                               "Demographic.Number.of.Child.LCFS", "Demographic.Number.of.Dependent.Child.LCFS", "Demographic.Number.of.Non.Dependent.Child.LCFS", 
+                                               "Demographic.JSA.Contribution.Based", "Demographic.JSA.Income.Based", "Demographic.Means.Tested","Demographic.Negbud", 
+                                               
                                                "Demographic.PIP.Car", "Demographic.PIP.Mob", "Demographic.Pension.Credit", 
                                                "Demographic.Relationship.LCFS", "Demographic.Role.Type", "Demographic.Role.Type.Partner", 
                                                "Demographic.Region.LCFS", "Demographic.Surplus.Bands.V1", "Demographic.Surplus.Bands.V2", 
-                                               "Demographic.UC", "Demographic.WTC", "Demographic.ethnicity.HRP", "Demographic.ethnicity.HRP.Partner", "Demographic.Household.Type.LCFS"))
+                                               "Demographic.UC", "Demographic.WTC", "Demographic.ethnicity.HRP", "Demographic.ethnicity.HRP.Partner", 
+                                               "Demographic.Household.Type.LCFS", "LoE_Equivalised_V1",
+                                               "LoE_Equivalised_V2"))
                 ),
                 column(width = 4,
                        selectInput(inputId = "Tab12Variable2",
@@ -559,7 +564,10 @@ shinyApp(ui = shinyUI(
                                                "Income.Gross.Wages.Respondent", "Income.Housing.Benefit", "Income.Income.Support", 
                                                "Income.JSA.Combined", "Income.JSA.Contribution.Based", "Income.JSA.Income.Based", 
                                                "Income.Pension.Credit", "Income.PIP.Car", "Income.PIP.Mob", "Income.Takehome.Wages.Partner", 
-                                               "Income.Takehome.Wages.Respondent", "Income.Total", "Income.Total.Benefits", "Income.UC", "Income.WTC", "Surplus"))
+                                               "Income.Takehome.Wages.Respondent", "Income.Total", "Income.Total.Benefits", "Income.UC", "Income.WTC", "Surplus",
+                                               "Income.Equivalised",
+                                               "Expenditure.Equivalised",
+                                               "Surplus.Equivalised"))
                 ),
                 column(width = 4,
                        selectInput(inputId = "TimeVariable3",
@@ -597,14 +605,14 @@ shinyApp(ui = shinyUI(
                                                "Demographic.Derived.Household.Type.LCFS.child", "Demographic.ESA", "Demographic.Expenditure.Decile", 
                                                "Demographic.Fishy", "Demographic.FishyV2", "Demographic.FishyV3", "Demographic.Housing", "Demographic.Housing.Benefit", "Demographic.Housing.Tenure.LCFS", 
                                                "Demographic.HRP.LCFS", "Demographic.Income.Decile", "Demographic.Income.Support", "Demographic.JSA.Combined", 
-                                               "Demographic.JSA.Contribution.Based", "Demographic.JSA.Income.Based", "Demographic.Negbud", 
-                                               "Demographic.Number.of.Child.<1.LCFS", "Demographic.Number.of.Child.<5.LCFS", "Demographic.Number.of.Child.10-15.LCFS", 
-                                               "Demographic.Number.of.Child.16-18.LCFS", "Demographic.Number.of.Child.5-9.LCFS", "Demographic.Number.of.Child.<16.LCFS", 
-                                               "Demographic.Number.of.Child.LCFS", "Demographic.Number.of.Dependent.Child.LCFS", "Demographic.Number.of.Non.Dependent.Child.LCFS", 
+                                               "Demographic.JSA.Contribution.Based", "Demographic.JSA.Income.Based", "Demographic.Means.Tested","Demographic.Negbud", 
+                                              
                                                "Demographic.PIP.Car", "Demographic.PIP.Mob", "Demographic.Pension.Credit", 
                                                "Demographic.Relationship.LCFS", "Demographic.Role.Type", "Demographic.Role.Type.Partner", 
                                                "Demographic.Region.LCFS", "Demographic.Surplus.Bands.V1", "Demographic.Surplus.Bands.V2", 
-                                               "Demographic.UC", "Demographic.WTC", "Demographic.ethnicity.HRP", "Demographic.ethnicity.HRP.Partner", "Demographic.Household.Type.LCFS"))),
+                                               "Demographic.UC", "Demographic.WTC", "Demographic.ethnicity.HRP", "Demographic.ethnicity.HRP.Partner", 
+                                               "Demographic.Household.Type.LCFS", "LoE_Equivalised_V1",
+                                               "LoE_Equivalised_V2"))),
                 column(width = 3,
                        selectInput(inputId = "Tab13Variable2",
                                    label = "Grouping variable 2:",
@@ -614,14 +622,14 @@ shinyApp(ui = shinyUI(
                                                "Demographic.Derived.Household.Type.LCFS.child", "Demographic.ESA", "Demographic.Expenditure.Decile", 
                                                "Demographic.Fishy", "Demographic.FishyV2", "Demographic.FishyV3", "Demographic.Housing", "Demographic.Housing.Benefit", "Demographic.Housing.Tenure.LCFS", 
                                                "Demographic.HRP.LCFS", "Demographic.Income.Decile", "Demographic.Income.Support", "Demographic.JSA.Combined", 
-                                               "Demographic.JSA.Contribution.Based", "Demographic.JSA.Income.Based", 
-                                               "Demographic.Number.of.Child.<1.LCFS", "Demographic.Number.of.Child.<5.LCFS", "Demographic.Number.of.Child.10-15.LCFS", 
-                                               "Demographic.Number.of.Child.16-18.LCFS", "Demographic.Number.of.Child.5-9.LCFS", "Demographic.Number.of.Child.<16.LCFS", 
-                                               "Demographic.Number.of.Child.LCFS", "Demographic.Number.of.Dependent.Child.LCFS", "Demographic.Number.of.Non.Dependent.Child.LCFS", 
+                                               "Demographic.JSA.Contribution.Based", "Demographic.JSA.Income.Based", "Demographic.Means.Tested",
+                                              
                                                "Demographic.PIP.Car", "Demographic.PIP.Mob", "Demographic.Pension.Credit", 
                                                "Demographic.Relationship.LCFS", "Demographic.Role.Type", "Demographic.Role.Type.Partner", 
                                                "Demographic.Region.LCFS", "Demographic.Surplus.Bands.V1", "Demographic.Surplus.Bands.V2", 
-                                               "Demographic.UC", "Demographic.WTC", "Demographic.ethnicity.HRP", "Demographic.ethnicity.HRP.Partner", "Demographic.Household.Type.LCFS"))),
+                                               "Demographic.UC", "Demographic.WTC", "Demographic.ethnicity.HRP", "Demographic.ethnicity.HRP.Partner", 
+                                               "Demographic.Household.Type.LCFS", "LoE_Equivalised_V1",
+                                               "LoE_Equivalised_V2"))),
                 column(width = 3,
                        selectInput(inputId = "Tab13Variable3",
                                    label = "Numeric variable:",
@@ -637,7 +645,10 @@ shinyApp(ui = shinyUI(
                                                "Income.Gross.Wages.Respondent", "Income.Housing.Benefit", "Income.Income.Support", 
                                                "Income.JSA.Combined", "Income.JSA.Contribution.Based", "Income.JSA.Income.Based", 
                                                "Income.Pension.Credit", "Income.PIP.Car", "Income.PIP.Mob", "Income.Takehome.Wages.Partner", 
-                                               "Income.Takehome.Wages.Respondent", "Income.Total", "Income.Total.Benefits", "Income.UC", "Income.WTC", "Surplus"))),
+                                               "Income.Takehome.Wages.Respondent", "Income.Total", "Income.Total.Benefits", "Income.UC", "Income.WTC", "Surplus",
+                                               "Income.Equivalised",
+                                               "Expenditure.Equivalised",
+                                               "Surplus.Equivalised"))),
                 column(width = 3,
                        selectInput(inputId = "TimeVariable4",
                                    label = "Time variable:",
@@ -674,15 +685,14 @@ shinyApp(ui = shinyUI(
                                                "Demographic.Derived.Household.Type.LCFS.child", "Demographic.ESA", "Demographic.Expenditure.Decile", 
                                                "Demographic.Fishy", "Demographic.FishyV2", "Demographic.FishyV3", "Demographic.Housing", "Demographic.Housing.Benefit", "Demographic.Housing.Tenure.LCFS", 
                                                "Demographic.HRP.LCFS", "Demographic.Income.Decile", "Demographic.Income.Support", "Demographic.JSA.Combined", 
-                                               "Demographic.JSA.Contribution.Based", "Demographic.JSA.Income.Based", "Demographic.Negbud", 
-                                               "Demographic.Number.of.Child.<1.LCFS", "Demographic.Number.of.Child.<5.LCFS", "Demographic.Number.of.Child.10-15.LCFS", 
-                                               "Demographic.Number.of.Child.16-18.LCFS", "Demographic.Number.of.Child.5-9.LCFS", "Demographic.Number.of.Child.<16.LCFS", 
-                                               "Demographic.Number.of.Child.LCFS", "Demographic.Number.of.Dependent.Child.LCFS", "Demographic.Number.of.Non.Dependent.Child.LCFS", 
+                                               "Demographic.JSA.Contribution.Based", "Demographic.JSA.Income.Based", "Demographic.Means.Tested","Demographic.Negbud", 
+                                              
                                                "Demographic.PIP.Car", "Demographic.PIP.Mob", "Demographic.Pension.Credit", 
                                                "Demographic.Relationship.LCFS", "Demographic.Role.Type", "Demographic.Role.Type.Partner", 
                                                "Demographic.Region.LCFS", "Demographic.Surplus.Bands.V1", "Demographic.Surplus.Bands.V2", 
                                                "Demographic.UC", "Demographic.WTC", "Demographic.ethnicity.HRP", "Demographic.ethnicity.HRP.Partner", 
-                                               "Demographic.Household.Type.LCFS","Demographic.FishyV2", "Demographic.FishyV3"))),
+                                               "Demographic.Household.Type.LCFS","Demographic.FishyV2", "Demographic.FishyV3", "LoE_Equivalised_V1",
+                                               "LoE_Equivalised_V2"))),
                 column(width = 3,
                        selectInput(inputId = "Tab14Variable2",
                                    label = "Grouping variable 2:",
@@ -693,14 +703,13 @@ shinyApp(ui = shinyUI(
                                                "Demographic.Fishy", "Demographic.FishyV2", "Demographic.FishyV3", "Demographic.Housing", "Demographic.Housing.Benefit", "Demographic.Housing.Tenure.LCFS", 
                                                "Demographic.HRP.LCFS", "Demographic.Income.Decile", "Demographic.Income.Support", "Demographic.JSA.Combined", 
                                                "Demographic.JSA.Contribution.Based", "Demographic.JSA.Income.Based", 
-                                               "Demographic.Number.of.Child.<1.LCFS", "Demographic.Number.of.Child.<5.LCFS", "Demographic.Number.of.Child.10-15.LCFS", 
-                                               "Demographic.Number.of.Child.16-18.LCFS", "Demographic.Number.of.Child.5-9.LCFS", "Demographic.Number.of.Child.<16.LCFS", 
-                                               "Demographic.Number.of.Child.LCFS", "Demographic.Number.of.Dependent.Child.LCFS", "Demographic.Number.of.Non.Dependent.Child.LCFS", 
-                                               "Demographic.PIP.Car", "Demographic.PIP.Mob", "Demographic.Pension.Credit", 
+                                               
+                                               "Demographic.PIP.Car", "Demographic.PIP.Mob", "Demographic.Pension.Credit", "Demographic.Means.Tested",
                                                "Demographic.Relationship.LCFS", "Demographic.Role.Type", "Demographic.Role.Type.Partner", 
                                                "Demographic.Region.LCFS", "Demographic.Surplus.Bands.V1", "Demographic.Surplus.Bands.V2", 
                                                "Demographic.UC", "Demographic.WTC", "Demographic.ethnicity.HRP", 
-                                               "Demographic.ethnicity.HRP.Partner", "Demographic.Household.Type.LCFS","Demographic.FishyV2","Demographic.FishyV3"))),
+                                               "Demographic.ethnicity.HRP.Partner", "Demographic.Household.Type.LCFS","Demographic.FishyV2","Demographic.FishyV3", "LoE_Equivalised_V1",
+                                               "LoE_Equivalised_V2"))),
                 column(width = 3,
                        selectInput(inputId = "Tab14Variable3",
                                    label = "Numeric variable:",
@@ -716,7 +725,10 @@ shinyApp(ui = shinyUI(
                                                "Income.Gross.Wages.Respondent", "Income.Housing.Benefit", "Income.Income.Support", 
                                                "Income.JSA.Combined", "Income.JSA.Contribution.Based", "Income.JSA.Income.Based", 
                                                "Income.Pension.Credit", "Income.PIP.Car", "Income.PIP.Mob", "Income.Takehome.Wages.Partner", 
-                                               "Income.Takehome.Wages.Respondent", "Income.Total", "Income.Total.Benefits", "Income.UC", "Income.WTC", "Surplus"))),
+                                               "Income.Takehome.Wages.Respondent", "Income.Total", "Income.Total.Benefits", "Income.UC", "Income.WTC", "Surplus",
+                                               "Income.Equivalised",
+                                               "Expenditure.Equivalised",
+                                               "Surplus.Equivalised"))),
                 column(width = 3,
                        selectInput(inputId = "TimeVariable5",
                                    label = "Time variable:",
@@ -753,14 +765,14 @@ shinyApp(ui = shinyUI(
                                                "Demographic.Derived.Household.Type.LCFS.child", "Demographic.ESA", "Demographic.Expenditure.Decile", 
                                                "Demographic.Fishy", "Demographic.FishyV2", "Demographic.FishyV3", "Demographic.Housing", "Demographic.Housing.Benefit", "Demographic.Housing.Tenure.LCFS", 
                                                "Demographic.HRP.LCFS", "Demographic.Income.Decile", "Demographic.Income.Support", "Demographic.JSA.Combined", 
-                                               "Demographic.JSA.Contribution.Based", "Demographic.JSA.Income.Based", "Demographic.Negbud", 
-                                               "Demographic.Number.of.Child.<1.LCFS", "Demographic.Number.of.Child.<5.LCFS", "Demographic.Number.of.Child.10-15.LCFS", 
-                                               "Demographic.Number.of.Child.16-18.LCFS", "Demographic.Number.of.Child.5-9.LCFS", "Demographic.Number.of.Child.<16.LCFS", 
-                                               "Demographic.Number.of.Child.LCFS", "Demographic.Number.of.Dependent.Child.LCFS", "Demographic.Number.of.Non.Dependent.Child.LCFS", 
+                                               "Demographic.JSA.Contribution.Based", "Demographic.JSA.Income.Based", "Demographic.Means.Tested","Demographic.Negbud", 
+                                               
                                                "Demographic.PIP.Car", "Demographic.PIP.Mob", "Demographic.Pension.Credit", 
                                                "Demographic.Relationship.LCFS", "Demographic.Role.Type", "Demographic.Role.Type.Partner", 
                                                "Demographic.Region.LCFS", "Demographic.Surplus.Bands.V1", "Demographic.Surplus.Bands.V2", 
-                                               "Demographic.UC", "Demographic.WTC", "Demographic.ethnicity.HRP", "Demographic.ethnicity.HRP.Partner", "Demographic.Household.Type.LCFS"))),
+                                               "Demographic.UC", "Demographic.WTC", "Demographic.ethnicity.HRP", "Demographic.ethnicity.HRP.Partner", 
+                                               "Demographic.Household.Type.LCFS", "LoE_Equivalised_V1",
+                                               "LoE_Equivalised_V2"))),
                 column(width = 4,
                        selectInput(inputId = "Tab15Variable2",
                                    label = "Choose a numeric variable:",
@@ -776,7 +788,10 @@ shinyApp(ui = shinyUI(
                                                "Income.Gross.Wages.Respondent", "Income.Housing.Benefit", "Income.Income.Support", 
                                                "Income.JSA.Combined", "Income.JSA.Contribution.Based", "Income.JSA.Income.Based", 
                                                "Income.Pension.Credit", "Income.PIP.Car", "Income.PIP.Mob", "Income.Takehome.Wages.Partner", 
-                                               "Income.Takehome.Wages.Respondent", "Income.Total", "Income.Total.Benefits", "Income.UC", "Income.WTC"))),
+                                               "Income.Takehome.Wages.Respondent", "Income.Total", "Income.Total.Benefits", "Income.UC", "Income.WTC",
+                                               "Income.Equivalised",
+                                               "Expenditure.Equivalised",
+                                               "Surplus.Equivalised"))),
                 column(width = 4,
                        selectInput(inputId = "TimeVariable6",
                                    label = "Choose a time variable:",
@@ -813,14 +828,14 @@ shinyApp(ui = shinyUI(
                                                "Demographic.Derived.Household.Type.LCFS.child", "Demographic.ESA", "Demographic.Expenditure.Decile", 
                                                "Demographic.Fishy", "Demographic.FishyV2", "Demographic.FishyV3", "Demographic.Housing", "Demographic.Housing.Benefit", "Demographic.Housing.Tenure.LCFS", 
                                                "Demographic.HRP.LCFS", "Demographic.Income.Decile", "Demographic.Income.Support", "Demographic.JSA.Combined", 
-                                               "Demographic.JSA.Contribution.Based", "Demographic.JSA.Income.Based", "Demographic.Negbud", 
-                                               "Demographic.Number.of.Child.<1.LCFS", "Demographic.Number.of.Child.<5.LCFS", "Demographic.Number.of.Child.10-15.LCFS", 
-                                               "Demographic.Number.of.Child.16-18.LCFS", "Demographic.Number.of.Child.5-9.LCFS", "Demographic.Number.of.Child.<16.LCFS", 
-                                               "Demographic.Number.of.Child.LCFS", "Demographic.Number.of.Dependent.Child.LCFS", "Demographic.Number.of.Non.Dependent.Child.LCFS", 
+                                               "Demographic.JSA.Contribution.Based", "Demographic.JSA.Income.Based", "Demographic.Means.Tested","Demographic.Negbud", 
+                                               
                                                "Demographic.PIP.Car", "Demographic.PIP.Mob", "Demographic.Pension.Credit", 
                                                "Demographic.Relationship.LCFS", "Demographic.Role.Type", "Demographic.Role.Type.Partner", 
                                                "Demographic.Region.LCFS", "Demographic.Surplus.Bands.V1", "Demographic.Surplus.Bands.V2", 
-                                               "Demographic.UC", "Demographic.WTC", "Demographic.ethnicity.HRP", "Demographic.ethnicity.HRP.Partner", "Demographic.Household.Type.LCFS")))
+                                               "Demographic.UC", "Demographic.WTC", "Demographic.ethnicity.HRP", "Demographic.ethnicity.HRP.Partner", 
+                                               "Demographic.Household.Type.LCFS", "LoE_Equivalised_V1",
+                                               "LoE_Equivalised_V2")))
               ),
               tabsetPanel(
                 tabPanel("Plot",
@@ -863,7 +878,10 @@ shinyApp(ui = shinyUI(
                                                "Income.Gross.Wages.Respondent", "Income.Housing.Benefit", "Income.Income.Support", 
                                                "Income.JSA.Combined", "Income.JSA.Contribution.Based", "Income.JSA.Income.Based", 
                                                "Income.Pension.Credit", "Income.PIP.Car", "Income.PIP.Mob", "Income.Takehome.Wages.Partner", 
-                                               "Income.Takehome.Wages.Respondent", "Income.Total", "Income.Total.Benefits", "Income.UC", "Income.WTC", "Surplus")  
+                                               "Income.Takehome.Wages.Respondent", "Income.Total", "Income.Total.Benefits", "Income.UC", "Income.WTC", "Surplus",
+                                               "Income.Equivalised",
+                                               "Expenditure.Equivalised",
+                                               "Surplus.Equivalised")  
                        )
                 ),
                 column(4, 
@@ -914,14 +932,14 @@ shinyApp(ui = shinyUI(
                                                         "Demographic.Derived.Household.Type.LCFS.child", "Demographic.ESA", "Demographic.Expenditure.Decile", 
                                                         "Demographic.Fishy", "Demographic.FishyV2", "Demographic.FishyV3", "Demographic.Housing", "Demographic.Housing.Benefit", "Demographic.Housing.Tenure.LCFS", 
                                                         "Demographic.HRP.LCFS", "Demographic.Income.Decile", "Demographic.Income.Support", "Demographic.JSA.Combined", 
-                                                        "Demographic.JSA.Contribution.Based", "Demographic.JSA.Income.Based", "Demographic.Negbud", 
-                                                        "Demographic.Number.of.Child.<1.LCFS", "Demographic.Number.of.Child.<5.LCFS", "Demographic.Number.of.Child.10-15.LCFS", 
-                                                        "Demographic.Number.of.Child.16-18.LCFS", "Demographic.Number.of.Child.5-9.LCFS", "Demographic.Number.of.Child.<16.LCFS", 
-                                                        "Demographic.Number.of.Child.LCFS", "Demographic.Number.of.Dependent.Child.LCFS", "Demographic.Number.of.Non.Dependent.Child.LCFS", 
+                                                        "Demographic.JSA.Contribution.Based", "Demographic.JSA.Income.Based", "Demographic.Means.Tested",  "Demographic.Negbud", 
+                                                        
                                                         "Demographic.PIP.Car", "Demographic.PIP.Mob", "Demographic.Pension.Credit", 
                                                         "Demographic.Relationship.LCFS", "Demographic.Role.Type", "Demographic.Role.Type.Partner", 
                                                         "Demographic.Region.LCFS", "Demographic.Surplus.Bands.V1", "Demographic.Surplus.Bands.V2", 
-                                                        "Demographic.UC", "Demographic.WTC", "Demographic.ethnicity.HRP", "Demographic.ethnicity.HRP.Partner", "Demographic.Household.Type.LCFS")
+                                                        "Demographic.UC", "Demographic.WTC", "Demographic.ethnicity.HRP", "Demographic.ethnicity.HRP.Partner", 
+                                                        "Demographic.Household.Type.LCFS", "LoE_Equivalised_V1",
+                                                        "LoE_Equivalised_V2")
                                 )
                          ),
                          column(4, 
@@ -939,7 +957,10 @@ shinyApp(ui = shinyUI(
                                                         "Income.Gross.Wages.Respondent", "Income.Housing.Benefit", "Income.Income.Support", 
                                                         "Income.JSA.Combined", "Income.JSA.Contribution.Based", "Income.JSA.Income.Based", 
                                                         "Income.Pension.Credit", "Income.PIP.Car", "Income.PIP.Mob", "Income.Takehome.Wages.Partner", 
-                                                        "Income.Takehome.Wages.Respondent", "Income.Total", "Income.Total.Benefits", "Income.UC", "Income.WTC" , "Surplus")
+                                                        "Income.Takehome.Wages.Respondent", "Income.Total", "Income.Total.Benefits", "Income.UC", "Income.WTC" , "Surplus",
+                                                        "Income.Equivalised",
+                                                        "Expenditure.Equivalised",
+                                                        "Surplus.Equivalised")
                                 )
                          ),
                          column(4, 
@@ -966,14 +987,30 @@ server = shinyServer(function(input,output, session){
   
   MART.Dash_original <<- MART.Dash # backup original data
   
+  # output$variablePicker <- renderUI({
+  #   selectInput("group_var", "Choose a grouping variable:", choices = names(MART.Dash)[sapply(MART.Dash, is.factor)])
+  # })
+  
   output$variablePicker <- renderUI({
-    selectInput("group_var", "Choose a grouping variable:", choices = names(MART.Dash)[sapply(MART.Dash, is.factor)])
+    # Get all factor variables, excluding "Index", "Month", and "Quarter"
+    factor_vars <- names(MART.Dash)[sapply(MART.Dash, is.factor)]
+    excluded_vars <- c("Index", "Month", "Quarter")
+    valid_vars <- setdiff(factor_vars, excluded_vars)
+    
+    # Create the selectInput with the valid variables
+    selectInput(
+      "group_var", 
+      "Choose a grouping variable:", 
+      choices = valid_vars
+    )
   })
   
   output$levelPicker <- renderUI({
     req(input$group_var)
-    pickerInput('group_levels', 'Select levels:', choices = levels(MART.Dash[, input$group_var]), multiple = TRUE, options = list(`actions-box` = TRUE))
+    pickerInput('group_levels', 'Select levels:', choices = unique(MART.Dash[, input$group_var]), multiple = TRUE, options = list(`actions-box` = TRUE))
   })
+  
+
   
   output$numericVariablePicker <- renderUI({
     selectInput("numeric_var", "Choose a numeric variable:", choices = c("No filter needed", names(MART.Dash[sapply(MART.Dash, is.numeric)])))
@@ -4154,7 +4191,7 @@ server = shinyServer(function(input,output, session){
     
     # Extract the necessary columns for the two selected variables
     comparison_data <- filtered_data %>%
-      select(!!variable1, !!variable2, Financial.Year) %>% 
+      select(!!variable1, !!variable2, Financial.Year, Weight.LCFS) %>% 
       filter(!is.na(!!variable1) & !is.na(!!variable2) &
                !!variable2 != 0)  # Removed filtering based on variable1
     
@@ -4238,10 +4275,27 @@ server = shinyServer(function(input,output, session){
       unnest(cols = density_data)
     
     # Plotting
-    plot <- ggplot(densities, aes(x = x, y = y, fill = Variable)) +
-      geom_area(alpha=0.5, position="identity") +
-      ylab("Probability") + theme_classic() +
-      theme(text = element_text(size= 20)) +
+    # plot <- ggplot(densities, aes(x = x, y = y, fill = Variable)) +
+    #   geom_area(alpha=0.5, position="identity") +
+    #   ylab("Probability") + theme_classic() +
+    #   theme(text = element_text(size= 20)) +
+    #   scale_fill_manual(values= Cab.Colours) +
+    #   theme(text = element_text(size = 15),
+    #         axis.text.x= element_text(color = "#004b88"),
+    #         axis.text.y= element_text(color = "#004b88"),
+    #         axis.line.x.bottom = element_line(colour = "#004b88"),
+    #         axis.line.y.left = element_line(colour = "#004b88"),
+    #         axis.title.x = element_text(colour = "#004b88"),
+    #         axis.title.y = element_text(colour = "#004b88"),
+    #         legend.background = element_rect(colour = "#004b88", fill = "white"),
+    #         legend.text = element_text(colour = "#004b88"),
+    #         legend.title = element_text(colour = "#004b88"))
+    
+    plot <- ggplot(table17_data(), aes(x = !!variable2, weight = Weight.LCFS, fill = !!variable1)) +
+      geom_density(alpha=0.5) +
+      ylab("Unweighted Density") +
+      xlab(input$Tab17Variable1) + # Replace "Variable Name" with the actual variable name
+      theme_classic() +
       scale_fill_manual(values= Cab.Colours) +
       theme(text = element_text(size = 15),
             axis.text.x= element_text(color = "#004b88"),
@@ -4251,8 +4305,9 @@ server = shinyServer(function(input,output, session){
             axis.title.x = element_text(colour = "#004b88"),
             axis.title.y = element_text(colour = "#004b88"),
             legend.background = element_rect(colour = "#004b88", fill = "white"),
-            legend.text = element_text(colour = "#004b88"),
-            legend.title = element_text(colour = "#004b88"))
+            legend.text = element_text(colour = "#004b88", size = 8),
+            legend.title = element_blank()) +
+      labs(fill = NULL)
     
     plot
   })
@@ -4272,6 +4327,7 @@ server = shinyServer(function(input,output, session){
     variable1 <- rlang::sym(input$Tab17Variable1)
     variable2 <- rlang::sym(input$Tab17Variable2)
     
+
     densities <- table17_data() %>%
       group_by(Variable = !!rlang::sym(variable1)) %>%
       nest() %>%
@@ -4282,12 +4338,31 @@ server = shinyServer(function(input,output, session){
       select(-data) %>%
       unnest(cols = density_data)
     
+    
     # Plotting
-    plot <- ggplot(densities, aes(x = x, y = y, fill = Variable)) +
-      geom_area(alpha=0.5, position="identity") +
-      ylab("Probability") + theme_classic() +
-      xlab(input$Tab17Variable2) + 
-      theme(text = element_text(size= 20)) +
+# plot <- ggplot(original_data, aes(x = value, weight = weights, fill = group)) +
+#   geom_density(alpha=0.5) +
+#   ylab("Weighted Density") +
+#   xlab("Variable Name") + # Replace "Variable Name" with the actual variable name
+#   theme_classic() +
+#   scale_fill_manual(values= Cab.Colours) +
+#   theme(text = element_text(size = 15),
+#         axis.text.x= element_text(color = "#004b88"),
+#         axis.text.y= element_text(color = "#004b88"),
+#         axis.line.x.bottom = element_line(colour = "#004b88"),
+#         axis.line.y.left = element_line(colour = "#004b88"),
+#         axis.title.x = element_text(colour = "#004b88"),
+#         axis.title.y = element_text(colour = "#004b88"),
+#         legend.background = element_rect(colour = "#004b88", fill = "white"),
+#         legend.text = element_text(colour = "#004b88", size = 8),
+#         legend.title = element_blank()) +
+#         labs(fill = NULL)
+    
+    plot <- ggplot(table17_data(), aes(x = !!variable2, weight = Weight.LCFS, fill = !!variable1)) +
+      geom_density(alpha=0.5) +
+      ylab("Unweighted Density") +
+      xlab(input$Tab17Variable1) + # Replace "Variable Name" with the actual variable name
+      theme_classic() +
       scale_fill_manual(values= Cab.Colours) +
       theme(text = element_text(size = 15),
             axis.text.x= element_text(color = "#004b88"),
@@ -4299,7 +4374,7 @@ server = shinyServer(function(input,output, session){
             legend.background = element_rect(colour = "#004b88", fill = "white"),
             legend.text = element_text(colour = "#004b88", size = 8),
             legend.title = element_blank()) +
-            labs(fill = NULL) 
+      labs(fill = NULL)
       
     
     # Convert to Plotly
@@ -4321,24 +4396,24 @@ server = shinyServer(function(input,output, session){
     }
   )
   
-   # Server
-   lapply(1:18, function(i) {
-     output[[paste0("filterStatus", i)]] <- renderText({
-       input$confirm
-       if (is.null(input$group_var)) {
-         return("No filter applied")
-       }
-       else {
-         if(input$numeric_filter_type == "Between") {
-           paste("Current Filter =", input$group_var, levels(MART.Dash[,input$group_var])[input$group_levels],
-                 input$numeric_var, input$numeric_filter_type, paste(input$numeric_range[1], "to", input$numeric_range[2]))
-         } else {
-           paste("Current Filter =", input$group_var, levels(MART.Dash[,input$group_var])[input$group_levels],
-                 input$numeric_var, input$numeric_filter_type, input$numeric_value)
-        }
-      }
-    })
-  })
+   # # Server
+  #  lapply(1:18, function(i) {
+  #    output[[paste0("filterStatus", i)]] <- renderText({
+  #      input$confirm
+  #      if (is.null(input$group_var)) {
+  #        return("No filter applied")
+  #      }
+  #      else {
+  #        if(input$numeric_filter_type == "Between") {
+  #          paste("Current Filter =", input$group_var, levels(MART.Dash[,input$group_var])[input$group_levels],
+  #                input$numeric_var, input$numeric_filter_type, paste(input$numeric_range[1], "to", input$numeric_range[2]))
+  #        } else {
+  #          paste("Current Filter =", input$group_var, levels(MART.Dash[,input$group_var])[input$group_levels],
+  #                input$numeric_var, input$numeric_filter_type, input$numeric_value)
+  #       }
+  #     }
+  #   })
+  # })
 
 }))
 

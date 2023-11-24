@@ -3213,7 +3213,7 @@ tom_finished <- tom_finished %>%
   )
 
 tom_finished <- tom_finished %>%
-  mutate(Demogrpahic.Means.Tested = case_when(Income.JSA.Contribution.Based > 0 |
+  mutate(Demographic.Means.Tested = case_when(Income.JSA.Contribution.Based > 0 |
                                                  Income.JSA.Income.Based > 0 |
                                                  Income.ESA >0 |
                                                  Income.ExtPaym.Housing.Benefit > 0 |
@@ -3232,7 +3232,7 @@ tom_finished <- tom_finished %>%
   mutate(
     Demographic.FishyV2 = case_when(
       is.na(Exp_Inc_Difference) ~ 'Unknown',  # Handling NA values in Exp_Inc_Difference
-      Exp_Inc_Difference >= 4 & Demogrpahic.Means.Tested != "MTB" ~ 'Timmy',
+      Exp_Inc_Difference >= 4 & Demographic.Means.Tested != "MTB" ~ 'Timmy',
       Income.Total == 0 ~ 'Fishy',
       Expenditure.Total == 0 ~ 'Fishy',
       Expenditure.Utilities == 0 ~ 'Fishy',
@@ -3245,7 +3245,7 @@ tom_finished <- tom_finished %>%
   mutate(
     Demographic.FishyV3 = case_when(
       is.na(Exp_Inc_Difference) ~ 'Unknown',  # Handling NA values
-      Exp_Inc_Difference >= 4 & Demogrpahic.Means.Tested != "MTB" & 
+      Exp_Inc_Difference >= 4 & Demographic.Means.Tested != "MTB" & 
       !Demographic.Income.Decile %in% c("Decile 4", "Decile 5", "Decile 6") ~ 'Timmy',
       Income.Total == 0 ~ 'Fishy',
       Expenditure.Total == 0 ~ 'Fishy',
@@ -3274,6 +3274,86 @@ tom_finished <- tom_finished %>%
         starts_with("Income"),
         starts_with("Expenditure"),
         everything())
+
+# Demographic.Number.of.Child.LCFS"               "Demographic.Number.of.Dependent.Child.LCFS"    
+#  [19] "Demographic.Number.of.Non.Dependent.Child.LCFS" "Demographic.Number.of.Child.<1.LCFS"            "Demographic.Number.of.Child.<5.LCFS"           
+#  [22] "Demographic.Number.of.Child.5-9.LCFS"           "Demographic.Number.of.Child.10-15.LCFS"         "Demographic.Number.of.Child.<16.LCFS"          
+#  [25] "Demographic.Number.of.Child.16-18.LCFS"  
+
+# Get rid of NAs
+tom_finished <- tom_finished %>% 
+  mutate(
+    Demographic.Number.of.Child.LCFS = replace_na(Demographic.Number.of.Child.LCFS, 0),
+    Demographic.Number.of.Dependent.Child.LCFS = replace_na(Demographic.Number.of.Dependent.Child.LCFS, 0),
+    Demographic.Number.of.Non.Dependent.Child.LCFS = replace_na(Demographic.Number.of.Non.Dependent.Child.LCFS, 0),
+    `Demographic.Number.of.Child.<1.LCFS` = replace_na(`Demographic.Number.of.Child.<1.LCFS`, 0),
+    `Demographic.Number.of.Child.<5.LCFS` = replace_na(`Demographic.Number.of.Child.<5.LCFS`, 0),
+    `Demographic.Number.of.Child.5-9.LCFS` = replace_na(`Demographic.Number.of.Child.5-9.LCFS`, 0),
+    `Demographic.Number.of.Child.10-15.LCFS` = replace_na(`Demographic.Number.of.Child.10-15.LCFS`, 0),
+    `Demographic.Number.of.Child.<16.LCFS` = replace_na(`Demographic.Number.of.Child.<16.LCFS`, 0),
+    `Demographic.Number.of.Child.16-18.LCFS` = replace_na(`Demographic.Number.of.Child.16-18.LCFS`, 0)
+  )
+
+# Function to determine the number of adults based on household type
+calculate_number_of_adults <- function(household_type) {
+  if (household_type %in% c("1 man", "1 woman")) {
+    return(1)
+  } else if (household_type %in% c("1 man and 1 woman", "2 men or 2 women", "1 man, 1 woman and 1 child", "1 woman and 1 child", "1 man and 1 child")) {
+    return(2)
+  } else if (grepl("3 adults", household_type)) {
+    return(3)
+  } else if (grepl("4 adults", household_type)) {
+    return(4)
+  } else if (grepl("5 adults", household_type)) {
+    return(5)
+  } else if (grepl("6 or more adults", household_type)) {
+    return(6) # Assuming a minimum of 6 adults in this category
+  } else {
+    return(NA) # For types that don't clearly indicate the number of adults
+  }
+}
+
+# Apply the function to create the new variable
+tom_finished$Demographic.Number.of.Adult.LCFS <- sapply(tom_finished$Demographic.Household.Type.LCFS, calculate_number_of_adults)
+
+
+# OECD value and equivalised income
+# Function to calculate OECD weight
+calculate_oecd_weight <- function(num_adults, num_children_under_14, num_dependent_over_13, num_non_dependent_over_13) {
+  # Weight calculation based on OECD scale
+  weight <- num_adults + (0.5 * (num_dependent_over_13 + num_non_dependent_over_13)) + (0.3 * num_children_under_14)
+  return(weight)
+}
+
+# use the function to calculate the weight
+tom_finished$OECD_weight <- mapply(calculate_oecd_weight,
+                                   tom_finished$Demographic.Number.of.Adult.LCFS, # Assuming this column exists for number of adults
+                                   tom_finished$`Demographic.Number.of.Child.<16.LCFS`, # Total children under 14
+                                   tom_finished$`Demographic.Number.of.Child.16-18.LCFS`, # Dependent children over 13
+                                   tom_finished$`Demographic.Number.of.Non.Dependent.Child.LCFS`) # Non-dependent children over 13
+
+# calculate equivalised budget values
+tom_finished$Income.Equivalised <- tom_finished$Income.Total / tom_finished$OECD_weight
+tom_finished$Expenditure.Equivalised <- tom_finished$Expenditure.Total / tom_finished$OECD_weight
+tom_finished$Surplus.Equivalised <- tom_finished$Income.Equivalised - tom_finished$Expenditure.Equivalised
+
+# create a couple of LoE variables
+tom_finished <- tom_finished %>% 
+  mutate(LoE_Equivalised_V1 = case_when(Surplus.Equivalised > 0 & Surplus.Equivalised <= 25 ~ 'OTB < 100/m',
+                                        TRUE ~ 'Other')) %>% 
+    mutate(LoE_Equivalised_V2 = case_when(Surplus.Equivalised > 0 & Surplus.Equivalised <= 50 ~ 'OTB < 200/m',
+                                        TRUE ~ 'Other'))
+
+# Rename those variables with symbolds in it
+tom_finished <- tom_finished %>% 
+  rename("Demographic.Children.Below.1" = "Demographic.Number.of.Child.<1.LCFS",
+         "Demographic.Children.Below.5" =   "Demographic.Number.of.Child.<5.LCFS",
+         "Demographic.Children.5.To.9" = "Demographic.Number.of.Child.5-9.LCFS",
+         "Demographic.Children.10.To.15" = "Demographic.Number.of.Child.10-15.LCFS",
+         "Demographic.Children.Below.16" = "Demographic.Number.of.Child.<16.LCFS",
+         "Demographic.Children.16.To.18" = "Demographic.Number.of.Child.16-18.LCFS")
+
+
 
 # All characters as factors
 # str(HELCA)
