@@ -3213,6 +3213,35 @@ tom_finished <- tom_finished %>%
     )
   )
 
+tom_finished <- tom_finished %>%
+  mutate(Demogrpahic.Means.Tested = case_when(Income.JSA.Contribution.Based > 0 |
+                                                 Income.JSA.Income.Based > 0 |
+                                                 Income.ESA >0 |
+                                                 Income.ExtPaym.Housing.Benefit > 0 |
+                                                 Income.UC > 0 |
+                                                 Income.Child.Tax.Credit > 0 |
+                                                 Income.Pension.Credit > 0 |
+                                                 Income.Carer.Allowance > 0 |
+                                                 Income.Housing.Benefit > 0 |
+                                                 Income.JSA.Combined > 0 |
+                                                 Income.Income.Support > 0 |
+                                                 Income.WTC > 0 ~ 'MTB',
+                                               TRUE ~ 'Not MTB'))
+
+
+tom_finished <- tom_finished %>%
+  mutate(
+    Demographic.FishyV2 = case_when(
+      is.na(Exp_Inc_Difference) ~ 'Unknown',  # Handling NA values in Exp_Inc_Difference
+      Exp_Inc_Difference >= 4 & Demogrpahic.Means.Tested == "MTB" ~ 'Timmy',
+      Income.Total == 0 ~ 'Fishy',
+      Expenditure.Total == 0 ~ 'Fishy',
+      Expenditure.Utilities == 0 ~ 'Fishy',
+      Expenditure.Food.House.Keeping == 0 ~ 'Fishy', # take out source
+      TRUE ~ 'Not so fishy'
+    )
+  )
+
 test <- tom_finished %>% 
   filter(Demographic.Fishy == "Timmy",
          Demographic.Cohort == "2023-24P")

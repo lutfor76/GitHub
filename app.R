@@ -2584,7 +2584,8 @@ server = shinyServer(function(input,output, session){
     TimeVar <- sym(input$TimeVariableNeg)
     
     # Convert MART.Dash to a survey design object
-    survey_data <- as_survey_design(MART.Dash, weights = Weight.LCFS)
+    survey_data <- as_survey_design(MART.Dash, weights = Weight.LCFS) %>% 
+      filter(Demographic.Fishy == "Not so fishy")
     
     # Sample n and Weighted proportions for both variables
     weighted_data <- survey_data %>%
