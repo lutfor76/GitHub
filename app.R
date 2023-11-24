@@ -1269,7 +1269,6 @@ server = shinyServer(function(input,output, session){
     
     # Convert your data to a survey design object
     survey_data <- MART.Dash %>%
-      filter(Demographic.Fishy == "Not so fishy") %>% 
       as_survey_design(weights = Weight.LCFS)
     
     # Dynamic variable reference using `rlang`
