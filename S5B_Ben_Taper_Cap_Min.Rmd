@@ -3199,7 +3199,6 @@ tom_finished <- tom_finished %>%
     Exp_Inc_Difference = Expenditure.Decile.Numeric - Income.Decile.Numeric
   ) 
 
-tom_finished <- readRDS(file = "tom_finished.rds")
 tom_finished <- tom_finished %>%
   mutate(
     Demographic.Fishy = case_when(
@@ -3233,11 +3232,25 @@ tom_finished <- tom_finished %>%
   mutate(
     Demographic.FishyV2 = case_when(
       is.na(Exp_Inc_Difference) ~ 'Unknown',  # Handling NA values in Exp_Inc_Difference
-      Exp_Inc_Difference >= 4 & Demogrpahic.Means.Tested == "MTB" ~ 'Timmy',
+      Exp_Inc_Difference >= 4 & Demogrpahic.Means.Tested != "MTB" ~ 'Timmy',
       Income.Total == 0 ~ 'Fishy',
       Expenditure.Total == 0 ~ 'Fishy',
       Expenditure.Utilities == 0 ~ 'Fishy',
       Expenditure.Food.House.Keeping == 0 ~ 'Fishy', # take out source
+      TRUE ~ 'Not so fishy'
+    )
+  )
+
+tom_finished <- tom_finished %>%
+  mutate(
+    Demographic.FishyV3 = case_when(
+      is.na(Exp_Inc_Difference) ~ 'Unknown',  # Handling NA values
+      Exp_Inc_Difference >= 4 & Demogrpahic.Means.Tested != "MTB" & 
+      !Demographic.Income.Decile %in% c("Decile 4", "Decile 5", "Decile 6") ~ 'Timmy',
+      Income.Total == 0 ~ 'Fishy',
+      Expenditure.Total == 0 ~ 'Fishy',
+      Expenditure.Utilities == 0 ~ 'Fishy',
+      Expenditure.Food.House.Keeping == 0 ~ 'Fishy',
       TRUE ~ 'Not so fishy'
     )
   )
