@@ -100,7 +100,7 @@ shinyApp(ui = shinyUI(
                                                         "Demographic.Region.LCFS", "Demographic.Surplus.Bands.V1", "Demographic.Surplus.Bands.V2", 
                                                         "Demographic.UC", "Demographic.WTC", "Demographic.ethnicity.HRP", "Demographic.ethnicity.HRP.Partner", 
                                                         "Demographic.Household.Type.LCFS", "LoE_Equivalised_V1",
-                                                        "LoE_Equivalised_V2")), width = 6)),
+                                                        "LoE_Equivalised_V2", "awayfromcrisis")), width = 6)),
                 fluidRow(box(DT::dataTableOutput("table1"), width = 12)),
                 downloadButton("download", "Download Data")
         )
@@ -131,7 +131,7 @@ shinyApp(ui = shinyUI(
                                                "Demographic.Region.LCFS", "Demographic.Surplus.Bands.V1", "Demographic.Surplus.Bands.V2", 
                                                "Demographic.UC", "Demographic.WTC", "Demographic.ethnicity.HRP", "Demographic.ethnicity.HRP.Partner", 
                                                "Demographic.Household.Type.LCFS", "LoE_Equivalised_V1",
-                                               "LoE_Equivalised_V2"))
+                                               "LoE_Equivalised_V2", "awayfromcrisis"))
                 )
               ),
               fluidRow(
@@ -166,7 +166,7 @@ shinyApp(ui = shinyUI(
                                                "Demographic.Region.LCFS", "Demographic.Surplus.Bands.V1", "Demographic.Surplus.Bands.V2", 
                                                "Demographic.UC", "Demographic.WTC", "Demographic.ethnicity.HRP", "Demographic.ethnicity.HRP.Partner", 
                                                "Demographic.Household.Type.LCFS", "Demographic.FishyV2", "LoE_Equivalised_V1",
-                                               "LoE_Equivalised_V2"))
+                                               "LoE_Equivalised_V2", "awayfromcrisis"))
                 ),
                 column(width = 4, 
                        selectInput(inputId = "Tab3Variable3",
@@ -184,7 +184,7 @@ shinyApp(ui = shinyUI(
                                                "Demographic.Region.LCFS", "Demographic.Surplus.Bands.V1", "Demographic.Surplus.Bands.V2", 
                                                "Demographic.UC", "Demographic.WTC", "Demographic.ethnicity.HRP", "Demographic.ethnicity.HRP.Partner", 
                                                "Demographic.Household.Type.LCFS", "LoE_Equivalised_V1",
-                                               "LoE_Equivalised_V2"))
+                                               "LoE_Equivalised_V2", "awayfromcrisis"))
                 )
               ),
               fluidRow(
@@ -253,7 +253,7 @@ shinyApp(ui = shinyUI(
                                                "Demographic.Region.LCFS", "Demographic.Surplus.Bands.V1", "Demographic.Surplus.Bands.V2", 
                                                "Demographic.UC", "Demographic.WTC", "Demographic.ethnicity.HRP", "Demographic.ethnicity.HRP.Partner", 
                                                "Demographic.Household.Type.LCFS", "LoE_Equivalised_V1",
-                                               "LoE_Equivalised_V2"))),
+                                               "LoE_Equivalised_V2", "awayfromcrisis"))),
                 column(width = 4,
                        selectInput(inputId = "Tab5Variable3",
                                    label = "Choose a numeric variable:",
@@ -440,7 +440,7 @@ shinyApp(ui = shinyUI(
                                                "Demographic.Region.LCFS", "Demographic.Surplus.Bands.V1", "Demographic.Surplus.Bands.V2", 
                                                "Demographic.UC", "Demographic.WTC", "Demographic.ethnicity.HRP", "Demographic.ethnicity.HRP.Partner", 
                                                "Demographic.Household.Type.LCFS", "LoE_Equivalised_V1",
-                                               "LoE_Equivalised_V2"))
+                                               "LoE_Equivalised_V2", "awayfromcrisis"))
                 ),
                 column(width = 4,
                        selectInput(inputId = "Tab11Variable2",
@@ -503,7 +503,7 @@ shinyApp(ui = shinyUI(
                                                "Demographic.Region.LCFS", "Demographic.Surplus.Bands.V1", "Demographic.Surplus.Bands.V2", 
                                                "Demographic.UC", "Demographic.WTC", "Demographic.ethnicity.HRP", "Demographic.ethnicity.HRP.Partner", 
                                                "Demographic.Household.Type.LCFS", "LoE_Equivalised_V1",
-                                               "LoE_Equivalised_V2"))
+                                               "LoE_Equivalised_V2", "awayfromcrisis"))
                 ),
                 column(width = 4,
                        selectInput(inputId = "TimeVariableNeg",
@@ -550,7 +550,7 @@ shinyApp(ui = shinyUI(
                                                "Demographic.Region.LCFS", "Demographic.Surplus.Bands.V1", "Demographic.Surplus.Bands.V2", 
                                                "Demographic.UC", "Demographic.WTC", "Demographic.ethnicity.HRP", "Demographic.ethnicity.HRP.Partner", 
                                                "Demographic.Household.Type.LCFS", "LoE_Equivalised_V1",
-                                               "LoE_Equivalised_V2"))
+                                               "LoE_Equivalised_V2", "awayfromcrisis"))
                 ),
                 column(width = 4,
                        selectInput(inputId = "Tab12Variable2",
@@ -615,7 +615,7 @@ shinyApp(ui = shinyUI(
                                                "Demographic.Region.LCFS", "Demographic.Surplus.Bands.V1", "Demographic.Surplus.Bands.V2", 
                                                "Demographic.UC", "Demographic.WTC", "Demographic.ethnicity.HRP", "Demographic.ethnicity.HRP.Partner", 
                                                "Demographic.Household.Type.LCFS", "LoE_Equivalised_V1",
-                                               "LoE_Equivalised_V2"))),
+                                               "LoE_Equivalised_V2", "awayfromcrisis"))),
                 column(width = 3,
                        selectInput(inputId = "Tab13Variable2",
                                    label = "Grouping variable 2:",
@@ -632,7 +632,7 @@ shinyApp(ui = shinyUI(
                                                "Demographic.Region.LCFS", "Demographic.Surplus.Bands.V1", "Demographic.Surplus.Bands.V2", 
                                                "Demographic.UC", "Demographic.WTC", "Demographic.ethnicity.HRP", "Demographic.ethnicity.HRP.Partner", 
                                                "Demographic.Household.Type.LCFS", "LoE_Equivalised_V1",
-                                               "LoE_Equivalised_V2"))),
+                                               "LoE_Equivalised_V2", "awayfromcrisis"))),
                 column(width = 3,
                        selectInput(inputId = "Tab13Variable3",
                                    label = "Numeric variable:",
@@ -695,7 +695,7 @@ shinyApp(ui = shinyUI(
                                                "Demographic.Region.LCFS", "Demographic.Surplus.Bands.V1", "Demographic.Surplus.Bands.V2", 
                                                "Demographic.UC", "Demographic.WTC", "Demographic.ethnicity.HRP", "Demographic.ethnicity.HRP.Partner", 
                                                "Demographic.Household.Type.LCFS","Demographic.FishyV2", "Demographic.FishyV3", "LoE_Equivalised_V1",
-                                               "LoE_Equivalised_V2"))),
+                                               "LoE_Equivalised_V2", "awayfromcrisis"))),
                 column(width = 3,
                        selectInput(inputId = "Tab14Variable2",
                                    label = "Grouping variable 2:",
@@ -712,7 +712,7 @@ shinyApp(ui = shinyUI(
                                                "Demographic.Region.LCFS", "Demographic.Surplus.Bands.V1", "Demographic.Surplus.Bands.V2", 
                                                "Demographic.UC", "Demographic.WTC", "Demographic.ethnicity.HRP", 
                                                "Demographic.ethnicity.HRP.Partner", "Demographic.Household.Type.LCFS","Demographic.FishyV2","Demographic.FishyV3", "LoE_Equivalised_V1",
-                                               "LoE_Equivalised_V2"))),
+                                               "LoE_Equivalised_V2", "awayfromcrisis"))),
                 column(width = 3,
                        selectInput(inputId = "Tab14Variable3",
                                    label = "Numeric variable:",
@@ -775,7 +775,7 @@ shinyApp(ui = shinyUI(
                                                "Demographic.Region.LCFS", "Demographic.Surplus.Bands.V1", "Demographic.Surplus.Bands.V2", 
                                                "Demographic.UC", "Demographic.WTC", "Demographic.ethnicity.HRP", "Demographic.ethnicity.HRP.Partner", 
                                                "Demographic.Household.Type.LCFS", "LoE_Equivalised_V1",
-                                               "LoE_Equivalised_V2"))),
+                                               "LoE_Equivalised_V2", "awayfromcrisis"))),
                 column(width = 4,
                        selectInput(inputId = "Tab15Variable2",
                                    label = "Choose a numeric variable:",
@@ -838,7 +838,7 @@ shinyApp(ui = shinyUI(
                                                "Demographic.Region.LCFS", "Demographic.Surplus.Bands.V1", "Demographic.Surplus.Bands.V2", 
                                                "Demographic.UC", "Demographic.WTC", "Demographic.ethnicity.HRP", "Demographic.ethnicity.HRP.Partner", 
                                                "Demographic.Household.Type.LCFS", "LoE_Equivalised_V1",
-                                               "LoE_Equivalised_V2")))
+                                               "LoE_Equivalised_V2", "awayfromcrisis")))
               ),
               tabsetPanel(
                 tabPanel("Plot",
@@ -942,7 +942,7 @@ shinyApp(ui = shinyUI(
                                                         "Demographic.Region.LCFS", "Demographic.Surplus.Bands.V1", "Demographic.Surplus.Bands.V2", 
                                                         "Demographic.UC", "Demographic.WTC", "Demographic.ethnicity.HRP", "Demographic.ethnicity.HRP.Partner", 
                                                         "Demographic.Household.Type.LCFS", "LoE_Equivalised_V1",
-                                                        "LoE_Equivalised_V2")
+                                                        "LoE_Equivalised_V2", "awayfromcrisis")
                                 )
                          ),
                          column(4, 

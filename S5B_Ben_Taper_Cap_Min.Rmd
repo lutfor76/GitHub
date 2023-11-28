@@ -3351,6 +3351,15 @@ tom_finished <- tom_finished %>%
   mutate(Demographic.Expenditure.Decile = case_when(Demographic.Expenditure.Decile == 1 ~ 'Bottom Decile',
                                                Demographic.Expenditure.Decile == 10 ~ 'Top Decile',
                                                TRUE ~ Demographic.Expenditure.Decile))
+tom_finished <- tom_finished %>%
+  mutate(awayfromcrisis= case_when(Surplus<(-50)~"More_than_-£50",
+                                   Surplus>=-50&Surplus<(-20)~"£50_inRed",
+                                   Surplus>=-20&Surplus<(-10)~"£20_inRed", 
+                                   Surplus>=-10&Surplus<0~"£10_inRed",
+                                   Surplus>=0&Surplus<=10~"£10_away",
+                                   Surplus>10&Surplus<=20~"£20_away",
+                                   Surplus>20&Surplus<=50~"£50_away",
+                                   TRUE~"More_than_£50"))
 
 # All characters as factors
 # str(HELCA)
