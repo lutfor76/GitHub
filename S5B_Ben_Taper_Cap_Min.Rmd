@@ -3122,30 +3122,6 @@ tom_finished <- tom_finished %>%
     TRUE ~ "Other"  # This will include categories like "Rent free", "Owned by rental purchase", and "Not Recorded"
   ))
 
-# Let's pop this in provisionally
-tom_finished <- tom_finished %>%
-  mutate(
-    Demographic.Surplus.Bands.V1 = case_when(
-      Surplus < 0               ~ "In Deficit",
-      Surplus >= 0 & Surplus < 50   ~ "Struggling",
-      Surplus >= 50 & Surplus < 100 ~ "Getting By",
-      Surplus >= 100 & Surplus < 200 ~ "Comfortable",
-      Surplus >= 200                ~ "Affluent"
-    )
-  )
-
-tom_finished <- tom_finished %>%
-  mutate(
-    Demographic.Surplus.Bands.V2 = case_when(
-      Surplus < 0               ~ "In Deficit",
-      Surplus >= 0 & Surplus < 25   ~ "Struggling",
-      Surplus >= 25 & Surplus < 100 ~ "Getting By",
-      Surplus >= 100 & Surplus < 200 ~ "Comfortable",
-      Surplus >= 200                ~ "Affluent"
-    )
-  )
-
-
 ```
 
 Income Deciles
@@ -3199,19 +3175,7 @@ tom_finished <- tom_finished %>%
     Exp_Inc_Difference = Expenditure.Decile.Numeric - Income.Decile.Numeric
   ) 
 
-tom_finished <- tom_finished %>%
-  mutate(
-    Demographic.Fishy = case_when(
-      is.na(Exp_Inc_Difference) ~ 'Unknown',  # Handling NA values in Exp_Inc_Difference
-      Exp_Inc_Difference >= 4 ~ 'Timmy',
-      Income.Total == 0 ~ 'Fishy',
-      Expenditure.Total == 0 ~ 'Fishy',
-      Expenditure.Utilities == 0 ~ 'Fishy',
-      Expenditure.Food.House.Keeping == 0 ~ 'Fishy', # take out source
-      TRUE ~ 'Not so fishy'
-    )
-  )
-
+# Create MTB variable
 tom_finished <- tom_finished %>%
   mutate(Demographic.Means.Tested = case_when(Income.JSA.Contribution.Based > 0 |
                                                  Income.JSA.Income.Based > 0 |
@@ -3227,20 +3191,7 @@ tom_finished <- tom_finished %>%
                                                  Income.WTC > 0 ~ 'MTB',
                                                TRUE ~ 'Not MTB'))
 
-
-tom_finished <- tom_finished %>%
-  mutate(
-    Demographic.FishyV2 = case_when(
-      is.na(Exp_Inc_Difference) ~ 'Unknown',  # Handling NA values in Exp_Inc_Difference
-      Exp_Inc_Difference >= 4 & Demographic.Means.Tested != "MTB" ~ 'Timmy',
-      Income.Total == 0 ~ 'Fishy',
-      Expenditure.Total == 0 ~ 'Fishy',
-      Expenditure.Utilities == 0 ~ 'Fishy',
-      Expenditure.Food.House.Keeping == 0 ~ 'Fishy', # take out source
-      TRUE ~ 'Not so fishy'
-    )
-  )
-
+# Fishy variable
 tom_finished <- tom_finished %>%
   mutate(
     Demographic.FishyV3 = case_when(
@@ -3255,30 +3206,6 @@ tom_finished <- tom_finished %>%
     )
   )
 
-test <- tom_finished %>% 
-  filter(Demographic.Fishy == "Timmy",
-         Demographic.Cohort == "2023-24P")
-hist(test$Expenditure.Total)
-table(tom_finished$Demographic.Fishy, tom_finished$Demographic.Cohort)
-
-# test <- tom_finished %>% 
-#   filter(is.na(Income.Total)) %>% 
-#   select(Income.Total, Income.Total.Benefits, Income.Gross.Wages.Partner, Income.Gross.Wages.Respondent,
-#          Income.Takehome.Wages.Respondent, Income.Takehome.Wages.Partner)
-
-# Bit of organising
-tom_finished <- tom_finished %>% 
-  arrange(Pipe, Index) %>% 
-  select(Pipe, Index, Month, Quarter, Financial.Year, 
-        starts_with("Demographic"),
-        starts_with("Income"),
-        starts_with("Expenditure"),
-        everything())
-
-# Demographic.Number.of.Child.LCFS"               "Demographic.Number.of.Dependent.Child.LCFS"    
-#  [19] "Demographic.Number.of.Non.Dependent.Child.LCFS" "Demographic.Number.of.Child.<1.LCFS"            "Demographic.Number.of.Child.<5.LCFS"           
-#  [22] "Demographic.Number.of.Child.5-9.LCFS"           "Demographic.Number.of.Child.10-15.LCFS"         "Demographic.Number.of.Child.<16.LCFS"          
-#  [25] "Demographic.Number.of.Child.16-18.LCFS"  
 
 # Get rid of NAs
 tom_finished <- tom_finished %>% 
@@ -3332,6 +3259,30 @@ tom_finished$OECD_weight <- mapply(calculate_oecd_weight,
                                    tom_finished$`Demographic.Number.of.Child.16-18.LCFS`, # Dependent children over 13
                                    tom_finished$`Demographic.Number.of.Non.Dependent.Child.LCFS`) # Non-dependent children over 13
 
+# Rename those variables with symbolds in it
+tom_finished <- tom_finished %>% 
+  rename("Demographic.Children.Below.1" = "Demographic.Number.of.Child.<1.LCFS",
+         "Demographic.Children.Below.5" =   "Demographic.Number.of.Child.<5.LCFS",
+         "Demographic.Children.5.To.9" = "Demographic.Number.of.Child.5-9.LCFS",
+         "Demographic.Children.10.To.15" = "Demographic.Number.of.Child.10-15.LCFS",
+         "Demographic.Children.Below.16" = "Demographic.Number.of.Child.<16.LCFS",
+         "Demographic.Children.16.To.18" = "Demographic.Number.of.Child.16-18.LCFS")
+
+# Some final tweaks
+tom_finished <- tom_finished %>% 
+  mutate(Expenditure.Total.LCFS = Expenditure.Fixed.Total + Expenditure.Flexible.Total.LCFS)
+
+# Clean up timmys and fishies
+tom_finished <- tom_finished %>% 
+  mutate(Income.Total = case_when(Demographic.FishyV3 == "Not so fishy" ~ Income.Total,
+                                  TRUE ~ NA_real_)) %>% 
+  mutate(Expenditure.Total = case_when(Demographic.FishyV3 == "Not so fishy" | Demographic.FishyV3 == "Timmy"~ Expenditure.Total,TRUE ~ NA_real_)) %>% 
+  mutate(Expenditure.Flexible.Total.LoE = case_when(Demographic.FishyV3 == "Not so fishy"| Demographic.FishyV3 == "Timmy" ~ Expenditure.Flexible.Total.LoE,TRUE ~ NA_real_)) %>% 
+    mutate(Expenditure.Flexible.Total.LCFS = case_when(Demographic.FishyV3 == "Not so fishy"| Demographic.FishyV3 == "Timmy" ~ Expenditure.Flexible.Total.LCFS,TRUE ~ NA_real_)) %>% 
+  mutate(Expenditure.Fixed.Total = case_when(Demographic.FishyV3 == "Not so fishy" | Demographic.FishyV3 == "Timmy"~ Expenditure.Fixed.Total,TRUE ~ NA_real_)) %>% 
+    mutate(Expenditure.Total.LCFS = case_when(Demographic.FishyV3 == "Not so fishy" | Demographic.FishyV3 == "Timmy"~ Expenditure.Total.LCFS,TRUE ~ NA_real_)) 
+
+  
 # calculate equivalised budget values
 tom_finished$Income.Equivalised <- tom_finished$Income.Total / tom_finished$OECD_weight
 tom_finished$Expenditure.Equivalised <- tom_finished$Expenditure.Total / tom_finished$OECD_weight
@@ -3344,22 +3295,82 @@ tom_finished <- tom_finished %>%
     mutate(LoE_Equivalised_V2 = case_when(Surplus.Equivalised > 0 & Surplus.Equivalised <= 50 ~ 'OTB < 200/m',
                                         TRUE ~ 'Other'))
 
-# Rename those variables with symbolds in it
-tom_finished <- tom_finished %>% 
-  rename("Demographic.Children.Below.1" = "Demographic.Number.of.Child.<1.LCFS",
-         "Demographic.Children.Below.5" =   "Demographic.Number.of.Child.<5.LCFS",
-         "Demographic.Children.5.To.9" = "Demographic.Number.of.Child.5-9.LCFS",
-         "Demographic.Children.10.To.15" = "Demographic.Number.of.Child.10-15.LCFS",
-         "Demographic.Children.Below.16" = "Demographic.Number.of.Child.<16.LCFS",
-         "Demographic.Children.16.To.18" = "Demographic.Number.of.Child.16-18.LCFS")
+# Redo surplus et al
+tom_finished <- tom_finished %>%
+  mutate(Surplus = Income.Total - Expenditure.Total) %>% 
+  mutate(Demographic.Negbud = case_when(Surplus <= 0 ~ 'Negative.Budget',
+                                        TRUE ~ 'Positive.Budget'))
 
 
+tom_finished <- tom_finished %>%
+  mutate(Surplus.LCFS = Income.Total - Expenditure.Total.LCFS) %>% 
+  mutate(Demographic.Negbud.LCFS = case_when(Surplus.LCFS <= 0 ~ 'Negative.Budget',
+                                        TRUE ~ 'Positive.Budget'))
+
+tom_finished <- tom_finished %>%
+  mutate(
+    Demographic.Surplus.Bands.V1 = case_when(
+      Surplus < 0               ~ "In Deficit",
+      Surplus >= 0 & Surplus < 50   ~ "Struggling",
+      Surplus >= 50 & Surplus < 100 ~ "Getting By",
+      Surplus >= 100 & Surplus < 200 ~ "Comfortable",
+      Surplus >= 200                ~ "Affluent"
+    )
+  )
+
+tom_finished <- tom_finished %>%
+  mutate(
+    Demographic.Surplus.Bands.V2 = case_when(
+      Surplus < 0               ~ "In Deficit",
+      Surplus >= 0 & Surplus < 25   ~ "Struggling",
+      Surplus >= 25 & Surplus < 100 ~ "Getting By",
+      Surplus >= 100 & Surplus < 200 ~ "Comfortable",
+      Surplus >= 200                ~ "Affluent"
+    )
+  )
+
+# Redo now that some extra 
+tom_finished <- tom_finished %>%
+  group_by(Financial.Year) %>%
+  mutate(
+    Income.Decile.Numeric = ntile(Income.Total, 10),  # Numerical deciles
+    Demographic.Income.Decile = paste("Decile", Income.Decile.Numeric)  # Categorical deciles
+  ) %>%
+  ungroup() %>% 
+  mutate(Demographic.Income.Decile = case_when(Demographic.Income.Decile == 1 ~ 'Bottom Decile',
+                                               Demographic.Income.Decile == 10 ~ 'Top Decile',
+                                               TRUE ~ Demographic.Income.Decile))
+
+tom_finished <- tom_finished %>%
+  group_by(Financial.Year) %>%
+  mutate(
+    Expenditure.Decile.Numeric = ntile(Expenditure.Total, 10),  # Numerical deciles
+    Demographic.Expenditure.Decile = paste("Decile", Expenditure.Decile.Numeric)  # Categorical deciles
+  ) %>%
+  ungroup() %>% 
+  mutate(Demographic.Expenditure.Decile = case_when(Demographic.Expenditure.Decile == 1 ~ 'Bottom Decile',
+                                               Demographic.Expenditure.Decile == 10 ~ 'Top Decile',
+                                               TRUE ~ Demographic.Expenditure.Decile))
 
 # All characters as factors
 # str(HELCA)
 tom_finished[sapply(tom_finished, is.character)] <- lapply(tom_finished[sapply(tom_finished, is.character)], as.factor)
 
-saveRDS(tom_finished, file = "tom_finished.rds")
+# Bit of organising
+tom_finished <- tom_finished %>% 
+  arrange(Pipe, Index) %>% 
+  select(Pipe, Index, Month, Quarter, Financial.Year, 
+        starts_with("Demographic"),
+        starts_with("Income"),
+        starts_with("Expenditure"),
+        starts_with("Surplus"),
+        everything())
+
+
+  
+  
+
+# saveRDS(tom_finished, file = "tom_finished.rds")
 
 ```
 
