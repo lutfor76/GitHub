@@ -9,6 +9,7 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 library(tidyverse)
 library(srvyr)
+library(stringr)
 
 ```
 
@@ -16,17 +17,10 @@ library(srvyr)
 
 helca <- rbind(LCFS_agg_21,LCFS_agg_22)
 
-
 saveRDS(helca, file = "lutfor_finished.rds")
-
-names(helca)
-test<-helca %>% select(Income.Total.Disposable)
-hist(helca$Income.Total.Disposable)
-write.csv(LCFS_agg_22, "LCFS_agg_22.csv")
 
 ```
 
-This section is some exploratory analysis separate from main pipeline.
 #Means tested benefits
 ```{r}
 
@@ -243,10 +237,4 @@ result_flat <- result %>% as.data.frame() %>% ungroup()
 write.csv(regional.ratio, "regional.ratio.csv")
 ```
 
-
-```{r}
-
-mortgage<-helca %>% select(Expenditure.Mortgage)
-
-```
 

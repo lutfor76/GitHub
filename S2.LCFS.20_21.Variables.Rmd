@@ -139,6 +139,13 @@ LCFS_21_benefits_result_total<-LCFS_21_benefits_result_total%>%
          Income.Carer.Allowance.24=Income.Carer.Allowance.23*benefit.inflation.24)
 ```
 
+# Taper off benefits
+```{r}
+
+```
+
+
+
 ```{r}
 LCFS_benefits_21<-LCFS_21_benefits_result_total%>% mutate(Year="2020-21")
 LCFS_benefits_22P<-LCFS_21_benefits_result_total%>% mutate(Year="2021-22P")
@@ -403,6 +410,7 @@ for (col_name in columns_to_match_rename) {
 
 ```
 
+# This will need adjusted for those on minimum wage
 ```{r}
 LCFS_21_Work_Name<-LCFS_21_Work %>% 
   mutate(HRP.Total.Wages.22.LCFS=HRP.Total.Wages.LCFS*wages.inflation.22,

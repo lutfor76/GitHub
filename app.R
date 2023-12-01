@@ -14,7 +14,7 @@ my_theme = create_theme(
 )
 
 # read in objects
-MART.Dash <- readRDS("appdf31_10_2.rds")
+MART.Dash <- readRDS("tom_finished.rds")
 shape_data <- readRDS("shape_data.rds")
 # shapes_la <- readRDS("shapes_la.rds")
 # shapes_bmra <- readRDS("Shape.BMRA.rds")
@@ -88,31 +88,19 @@ shinyApp(ui = shinyUI(
                                             choices = c("Financial.Year")), width = 6),
                          column(selectInput(inputId = "Variable2",
                                             label = "Choose a grouping variable:",
-                                            choices = c("Demographic.Housing",
-                                                        "Demographic.Cohort",
-                                                        "Demographic.Housing.Tenure.LCFS",
-                                                        "Demographic.Region.LCFS",
-                                                        "Demographic.Household.Type.LCFS",
-                                                        "Demographic.Derived.Household.Type.LCFS",
-                                                        "Demographic.Derived.Household.Type.LCFS.child",
-                                                        "Demographic.Disabled",
-                                                        "Demographic.Surplus.Bands",
-                                                        "Demographic.Role.Type",
-                                                        "Demographic.Role.Type.Partner",
-                                                        "Demographic.UC",
-                                                        "Demographic.Negbud",
-                                                        "Demographic.Income.Decile",
-                                                        "Demographic.UC",
-                                                        "Demographic.Housing.Benefit",
-                                                        "Demographic.WTC",
-                                                        "Demographic.Child.Tax.Credit",
-                                                        "Demographic.JSA.Contribution.Based",
-                                                        "Demographic.JSA.Income.Based",
-                                                        "Demographic.JSA.Combined",
-                                                        "Demographic.ESA",
-                                                        "Demographic.PIP.Car",
-                                                        "Demographic.PIP.Mob",
-                                                        "Demographic.Child.Benefit")), width = 6)),
+                                            choices = c("Demographic.Age.Group.HRP", "Demographic.Age.Partner", "Demographic.Age.Respondent", 
+                                                        "Demographic.Child.Gender", "Demographic.Child.Tax.Credit", "Demographic.Child.Benefit", 
+                                                        "Demographic.Cohort", "Demographic.Disabled", "Demographic.Derived.Household.Type.LCFS", 
+                                                        "Demographic.Derived.Household.Type.LCFS.child", "Demographic.ESA", "Demographic.Expenditure.Decile", 
+                                                        "Demographic.Fishy", "Demographic.FishyV2", "Demographic.FishyV3", "Demographic.Housing", "Demographic.Housing.Benefit", "Demographic.Housing.Tenure.LCFS", 
+                                                        "Demographic.HRP.LCFS", "Demographic.Income.Decile", "Demographic.Income.Support", "Demographic.JSA.Combined", 
+                                                        "Demographic.JSA.Contribution.Based", "Demographic.JSA.Income.Based", "Demographic.Means.Tested","Demographic.Negbud",
+                                                        "Demographic.PIP.Car", "Demographic.PIP.Mob", "Demographic.Pension.Credit", 
+                                                        "Demographic.Relationship.LCFS", "Demographic.Role.Type", "Demographic.Role.Type.Partner", 
+                                                        "Demographic.Region.LCFS", "Demographic.Surplus.Bands.V1", "Demographic.Surplus.Bands.V2", 
+                                                        "Demographic.UC", "Demographic.WTC", "Demographic.ethnicity.HRP", "Demographic.ethnicity.HRP.Partner", 
+                                                        "Demographic.Household.Type.LCFS", "LoE_Equivalised_V1",
+                                                        "LoE_Equivalised_V2", "awayfromcrisis")), width = 6)),
                 fluidRow(box(DT::dataTableOutput("table1"), width = 12)),
                 downloadButton("download", "Download Data")
         )
@@ -131,30 +119,19 @@ shinyApp(ui = shinyUI(
                 column(width = 6, 
                        selectInput(inputId = "Tab2Variable2",
                                    label = "Choose a grouping variable:",
-                                   choices = c("Demographic.Housing",
-                                               "Demographic.Cohort",
-                                               "Demographic.Housing.Tenure.LCFS",
-                                               "Demographic.Region.LCFS",
-                                               "Demographic.Household.Type.LCFS",
-                                               "Demographic.Derived.Household.Type.LCFS",
-                                               "Demographic.Derived.Household.Type.LCFS.child",
-                                               "Demographic.Disabled",
-                                               "Demographic.Surplus.Bands",
-                                               "Demographic.Role.Type",
-                                               "Demographic.Role.Type.Partner",
-                                               "Demographic.UC",
-                                               "Demographic.Negbud",
-                                               "Demographic.Income.Decile","Demographic.UC",
-                                               "Demographic.Housing.Benefit",
-                                               "Demographic.WTC",
-                                               "Demographic.Child.Tax.Credit",
-                                               "Demographic.JSA.Contribution.Based",
-                                               "Demographic.JSA.Income.Based",
-                                               "Demographic.JSA.Combined",
-                                               "Demographic.ESA",
-                                               "Demographic.PIP.Car",
-                                               "Demographic.PIP.Mob",
-                                               "Demographic.Child.Benefit"))
+                                   choices = c("Demographic.Age.Group.HRP", "Demographic.Age.Partner", "Demographic.Age.Respondent", 
+                                               "Demographic.Child.Gender", "Demographic.Child.Tax.Credit", "Demographic.Child.Benefit", 
+                                               "Demographic.Cohort", "Demographic.Disabled", "Demographic.Derived.Household.Type.LCFS", 
+                                               "Demographic.Derived.Household.Type.LCFS.child", "Demographic.ESA", "Demographic.Expenditure.Decile", 
+                                                "Demographic.FishyV3", "Demographic.Housing", "Demographic.Housing.Benefit", "Demographic.Housing.Tenure.LCFS", 
+                                               "Demographic.HRP.LCFS", "Demographic.Income.Decile", "Demographic.Income.Support", "Demographic.JSA.Combined", 
+                                               "Demographic.JSA.Contribution.Based", "Demographic.JSA.Income.Based", "Demographic.Means.Tested","Demographic.Negbud", "Demographic.Negbud.LCFS",
+                                               "Demographic.PIP.Car", "Demographic.PIP.Mob", "Demographic.Pension.Credit", 
+                                               "Demographic.Relationship.LCFS", "Demographic.Role.Type", "Demographic.Role.Type.Partner", 
+                                               "Demographic.Region.LCFS", "Demographic.Surplus.Bands.V1", "Demographic.Surplus.Bands.V2", 
+                                               "Demographic.UC", "Demographic.WTC", "Demographic.ethnicity.HRP", "Demographic.ethnicity.HRP.Partner", 
+                                               "Demographic.Household.Type.LCFS", "LoE_Equivalised_V1",
+                                               "LoE_Equivalised_V2", "awayfromcrisis"))
                 )
               ),
               fluidRow(
@@ -176,60 +153,38 @@ shinyApp(ui = shinyUI(
                 column(width = 4, 
                        selectInput(inputId = "Tab3Variable2",
                                    label = "Choose a grouping variable:",
-                                   choices = c("Demographic.Negbud",
-                                               "Demographic.Housing",
-                                               "Demographic.Cohort",
-                                               "Demographic.Housing.Tenure.LCFS",
-                                               "Demographic.Region.LCFS",
-                                               "Demographic.Household.Type.LCFS",
-                                               "Demographic.Derived.Household.Type.LCFS",
-                                               "Demographic.Derived.Household.Type.LCFS.child",
-                                               "Demographic.Disabled",
-                                               "Demographic.UC",
-                                               "Demographic.Surplus.Bands",
-                                               "Demographic.Role.Type",
-                                               "Demographic.Role.Type.Partner",
-                                               "Demographic.Income.Decile",
-                                               "Demographic.UC",
-                                               "Demographic.Housing.Benefit",
-                                               "Demographic.WTC",
-                                               "Demographic.Child.Tax.Credit",
-                                               "Demographic.JSA.Contribution.Based",
-                                               "Demographic.JSA.Income.Based",
-                                               "Demographic.JSA.Combined",
-                                               "Demographic.ESA",
-                                               "Demographic.PIP.Car",
-                                               "Demographic.PIP.Mob",
-                                               "Demographic.Child.Benefit"))
+                                   choices = c("Demographic.Age.Group.HRP", "Demographic.Age.Partner", "Demographic.Age.Respondent", 
+                                               "Demographic.Child.Gender", "Demographic.Child.Tax.Credit", "Demographic.Child.Benefit", 
+                                               "Demographic.Cohort", "Demographic.Disabled", "Demographic.Derived.Household.Type.LCFS", 
+                                               "Demographic.Derived.Household.Type.LCFS.child", "Demographic.ESA", "Demographic.Expenditure.Decile", 
+                                               "Demographic.FishyV3", "Demographic.Housing", "Demographic.Housing.Benefit", "Demographic.Housing.Tenure.LCFS", 
+                                               "Demographic.HRP.LCFS", "Demographic.Income.Decile", "Demographic.Income.Support", "Demographic.JSA.Combined", 
+                                               "Demographic.JSA.Contribution.Based", "Demographic.JSA.Income.Based", "Demographic.Means.Tested","Demographic.Negbud", "Demographic.Negbud.LCFS",
+                                               
+                                               "Demographic.PIP.Car", "Demographic.PIP.Mob", "Demographic.Pension.Credit", 
+                                               "Demographic.Relationship.LCFS", "Demographic.Role.Type", "Demographic.Role.Type.Partner", 
+                                               "Demographic.Region.LCFS", "Demographic.Surplus.Bands.V1", "Demographic.Surplus.Bands.V2", 
+                                               "Demographic.UC", "Demographic.WTC", "Demographic.ethnicity.HRP", "Demographic.ethnicity.HRP.Partner", 
+                                               "Demographic.Household.Type.LCFS", "Demographic.FishyV2", "LoE_Equivalised_V1",
+                                               "LoE_Equivalised_V2", "awayfromcrisis"))
                 ),
                 column(width = 4, 
                        selectInput(inputId = "Tab3Variable3",
                                    label = "Choose a grouping variable:",
-                                   choices = c("Demographic.Housing",
-                                               "Demographic.Housing.Tenure.LCFS",
-                                               "Demographic.Region.LCFS",
-                                               "Demographic.Household.Type.LCFS",
-                                               "Demographic.Derived.Household.Type.LCFS",
-                                               "Demographic.Derived.Household.Type.LCFS.child",
-                                               "Demographic.Disabled",
-                                               "Demographic.UC",
-                                               "Demographic.Negbud",
-                                               "Demographic.Surplus.Bands",
-                                               "Demographic.Role.Type",
-                                               "Demographic.Role.Type.Partner",
-                                               "Demographic.Income.Decile",
-                                               "Demographic.Cohort",
-                                               "Demographic.UC",
-                                               "Demographic.Housing.Benefit",
-                                               "Demographic.WTC",
-                                               "Demographic.Child.Tax.Credit",
-                                               "Demographic.JSA.Contribution.Based",
-                                               "Demographic.JSA.Income.Based",
-                                               "Demographic.JSA.Combined",
-                                               "Demographic.ESA",
-                                               "Demographic.PIP.Car",
-                                               "Demographic.PIP.Mob",
-                                               "Demographic.Child.Benefit"))
+                                   choices = c("Demographic.Negbud","Demographic.Negbud.LCFS", "Demographic.Age.Group.HRP", "Demographic.Age.Partner", "Demographic.Age.Respondent", 
+                                               "Demographic.Child.Gender", "Demographic.Child.Tax.Credit", "Demographic.Child.Benefit", 
+                                               "Demographic.Cohort", "Demographic.Disabled", "Demographic.Derived.Household.Type.LCFS", 
+                                               "Demographic.Derived.Household.Type.LCFS.child", "Demographic.ESA", "Demographic.Expenditure.Decile", 
+                                               "Demographic.FishyV3", "Demographic.Housing", "Demographic.Housing.Benefit", "Demographic.Housing.Tenure.LCFS", 
+                                               "Demographic.HRP.LCFS", "Demographic.Income.Decile", "Demographic.Income.Support", "Demographic.JSA.Combined", 
+                                               "Demographic.JSA.Contribution.Based", "Demographic.JSA.Income.Based", "Demographic.Means.Tested",
+                                               
+                                               "Demographic.PIP.Car", "Demographic.PIP.Mob", "Demographic.Pension.Credit", 
+                                               "Demographic.Relationship.LCFS", "Demographic.Role.Type", "Demographic.Role.Type.Partner", 
+                                               "Demographic.Region.LCFS", "Demographic.Surplus.Bands.V1", "Demographic.Surplus.Bands.V2", 
+                                               "Demographic.UC", "Demographic.WTC", "Demographic.ethnicity.HRP", "Demographic.ethnicity.HRP.Partner", 
+                                               "Demographic.Household.Type.LCFS", "LoE_Equivalised_V1",
+                                               "LoE_Equivalised_V2", "awayfromcrisis"))
                 )
               ),
               fluidRow(
@@ -251,27 +206,22 @@ shinyApp(ui = shinyUI(
                 column(width = 6,
                        selectInput(inputId = "Tab4Variable2",
                                    label = "Choose a numeric variable:",
-                                   choices = c("Surplus","Income.Total.Disposable", "Expenditure.Rent", 
-                                               "Expenditure.Mortgage", "Expenditure.Vehicle.Insurance",
-                                               "Expenditure.Health", "Expenditure.Transport", "Expenditure.Comms.Mobile.Phone",
-                                               "Expenditure.Council.Tax", "Expenditure.Mortgage", "Expenditure.Others",
-                                               "Expenditure.Utilities", "Expenditure.Food.House.Keeping", "Expenditure.Personal.Cost",
-                                               "Expenditure.Leisure.Cost", "Expenditure.Water", "Expenditure.Utilities.MART",
-                                               "Expenditure.Food.House.Keeping.MART", "Expenditure.Personal.MART", "Expenditure.Leisure.MART",
-                                               "Expenditure.Total.Essential.Flexible.MART", "Expenditure.Total.Essential.Fixed.LCFS", "Expenditure.Total.Essential.LCFS.MART",
-                                               "Expenditure.Total.Essential.Flexible.LCFS","Income.UC",
-                                               "Income.Gross.Wages.Respondent","Income.Gross.Wages.Partner",
-                                               "Income.Housing.Benefit",
-                                               "Income.WTC",
-                                               "Income.Child.Tax.Credit",
-                                               "Income.JSA.Contribution.Based",
-                                               "Income.JSA.Income.Based",
-                                               "Income.JSA.Combined",
-                                               "Income.ESA",
-                                               "Income.PIP.Car",
-                                               "Income.PIP.Mob",
-                                               "Income.Child.Benefit"
-                                   ))
+                                   choices = c("Surplus", "Surplus.LCFS" ,"Expenditure.Comms.Mobile.Phone", 
+                                               "Expenditure.Council.Tax", "Expenditure.Council.Tax.Support", "Expenditure.Decile.Numeric", 
+                                               "Expenditure.Flexible.Total.LCFS", "Expenditure.Flexible.Total.LoE", "Expenditure.Fixed.Total", 
+                                               "Expenditure.Food.House.Keeping", "Expenditure.Food.House.Keeping.MART", "Expenditure.Health", "Expenditure.Housing", 
+                                               "Expenditure.Housing.LCFS", "Expenditure.Leisure.Cost", "Expenditure.Leisure.MART", "Expenditure.Mortgage", "Expenditure.Others", 
+                                               "Expenditure.Personal.Cost", "Expenditure.Personal.MART", "Expenditure.Rent", "Expenditure.Rent.Net", 
+                                               "Expenditure.Total","Expenditure.Total.LCFS" , "Expenditure.Transport", 
+                                               "Expenditure.Utilities", "Expenditure.Utilities.MART", "Expenditure.Vehicle.Insurance", "Expenditure.Water", 
+                                               "Income.Carer.Allowance", "Income.Child.Benefit", "Income.Child.Tax.Credit", "Income.Decile.Numeric", 
+                                               "Income.ESA", "Income.ExtPaym.Housing.Benefit", "Income.Gross.Wages.Partner", "Income.Gross.Wages.Respondent", 
+                                               "Income.Housing.Benefit", "Income.Income.Support", "Income.JSA.Combined", "Income.JSA.Contribution.Based", 
+                                               "Income.JSA.Income.Based", "Income.Pension.Credit", "Income.PIP.Car", "Income.PIP.Mob", 
+                                               "Income.Takehome.Wages.Partner", "Income.Takehome.Wages.Respondent", "Income.Total", 
+                                               "Income.Total.Benefits", "Income.UC", "Income.WTC","Income.Equivalised",
+                                               "Expenditure.Equivalised",
+                                               "Surplus.Equivalised"))
                 )
               ),
               fluidRow(box(DT::dataTableOutput("table4"), width = 12)),
@@ -290,53 +240,39 @@ shinyApp(ui = shinyUI(
                 column(width = 4,
                        selectInput(inputId = "Tab5Variable2",
                                    label = "Choose a grouping variable:",
-                                   choices = c("Demographic.Housing",
-                                               "Demographic.Cohort",
-                                               "Demographic.Housing.Tenure.LCFS",
-                                               "Demographic.Region.LCFS",
-                                               "Demographic.Household.Type.LCFS",
-                                               "Demographic.Derived.Household.Type.LCFS",
-                                               "Demographic.Derived.Household.Type.LCFS.child",
-                                               "Demographic.Disabled",
-                                               "Demographic.Surplus.Bands",
-                                               "Demographic.Role.Type",
-                                               "Demographic.Role.Type.Partner",
-                                               "Demographic.UC",
-                                               "Demographic.Negbud",
-                                               "Demographic.Income.Decile",
-                                               "Demographic.UC",
-                                               "Demographic.Housing.Benefit",
-                                               "Demographic.WTC",
-                                               "Demographic.Child.Tax.Credit",
-                                               "Demographic.JSA.Contribution.Based",
-                                               "Demographic.JSA.Income.Based",
-                                               "Demographic.JSA.Combined",
-                                               "Demographic.ESA",
-                                               "Demographic.PIP.Car",
-                                               "Demographic.PIP.Mob",
-                                               "Demographic.Child.Benefit"))),
+                                   choices = c("Demographic.Age.Group.HRP", "Demographic.Age.Partner", "Demographic.Age.Respondent", 
+                                               "Demographic.Child.Gender", "Demographic.Child.Tax.Credit", "Demographic.Child.Benefit", 
+                                               "Demographic.Cohort", "Demographic.Disabled", "Demographic.Derived.Household.Type.LCFS", 
+                                               "Demographic.Derived.Household.Type.LCFS.child", "Demographic.ESA", "Demographic.Expenditure.Decile", 
+                                               "Demographic.FishyV3", "Demographic.Housing", "Demographic.Housing.Benefit", "Demographic.Housing.Tenure.LCFS", 
+                                               "Demographic.HRP.LCFS", "Demographic.Income.Decile", "Demographic.Income.Support", "Demographic.JSA.Combined", 
+                                               "Demographic.JSA.Contribution.Based", "Demographic.JSA.Income.Based", "Demographic.Means.Tested","Demographic.Negbud", "Demographic.Negbud.LCFS",
+                                               
+                                               "Demographic.PIP.Car", "Demographic.PIP.Mob", "Demographic.Pension.Credit", 
+                                               "Demographic.Relationship.LCFS", "Demographic.Role.Type", "Demographic.Role.Type.Partner", 
+                                               "Demographic.Region.LCFS", "Demographic.Surplus.Bands.V1", "Demographic.Surplus.Bands.V2", 
+                                               "Demographic.UC", "Demographic.WTC", "Demographic.ethnicity.HRP", "Demographic.ethnicity.HRP.Partner", 
+                                               "Demographic.Household.Type.LCFS", "LoE_Equivalised_V1",
+                                               "LoE_Equivalised_V2", "awayfromcrisis"))),
                 column(width = 4,
                        selectInput(inputId = "Tab5Variable3",
                                    label = "Choose a numeric variable:",
-                                   choices = c("Surplus","Income.Total.Disposable", "Expenditure.Rent", "Expenditure.Mortgage",
-                                               "Expenditure.Health", "Expenditure.Transport", 
-                                               "Expenditure.Vehicle.Insurance","Expenditure.Comms.Mobile.Phone",
-                                               "Expenditure.Council.Tax", "Expenditure.Mortgage", "Expenditure.Others",
-                                               "Expenditure.Utilities", "Expenditure.Food.House.Keeping", "Expenditure.Personal.Cost",
-                                               "Expenditure.Leisure.Cost", "Expenditure.Water", "Expenditure.Utilities.MART",
-                                               "Expenditure.Food.House.Keeping.MART", "Expenditure.Personal.MART", "Expenditure.Leisure.MART",
-                                               "Expenditure.Total.Essential.Flexible.MART", "Expenditure.Total.Essential.Fixed.LCFS", "Expenditure.Total.Essential.LCFS.MART",
-                                               "Expenditure.Total.Essential.Flexible.LCFS","Income.UC","Income.Gross.Wages.Respondent","Income.Gross.Wages.Partner",
-                                               "Income.Housing.Benefit",
-                                               "Income.WTC",
-                                               "Income.Child.Tax.Credit",
-                                               "Income.JSA.Contribution.Based",
-                                               "Income.JSA.Income.Based",
-                                               "Income.JSA.Combined",
-                                               "Income.ESA",
-                                               "Income.PIP.Car",
-                                               "Income.PIP.Mob",
-                                               "Income.Child.Benefit")))
+                                   choices = c("Surplus", "Surplus.LCFS" ,"Expenditure.Comms.Mobile.Phone", 
+                                               "Expenditure.Council.Tax", "Expenditure.Council.Tax.Support", "Expenditure.Decile.Numeric", 
+                                               "Expenditure.Flexible.Total.LCFS", "Expenditure.Flexible.Total.LoE", "Expenditure.Fixed.Total", 
+                                               "Expenditure.Food.House.Keeping", "Expenditure.Food.House.Keeping.MART", "Expenditure.Health", "Expenditure.Housing", 
+                                               "Expenditure.Housing.LCFS", "Expenditure.Leisure.Cost", "Expenditure.Leisure.MART", "Expenditure.Mortgage", "Expenditure.Others", 
+                                               "Expenditure.Personal.Cost", "Expenditure.Personal.MART", "Expenditure.Rent", "Expenditure.Rent.Net", 
+                                               "Expenditure.Total","Expenditure.Total.LCFS" , "Expenditure.Transport", 
+                                               "Expenditure.Utilities", "Expenditure.Utilities.MART", "Expenditure.Vehicle.Insurance", "Expenditure.Water", 
+                                               "Income.Carer.Allowance", "Income.Child.Benefit", "Income.Child.Tax.Credit", "Income.Decile.Numeric", 
+                                               "Income.ESA", "Income.ExtPaym.Housing.Benefit", "Income.Gross.Wages.Partner", "Income.Gross.Wages.Respondent", 
+                                               "Income.Housing.Benefit", "Income.Income.Support", "Income.JSA.Combined", "Income.JSA.Contribution.Based", 
+                                               "Income.JSA.Income.Based", "Income.Pension.Credit", "Income.PIP.Car", "Income.PIP.Mob", 
+                                               "Income.Takehome.Wages.Partner", "Income.Takehome.Wages.Respondent", "Income.Total", 
+                                               "Income.Total.Benefits", "Income.UC", "Income.WTC","Income.Equivalised",
+                                               "Expenditure.Equivalised",
+                                               "Surplus.Equivalised")))
               ),
               fluidRow(
                 column(width = 12,
@@ -388,24 +324,24 @@ shinyApp(ui = shinyUI(
               fluidRow(
                 column(width = 6, selectInput(inputId = "Tab8Variable1",
                                               label = "Choose an expenditure for the slider above:",
-                                              choices = c("Expenditure.Rent", "Expenditure.Mortgage",
-                                                          "Expenditure.Health", "Expenditure.Transport", 
-                                                          "Expenditure.Vehicle.Insurance","Expenditure.Comms.Mobile.Phone",
-                                                          "Expenditure.Council.Tax", "Expenditure.Mortgage", "Expenditure.Others",
-                                                          "Expenditure.Utilities", "Expenditure.Food.House.Keeping", "Expenditure.Personal.Cost",
-                                                          "Expenditure.Leisure.Cost", "Expenditure.Water", "Expenditure.Utilities.MART",
-                                                          "Expenditure.Food.House.Keeping.MART", "Expenditure.Personal.MART", "Expenditure.Leisure.MART",
-                                                          "Expenditure.Total.Essential.Flexible.MART", "Expenditure.Total.Essential.Fixed.LCFS", "Expenditure.Total.Essential.LCFS.MART",
-                                                          "Expenditure.Total.Essential.Flexible.LCFS"))),
+                                              choices = c("Expenditure.Comms.Mobile.Phone", "Expenditure.Council.Tax", "Expenditure.Council.Tax.Support", 
+                                                          "Expenditure.Decile.Numeric", "Expenditure.Flexible.Total.LCFS", "Expenditure.Flexible.Total.LoE", 
+                                                          "Expenditure.Fixed.Total", "Expenditure.Food.House.Keeping", "Expenditure.Food.House.Keeping.MART", 
+                                                          "Expenditure.Health", "Expenditure.Housing", "Expenditure.Housing.LCFS", "Expenditure.Leisure.Cost", 
+                                                          "Expenditure.Leisure.MART", "Expenditure.Mortgage", "Expenditure.Others", "Expenditure.Personal.Cost", 
+                                                          "Expenditure.Personal.MART", "Expenditure.Rent", "Expenditure.Rent.Net", "Expenditure.Total", "Expenditure.Total.LCFS",
+                                                          "Expenditure.Transport", "Expenditure.Utilities", "Expenditure.Utilities.MART", 
+                                                          "Expenditure.Vehicle.Insurance", "Expenditure.Water","Expenditure.Equivalised"))),
                 column(width = 6, selectInput(inputId = "Tab8Variable2",
                                               label = "Choose an expenditure for the slider above:",
-                                              choices = c("Expenditure.Health", "Expenditure.Rent", "Expenditure.Mortgage","Expenditure.Transport", "Expenditure.Comms.Mobile.Phone",
-                                                          "Expenditure.Council.Tax", "Expenditure.Mortgage", "Expenditure.Others",
-                                                          "Expenditure.Utilities", "Expenditure.Food.House.Keeping", "Expenditure.Personal.Cost",
-                                                          "Expenditure.Leisure.Cost", "Expenditure.Water", "Expenditure.Utilities.MART",
-                                                          "Expenditure.Food.House.Keeping.MART", "Expenditure.Personal.MART", "Expenditure.Leisure.MART",
-                                                          "Expenditure.Total.Essential.Flexible.MART", "Expenditure.Total.Essential.Fixed.LCFS", "Expenditure.Total.Essential.LCFS.MART",
-                                                          "Expenditure.Total.Essential.Flexible.LCFS")))
+                                              choices = c("Expenditure.Water","Expenditure.Comms.Mobile.Phone", "Expenditure.Council.Tax", "Expenditure.Council.Tax.Support", 
+                                                          "Expenditure.Decile.Numeric", "Expenditure.Flexible.Total.LCFS", "Expenditure.Flexible.Total.LoE", 
+                                                          "Expenditure.Fixed.Total", "Expenditure.Food.House.Keeping", "Expenditure.Food.House.Keeping.MART", 
+                                                          "Expenditure.Health", "Expenditure.Housing", "Expenditure.Housing.LCFS", "Expenditure.Leisure.Cost", 
+                                                          "Expenditure.Leisure.MART", "Expenditure.Mortgage", "Expenditure.Others", "Expenditure.Personal.Cost", 
+                                                          "Expenditure.Personal.MART", "Expenditure.Rent", "Expenditure.Rent.Net", "Expenditure.Total", "Expenditure.Total.LCFS",
+                                                          "Expenditure.Transport", "Expenditure.Utilities", "Expenditure.Utilities.MART", 
+                                                          "Expenditure.Vehicle.Insurance","Expenditure.Equivalised")))
               ),
               fluidRow(box(DT::dataTableOutput("table8"), width = 12)),
               downloadButton("download8", "Download Data")   
@@ -423,17 +359,13 @@ shinyApp(ui = shinyUI(
                 column(width = 6,
                        selectInput(inputId = "Tab9Variable1",
                                    label = "Choose an income to increase:",
-                                   choices = c("Income.Total.Disposable","Income.UC",
-                                               "Income.Housing.Benefit","Income.Gross.Wages.Respondent","Income.Gross.Wages.Partner",
-                                               "Income.WTC",
-                                               "Income.Child.Tax.Credit",
-                                               "Income.JSA.Contribution.Based",
-                                               "Income.JSA.Income.Based",
-                                               "Income.JSA.Combined",
-                                               "Income.ESA",
-                                               "Income.PIP.Car",
-                                               "Income.PIP.Mob",
-                                               "Income.Child.Benefit"))
+                                   choices = c("Income.Carer.Allowance", "Income.Child.Benefit", "Income.Child.Tax.Credit", 
+                                               "Income.Decile.Numeric", "Income.ESA", "Income.ExtPaym.Housing.Benefit", 
+                                               "Income.Gross.Wages.Partner", "Income.Gross.Wages.Respondent", "Income.Housing.Benefit", 
+                                               "Income.Income.Support", "Income.JSA.Combined", "Income.JSA.Contribution.Based", 
+                                               "Income.JSA.Income.Based", "Income.Pension.Credit", "Income.PIP.Car", "Income.PIP.Mob", 
+                                               "Income.Takehome.Wages.Partner", "Income.Takehome.Wages.Respondent", "Income.Total", 
+                                               "Income.Total.Benefits", "Income.UC", "Income.WTC","Income.Equivalised"))
                 )
               ),
               fluidRow(box(DT::dataTableOutput("table9"), width = 12)),
@@ -449,25 +381,22 @@ shinyApp(ui = shinyUI(
                 column(width = 6,
                        selectInput(inputId = "Tab10Variable1",
                                    label = "Choose a numeric variable:",
-                                   choices = c("Income.Total.Disposable", "Expenditure.Rent", "Expenditure.Mortgage",
-                                               "Expenditure.Health", "Expenditure.Transport", 
-                                               "Expenditure.Vehicle.Insurance","Expenditure.Comms.Mobile.Phone",
-                                               "Expenditure.Council.Tax", "Expenditure.Mortgage", "Expenditure.Others",
-                                               "Expenditure.Utilities", "Expenditure.Food.House.Keeping", "Expenditure.Personal.Cost",
-                                               "Expenditure.Leisure.Cost", "Expenditure.Water", "Expenditure.Utilities.MART",
-                                               "Expenditure.Food.House.Keeping.MART", "Expenditure.Personal.MART", "Expenditure.Leisure.MART",
-                                               "Expenditure.Total.Essential.Flexible.MART", "Expenditure.Total.Essential.Fixed.LCFS", "Expenditure.Total.Essential.LCFS.MART",
-                                               "Expenditure.Total.Essential.Flexible.LCFS","Income.UC","Income.Gross.Wages.Respondent","Income.Gross.Wages.Partner",
-                                               "Income.Housing.Benefit",
-                                               "Income.WTC",
-                                               "Income.Child.Tax.Credit",
-                                               "Income.JSA.Contribution.Based",
-                                               "Income.JSA.Income.Based",
-                                               "Income.JSA.Combined",
-                                               "Income.ESA",
-                                               "Income.PIP.Car",
-                                               "Income.PIP.Mob",
-                                               "Income.Child.Benefit"))
+                                   choices = c("Surplus", "Surplus.LCFS" ,"Expenditure.Comms.Mobile.Phone", 
+                                               "Expenditure.Council.Tax", "Expenditure.Council.Tax.Support", "Expenditure.Decile.Numeric", 
+                                               "Expenditure.Flexible.Total.LCFS", "Expenditure.Flexible.Total.LoE", "Expenditure.Fixed.Total", 
+                                               "Expenditure.Food.House.Keeping", "Expenditure.Food.House.Keeping.MART", "Expenditure.Health", "Expenditure.Housing", 
+                                               "Expenditure.Housing.LCFS", "Expenditure.Leisure.Cost", "Expenditure.Leisure.MART", "Expenditure.Mortgage", "Expenditure.Others", 
+                                               "Expenditure.Personal.Cost", "Expenditure.Personal.MART", "Expenditure.Rent", "Expenditure.Rent.Net", 
+                                               "Expenditure.Total","Expenditure.Total.LCFS" , "Expenditure.Transport", 
+                                               "Expenditure.Utilities", "Expenditure.Utilities.MART", "Expenditure.Vehicle.Insurance", "Expenditure.Water", 
+                                               "Income.Carer.Allowance", "Income.Child.Benefit", "Income.Child.Tax.Credit", "Income.Decile.Numeric", 
+                                               "Income.ESA", "Income.ExtPaym.Housing.Benefit", "Income.Gross.Wages.Partner", "Income.Gross.Wages.Respondent", 
+                                               "Income.Housing.Benefit", "Income.Income.Support", "Income.JSA.Combined", "Income.JSA.Contribution.Based", 
+                                               "Income.JSA.Income.Based", "Income.Pension.Credit", "Income.PIP.Car", "Income.PIP.Mob", 
+                                               "Income.Takehome.Wages.Partner", "Income.Takehome.Wages.Respondent", "Income.Total", 
+                                               "Income.Total.Benefits", "Income.UC", "Income.WTC","Income.Equivalised",
+                                               "Expenditure.Equivalised",
+                                               "Surplus.Equivalised"))
                 ),
                 column(width = 6,
                        selectInput(inputId = "TimeVariable",
@@ -498,53 +427,40 @@ shinyApp(ui = shinyUI(
                 column(width = 4,
                        selectInput(inputId = "Tab11Variable1",
                                    label = "Choose a grouping variable:",
-                                   choices = c("Demographic.Housing",
-                                               "Demographic.Housing.Tenure.LCFS",
-                                               "Demographic.Region.LCFS",
-                                               "Demographic.Household.Type.LCFS",
-                                               "Demographic.Derived.Household.Type.LCFS",
-                                               "Demographic.Derived.Household.Type.LCFS.child",
-                                               "Demographic.Disabled",
-                                               "Demographic.Surplus.Bands",
-                                               "Demographic.Role.Type",
-                                               "Demographic.Role.Type.Partner",
-                                               "Demographic.UC",
-                                               "Demographic.Negbud",
-                                               "Demographic.Income.Decile",
-                                               "Demographic.UC",
-                                               "Demographic.Housing.Benefit",
-                                               "Demographic.WTC",
-                                               "Demographic.Child.Tax.Credit",
-                                               "Demographic.JSA.Contribution.Based",
-                                               "Demographic.JSA.Income.Based",
-                                               "Demographic.JSA.Combined",
-                                               "Demographic.ESA",
-                                               "Demographic.PIP.Car",
-                                               "Demographic.PIP.Mob",
-                                               "Demographic.Child.Benefit"))
+                                   choices = c("Demographic.Age.Group.HRP", "Demographic.Age.Partner", "Demographic.Age.Respondent", 
+                                               "Demographic.Child.Gender", "Demographic.Child.Tax.Credit", "Demographic.Child.Benefit", 
+                                               "Demographic.Cohort", "Demographic.Disabled", "Demographic.Derived.Household.Type.LCFS", 
+                                               "Demographic.Derived.Household.Type.LCFS.child", "Demographic.ESA", "Demographic.Expenditure.Decile", 
+                                               "Demographic.FishyV3", "Demographic.Housing", "Demographic.Housing.Benefit", "Demographic.Housing.Tenure.LCFS", 
+                                               "Demographic.HRP.LCFS", "Demographic.Income.Decile", "Demographic.Income.Support", "Demographic.JSA.Combined", 
+                                               "Demographic.JSA.Contribution.Based", "Demographic.JSA.Income.Based", "Demographic.Means.Tested","Demographic.Negbud", "Demographic.Negbud.LCFS",
+                                               
+                                               "Demographic.PIP.Car", "Demographic.PIP.Mob", "Demographic.Pension.Credit", 
+                                               "Demographic.Relationship.LCFS", "Demographic.Role.Type", "Demographic.Role.Type.Partner", 
+                                               "Demographic.Region.LCFS", "Demographic.Surplus.Bands.V1", "Demographic.Surplus.Bands.V2", 
+                                               "Demographic.UC", "Demographic.WTC", "Demographic.ethnicity.HRP", "Demographic.ethnicity.HRP.Partner", 
+                                               "Demographic.Household.Type.LCFS", "LoE_Equivalised_V1",
+                                               "LoE_Equivalised_V2", "awayfromcrisis"))
                 ),
                 column(width = 4,
                        selectInput(inputId = "Tab11Variable2",
                                    label = "Choose a numeric variable:",
-                                   choices = c("Income.Total.Disposable", "Expenditure.Rent", "Expenditure.Mortgage",
-                                               "Expenditure.Health", "Expenditure.Transport", 
-                                               "Expenditure.Vehicle.Insurance","Expenditure.Comms.Mobile.Phone",
-                                               "Expenditure.Council.Tax", "Expenditure.Mortgage", "Expenditure.Others",
-                                               "Expenditure.Utilities", "Expenditure.Food.House.Keeping", "Expenditure.Personal.Cost",
-                                               "Expenditure.Leisure.Cost", "Expenditure.Water", "Expenditure.Utilities.MART",
-                                               "Expenditure.Food.House.Keeping.MART", "Expenditure.Personal.MART", "Expenditure.Leisure.MART",
-                                               "Expenditure.Total.Essential.Flexible.MART", "Expenditure.Total.Essential.Fixed.LCFS", "Expenditure.Total.Essential.LCFS.MART",
-                                               "Expenditure.Total.Essential.Flexible.LCFS","Income.UC","Income.Gross.Wages.Respondent","Income.Gross.Wages.Partner",
-                                               "Income.Housing.Benefit",
-                                               "Income.WTC",
-                                               "Income.Child.Tax.Credit",
-                                               "Income.JSA.Contribution.Based",
-                                               "Income.JSA.Income.Based",
-                                               "Income.JSA.Combined",
-                                               "Income.ESA",
-                                               "Income.PIP.Car",
-                                               "Income.PIP.Mob",
-                                               "Income.Child.Benefit"))
+                                   choices = c("Surplus", "Surplus.LCFS" ,"Expenditure.Comms.Mobile.Phone", 
+                                               "Expenditure.Council.Tax", "Expenditure.Council.Tax.Support", "Expenditure.Decile.Numeric", 
+                                               "Expenditure.Flexible.Total.LCFS", "Expenditure.Flexible.Total.LoE", "Expenditure.Fixed.Total", 
+                                               "Expenditure.Food.House.Keeping", "Expenditure.Food.House.Keeping.MART", "Expenditure.Health", "Expenditure.Housing", 
+                                               "Expenditure.Housing.LCFS", "Expenditure.Leisure.Cost", "Expenditure.Leisure.MART", "Expenditure.Mortgage", "Expenditure.Others", 
+                                               "Expenditure.Personal.Cost", "Expenditure.Personal.MART", "Expenditure.Rent", "Expenditure.Rent.Net", 
+                                               "Expenditure.Total","Expenditure.Total.LCFS" , "Expenditure.Transport", 
+                                               "Expenditure.Utilities", "Expenditure.Utilities.MART", "Expenditure.Vehicle.Insurance", "Expenditure.Water", 
+                                               "Income.Carer.Allowance", "Income.Child.Benefit", "Income.Child.Tax.Credit", "Income.Decile.Numeric", 
+                                               "Income.ESA", "Income.ExtPaym.Housing.Benefit", "Income.Gross.Wages.Partner", "Income.Gross.Wages.Respondent", 
+                                               "Income.Housing.Benefit", "Income.Income.Support", "Income.JSA.Combined", "Income.JSA.Contribution.Based", 
+                                               "Income.JSA.Income.Based", "Income.Pension.Credit", "Income.PIP.Car", "Income.PIP.Mob", 
+                                               "Income.Takehome.Wages.Partner", "Income.Takehome.Wages.Respondent", "Income.Total", 
+                                               "Income.Total.Benefits", "Income.UC", "Income.WTC","Income.Equivalised",
+                                               "Expenditure.Equivalised",
+                                               "Surplus.Equivalised"))
                 ),
                 column(width = 4,
                        selectInput(inputId = "TimeVariable2",
@@ -574,28 +490,20 @@ shinyApp(ui = shinyUI(
                 column(width = 4,
                        selectInput(inputId = "Tab20Variable1",
                                    label = "Choose a grouping variable:",
-                                   choices = c("Demographic.Housing",
-                                               "Demographic.Housing.Tenure.LCFS",
-                                               "Demographic.Region.LCFS",
-                                               "Demographic.Household.Type.LCFS",
-                                               "Demographic.Derived.Household.Type.LCFS",
-                                               "Demographic.Derived.Household.Type.LCFS.child",
-                                               "Demographic.Disabled",
-                                               "Demographic.UC",
-                                               "Demographic.Role.Type",
-                                               "Demographic.Role.Type.Partner",
-                                               "Demographic.Income.Decile",
-                                               "Demographic.UC",
-                                               "Demographic.Housing.Benefit",
-                                               "Demographic.WTC",
-                                               "Demographic.Child.Tax.Credit",
-                                               "Demographic.JSA.Contribution.Based",
-                                               "Demographic.JSA.Income.Based",
-                                               "Demographic.JSA.Combined",
-                                               "Demographic.ESA",
-                                               "Demographic.PIP.Car",
-                                               "Demographic.PIP.Mob",
-                                               "Demographic.Child.Benefit"))
+                                   choices = c("Demographic.Age.Group.HRP", "Demographic.Age.Partner", "Demographic.Age.Respondent", 
+                                               "Demographic.Child.Gender", "Demographic.Child.Tax.Credit", "Demographic.Child.Benefit", 
+                                               "Demographic.Cohort", "Demographic.Disabled", "Demographic.Derived.Household.Type.LCFS", 
+                                               "Demographic.Derived.Household.Type.LCFS.child", "Demographic.ESA", "Demographic.Expenditure.Decile", 
+                                               "Demographic.FishyV3", "Demographic.Housing", "Demographic.Housing.Benefit", "Demographic.Housing.Tenure.LCFS", 
+                                               "Demographic.HRP.LCFS", "Demographic.Income.Decile", "Demographic.Income.Support", "Demographic.JSA.Combined", 
+                                               "Demographic.JSA.Contribution.Based", "Demographic.JSA.Income.Based","Demographic.Means.Tested", "Demographic.Negbud", "Demographic.Negbud.LCFS",
+                                              
+                                               "Demographic.PIP.Car", "Demographic.PIP.Mob", "Demographic.Pension.Credit", 
+                                               "Demographic.Relationship.LCFS", "Demographic.Role.Type", "Demographic.Role.Type.Partner", 
+                                               "Demographic.Region.LCFS", "Demographic.Surplus.Bands.V1", "Demographic.Surplus.Bands.V2", 
+                                               "Demographic.UC", "Demographic.WTC", "Demographic.ethnicity.HRP", "Demographic.ethnicity.HRP.Partner", 
+                                               "Demographic.Household.Type.LCFS", "LoE_Equivalised_V1",
+                                               "LoE_Equivalised_V2", "awayfromcrisis"))
                 ),
                 column(width = 4,
                        selectInput(inputId = "TimeVariableNeg",
@@ -629,54 +537,40 @@ shinyApp(ui = shinyUI(
                 column(width = 4,
                        selectInput(inputId = "Tab12Variable1",
                                    label = "Choose a grouping variable:",
-                                   choices = c("Demographic.Housing",
-                                               "Demographic.Cohort",
-                                               "Demographic.Housing.Tenure.LCFS",
-                                               "Demographic.Region.LCFS",
-                                               "Demographic.Household.Type.LCFS",
-                                               "Demographic.Derived.Household.Type.LCFS",
-                                               "Demographic.Derived.Household.Type.LCFS.child",
-                                               "Demographic.Disabled",
-                                               "Demographic.Surplus.Bands",
-                                               "Demographic.Role.Type",
-                                               "Demographic.Role.Type.Partner",
-                                               "Demographic.UC",
-                                               "Demographic.Negbud",
-                                               "Demographic.Income.Decile",
-                                               "Demographic.UC",
-                                               "Demographic.Housing.Benefit",
-                                               "Demographic.WTC",
-                                               "Demographic.Child.Tax.Credit",
-                                               "Demographic.JSA.Contribution.Based",
-                                               "Demographic.JSA.Income.Based",
-                                               "Demographic.JSA.Combined",
-                                               "Demographic.ESA",
-                                               "Demographic.PIP.Car",
-                                               "Demographic.PIP.Mob",
-                                               "Demographic.Child.Benefit"))
+                                   choices = c("Demographic.Age.Group.HRP", "Demographic.Age.Partner", "Demographic.Age.Respondent", 
+                                               "Demographic.Child.Gender", "Demographic.Child.Tax.Credit", "Demographic.Child.Benefit", 
+                                               "Demographic.Cohort", "Demographic.Disabled", "Demographic.Derived.Household.Type.LCFS", 
+                                               "Demographic.Derived.Household.Type.LCFS.child", "Demographic.ESA", "Demographic.Expenditure.Decile", 
+                                               "Demographic.FishyV3", "Demographic.Housing", "Demographic.Housing.Benefit", "Demographic.Housing.Tenure.LCFS", 
+                                               "Demographic.HRP.LCFS", "Demographic.Income.Decile", "Demographic.Income.Support", "Demographic.JSA.Combined", 
+                                               "Demographic.JSA.Contribution.Based", "Demographic.JSA.Income.Based", "Demographic.Means.Tested","Demographic.Negbud", "Demographic.Negbud.LCFS",
+                                               
+                                               "Demographic.PIP.Car", "Demographic.PIP.Mob", "Demographic.Pension.Credit", 
+                                               "Demographic.Relationship.LCFS", "Demographic.Role.Type", "Demographic.Role.Type.Partner", 
+                                               "Demographic.Region.LCFS", "Demographic.Surplus.Bands.V1", "Demographic.Surplus.Bands.V2", 
+                                               "Demographic.UC", "Demographic.WTC", "Demographic.ethnicity.HRP", "Demographic.ethnicity.HRP.Partner", 
+                                               "Demographic.Household.Type.LCFS", "LoE_Equivalised_V1",
+                                               "LoE_Equivalised_V2", "awayfromcrisis"))
                 ),
                 column(width = 4,
                        selectInput(inputId = "Tab12Variable2",
                                    label = "Choose a numeric variable:",
-                                   choices = c("Income.Total.Disposable", "Expenditure.Rent", "Expenditure.Mortgage",
-                                               "Expenditure.Health", "Expenditure.Transport", 
-                                               "Expenditure.Vehicle.Insurance","Expenditure.Comms.Mobile.Phone",
-                                               "Expenditure.Council.Tax", "Expenditure.Mortgage", "Expenditure.Others",
-                                               "Expenditure.Utilities", "Expenditure.Food.House.Keeping", "Expenditure.Personal.Cost",
-                                               "Expenditure.Leisure.Cost", "Expenditure.Water", "Expenditure.Utilities.MART",
-                                               "Expenditure.Food.House.Keeping.MART", "Expenditure.Personal.MART", "Expenditure.Leisure.MART",
-                                               "Expenditure.Total.Essential.Flexible.MART", "Expenditure.Total.Essential.Fixed.LCFS", "Expenditure.Total.Essential.LCFS.MART",
-                                               "Expenditure.Total.Essential.Flexible.LCFS","Income.UC","Income.Gross.Wages.Respondent","Income.Gross.Wages.Partner",
-                                               "Income.Housing.Benefit",
-                                               "Income.WTC",
-                                               "Income.Child.Tax.Credit",
-                                               "Income.JSA.Contribution.Based",
-                                               "Income.JSA.Income.Based",
-                                               "Income.JSA.Combined",
-                                               "Income.ESA",
-                                               "Income.PIP.Car",
-                                               "Income.PIP.Mob",
-                                               "Income.Child.Benefit"))
+                                   choices = c("Surplus", "Surplus.LCFS" ,"Expenditure.Comms.Mobile.Phone", 
+                                               "Expenditure.Council.Tax", "Expenditure.Council.Tax.Support", "Expenditure.Decile.Numeric", 
+                                               "Expenditure.Flexible.Total.LCFS", "Expenditure.Flexible.Total.LoE", "Expenditure.Fixed.Total", 
+                                               "Expenditure.Food.House.Keeping", "Expenditure.Food.House.Keeping.MART", "Expenditure.Health", "Expenditure.Housing", 
+                                               "Expenditure.Housing.LCFS", "Expenditure.Leisure.Cost", "Expenditure.Leisure.MART", "Expenditure.Mortgage", "Expenditure.Others", 
+                                               "Expenditure.Personal.Cost", "Expenditure.Personal.MART", "Expenditure.Rent", "Expenditure.Rent.Net", 
+                                               "Expenditure.Total","Expenditure.Total.LCFS" , "Expenditure.Transport", 
+                                               "Expenditure.Utilities", "Expenditure.Utilities.MART", "Expenditure.Vehicle.Insurance", "Expenditure.Water", 
+                                               "Income.Carer.Allowance", "Income.Child.Benefit", "Income.Child.Tax.Credit", "Income.Decile.Numeric", 
+                                               "Income.ESA", "Income.ExtPaym.Housing.Benefit", "Income.Gross.Wages.Partner", "Income.Gross.Wages.Respondent", 
+                                               "Income.Housing.Benefit", "Income.Income.Support", "Income.JSA.Combined", "Income.JSA.Contribution.Based", 
+                                               "Income.JSA.Income.Based", "Income.Pension.Credit", "Income.PIP.Car", "Income.PIP.Mob", 
+                                               "Income.Takehome.Wages.Partner", "Income.Takehome.Wages.Respondent", "Income.Total", 
+                                               "Income.Total.Benefits", "Income.UC", "Income.WTC","Income.Equivalised",
+                                               "Expenditure.Equivalised",
+                                               "Surplus.Equivalised"))
                 ),
                 column(width = 4,
                        selectInput(inputId = "TimeVariable3",
@@ -708,81 +602,56 @@ shinyApp(ui = shinyUI(
                 column(width = 3,
                        selectInput(inputId = "Tab13Variable1",
                                    label = "Grouping variable 1:",
-                                   choices = c("Demographic.Housing",
-                                               "Demographic.Cohort",
-                                               "Demographic.Housing.Tenure.LCFS",
-                                               "Demographic.Region.LCFS",
-                                               "Demographic.Household.Type.LCFS",
-                                               "Demographic.Derived.Household.Type.LCFS",
-                                               "Demographic.Derived.Household.Type.LCFS.child",
-                                               "Demographic.Disabled",
-                                               "Demographic.Surplus.Bands",
-                                               "Demographic.Role.Type",
-                                               "Demographic.Role.Type.Partner",
-                                               "Demographic.UC",
-                                               "Demographic.Negbud",
-                                               "Demographic.Income.Decile",
-                                               "Demographic.UC",
-                                               "Demographic.Housing.Benefit",
-                                               "Demographic.WTC",
-                                               "Demographic.Child.Tax.Credit",
-                                               "Demographic.JSA.Contribution.Based",
-                                               "Demographic.JSA.Income.Based",
-                                               "Demographic.JSA.Combined",
-                                               "Demographic.ESA",
-                                               "Demographic.PIP.Car",
-                                               "Demographic.PIP.Mob",
-                                               "Demographic.Child.Benefit"))),
+                                   choices = c("Demographic.Age.Group.HRP", "Demographic.Age.Partner", "Demographic.Age.Respondent", 
+                                               "Demographic.Child.Gender", "Demographic.Child.Tax.Credit", "Demographic.Child.Benefit", 
+                                               "Demographic.Cohort", "Demographic.Disabled", "Demographic.Derived.Household.Type.LCFS", 
+                                               "Demographic.Derived.Household.Type.LCFS.child", "Demographic.ESA", "Demographic.Expenditure.Decile", 
+                                              "Demographic.FishyV3", "Demographic.Housing", "Demographic.Housing.Benefit", "Demographic.Housing.Tenure.LCFS", 
+                                               "Demographic.HRP.LCFS", "Demographic.Income.Decile", "Demographic.Income.Support", "Demographic.JSA.Combined", 
+                                               "Demographic.JSA.Contribution.Based", "Demographic.JSA.Income.Based", "Demographic.Means.Tested","Demographic.Negbud", "Demographic.Negbud.LCFS",
+                                              
+                                               "Demographic.PIP.Car", "Demographic.PIP.Mob", "Demographic.Pension.Credit", 
+                                               "Demographic.Relationship.LCFS", "Demographic.Role.Type", "Demographic.Role.Type.Partner", 
+                                               "Demographic.Region.LCFS", "Demographic.Surplus.Bands.V1", "Demographic.Surplus.Bands.V2", 
+                                               "Demographic.UC", "Demographic.WTC", "Demographic.ethnicity.HRP", "Demographic.ethnicity.HRP.Partner", 
+                                               "Demographic.Household.Type.LCFS", "LoE_Equivalised_V1",
+                                               "LoE_Equivalised_V2", "awayfromcrisis"))),
                 column(width = 3,
                        selectInput(inputId = "Tab13Variable2",
                                    label = "Grouping variable 2:",
-                                   choices = c("Demographic.Negbud",
-                                               "Demographic.Housing.Tenure.LCFS",
-                                               "Demographic.Cohort",
-                                               "Demographic.Region.LCFS",
-                                               "Demographic.Household.Type.LCFS",
-                                               "Demographic.Derived.Household.Type.LCFS",
-                                               "Demographic.Derived.Household.Type.LCFS.child",
-                                               "Demographic.Disabled",
-                                               "Demographic.Housing",
-                                               "Demographic.Surplus.Bands",
-                                               "Demographic.Role.Type",
-                                               "Demographic.Role.Type.Partner",
-                                               "Demographic.UC",
-                                               "Demographic.Income.Decile",
-                                               "Demographic.UC",
-                                               "Demographic.Housing.Benefit",
-                                               "Demographic.WTC",
-                                               "Demographic.Child.Tax.Credit",
-                                               "Demographic.JSA.Contribution.Based",
-                                               "Demographic.JSA.Income.Based",
-                                               "Demographic.JSA.Combined",
-                                               "Demographic.ESA",
-                                               "Demographic.PIP.Car",
-                                               "Demographic.PIP.Mob",
-                                               "Demographic.Child.Benefit"))),
+                                   choices = c("Demographic.Negbud","Demographic.Negbud.LCFS","Demographic.Age.Group.HRP", "Demographic.Age.Partner", "Demographic.Age.Respondent", 
+                                               "Demographic.Child.Gender", "Demographic.Child.Tax.Credit", "Demographic.Child.Benefit", 
+                                               "Demographic.Cohort", "Demographic.Disabled", "Demographic.Derived.Household.Type.LCFS", 
+                                               "Demographic.Derived.Household.Type.LCFS.child", "Demographic.ESA", "Demographic.Expenditure.Decile", 
+                                               "Demographic.FishyV3", "Demographic.Housing", "Demographic.Housing.Benefit", "Demographic.Housing.Tenure.LCFS", 
+                                               "Demographic.HRP.LCFS", "Demographic.Income.Decile", "Demographic.Income.Support", "Demographic.JSA.Combined", 
+                                               "Demographic.JSA.Contribution.Based", "Demographic.JSA.Income.Based", "Demographic.Means.Tested",
+                                              
+                                               "Demographic.PIP.Car", "Demographic.PIP.Mob", "Demographic.Pension.Credit", 
+                                               "Demographic.Relationship.LCFS", "Demographic.Role.Type", "Demographic.Role.Type.Partner", 
+                                               "Demographic.Region.LCFS", "Demographic.Surplus.Bands.V1", "Demographic.Surplus.Bands.V2", 
+                                               "Demographic.UC", "Demographic.WTC", "Demographic.ethnicity.HRP", "Demographic.ethnicity.HRP.Partner", 
+                                               "Demographic.Household.Type.LCFS", "LoE_Equivalised_V1",
+                                               "LoE_Equivalised_V2", "awayfromcrisis"))),
                 column(width = 3,
                        selectInput(inputId = "Tab13Variable3",
                                    label = "Numeric variable:",
-                                   choices = c("Income.Total.Disposable", "Expenditure.Rent", "Expenditure.Mortgage",
-                                               "Expenditure.Health", "Expenditure.Transport", 
-                                               "Expenditure.Vehicle.Insurance","Expenditure.Comms.Mobile.Phone",
-                                               "Expenditure.Council.Tax", "Expenditure.Mortgage", "Expenditure.Others",
-                                               "Expenditure.Utilities", "Expenditure.Food.House.Keeping", "Expenditure.Personal.Cost",
-                                               "Expenditure.Leisure.Cost", "Expenditure.Water", "Expenditure.Utilities.MART",
-                                               "Expenditure.Food.House.Keeping.MART", "Expenditure.Personal.MART", "Expenditure.Leisure.MART",
-                                               "Expenditure.Total.Essential.Flexible.MART", "Expenditure.Total.Essential.Fixed.LCFS", "Expenditure.Total.Essential.LCFS.MART",
-                                               "Expenditure.Total.Essential.Flexible.LCFS","Income.UC","Income.Gross.Wages.Respondent","Income.Gross.Wages.Partner",
-                                               "Income.Housing.Benefit",
-                                               "Income.WTC",
-                                               "Income.Child.Tax.Credit",
-                                               "Income.JSA.Contribution.Based",
-                                               "Income.JSA.Income.Based",
-                                               "Income.JSA.Combined",
-                                               "Income.ESA",
-                                               "Income.PIP.Car",
-                                               "Income.PIP.Mob",
-                                               "Income.Child.Benefit"))),
+                                   choices = c("Expenditure.Comms.Mobile.Phone", "Expenditure.Council.Tax", "Expenditure.Council.Tax.Support", 
+                                               "Expenditure.Decile.Numeric", "Expenditure.Flexible.Total.LCFS", "Expenditure.Flexible.Total.LoE", 
+                                               "Expenditure.Fixed.Total", "Expenditure.Food.House.Keeping", "Expenditure.Food.House.Keeping.MART", 
+                                               "Expenditure.Health", "Expenditure.Housing", "Expenditure.Housing.LCFS", "Expenditure.Leisure.Cost", 
+                                               "Expenditure.Leisure.MART", "Expenditure.Mortgage", "Expenditure.Others", "Expenditure.Personal.Cost", 
+                                               "Expenditure.Personal.MART", "Expenditure.Rent", "Expenditure.Rent.Net", "Expenditure.Total", 
+                                               "Expenditure.Transport", "Expenditure.Utilities", "Expenditure.Utilities.MART", "Expenditure.Vehicle.Insurance", 
+                                               "Expenditure.Water", "Income.Carer.Allowance", "Income.Child.Benefit", "Income.Child.Tax.Credit", 
+                                               "Income.Decile.Numeric", "Income.ESA", "Income.ExtPaym.Housing.Benefit", "Income.Gross.Wages.Partner", 
+                                               "Income.Gross.Wages.Respondent", "Income.Housing.Benefit", "Income.Income.Support", 
+                                               "Income.JSA.Combined", "Income.JSA.Contribution.Based", "Income.JSA.Income.Based", 
+                                               "Income.Pension.Credit", "Income.PIP.Car", "Income.PIP.Mob", "Income.Takehome.Wages.Partner", 
+                                               "Income.Takehome.Wages.Respondent", "Income.Total", "Income.Total.Benefits", "Income.UC", "Income.WTC", "Surplus",
+                                               "Income.Equivalised",
+                                               "Expenditure.Equivalised",
+                                               "Surplus.Equivalised"))),
                 column(width = 3,
                        selectInput(inputId = "TimeVariable4",
                                    label = "Time variable:",
@@ -813,81 +682,56 @@ shinyApp(ui = shinyUI(
                 column(width = 3,
                        selectInput(inputId = "Tab14Variable1",
                                    label = "Grouping variable 1:",
-                                   choices = c("Demographic.Housing",
-                                                "Demographic.Cohort",
-                                               "Demographic.Housing.Tenure.LCFS",
-                                               "Demographic.Region.LCFS",
-                                               "Demographic.Household.Type.LCFS",
-                                               "Demographic.Derived.Household.Type.LCFS",
-                                               "Demographic.Derived.Household.Type.LCFS.child",
-                                               "Demographic.Disabled",
-                                               "Demographic.Surplus.Bands",
-                                               "Demographic.Role.Type",
-                                               "Demographic.Role.Type.Partner",
-                                               "Demographic.UC",
-                                               "Demographic.Negbud",
-                                               "Demographic.Income.Decile",
-                                               "Demographic.UC",
-                                               "Demographic.Housing.Benefit",
-                                               "Demographic.WTC",
-                                               "Demographic.Child.Tax.Credit",
-                                               "Demographic.JSA.Contribution.Based",
-                                               "Demographic.JSA.Income.Based",
-                                               "Demographic.JSA.Combined",
-                                               "Demographic.ESA",
-                                               "Demographic.PIP.Car",
-                                               "Demographic.PIP.Mob",
-                                               "Demographic.Child.Benefit"))),
+                                   choices = c("Demographic.Age.Group.HRP", "Demographic.Age.Partner", "Demographic.Age.Respondent", 
+                                               "Demographic.Child.Gender", "Demographic.Child.Tax.Credit", "Demographic.Child.Benefit", 
+                                               "Demographic.Cohort", "Demographic.Disabled", "Demographic.Derived.Household.Type.LCFS", 
+                                               "Demographic.Derived.Household.Type.LCFS.child", "Demographic.ESA", "Demographic.Expenditure.Decile", 
+                                               "Demographic.FishyV3", "Demographic.Housing", "Demographic.Housing.Benefit", "Demographic.Housing.Tenure.LCFS", 
+                                               "Demographic.HRP.LCFS", "Demographic.Income.Decile", "Demographic.Income.Support", "Demographic.JSA.Combined", 
+                                               "Demographic.JSA.Contribution.Based", "Demographic.JSA.Income.Based", "Demographic.Means.Tested","Demographic.Negbud", "Demographic.Negbud.LCFS",
+                                              
+                                               "Demographic.PIP.Car", "Demographic.PIP.Mob", "Demographic.Pension.Credit", 
+                                               "Demographic.Relationship.LCFS", "Demographic.Role.Type", "Demographic.Role.Type.Partner", 
+                                               "Demographic.Region.LCFS", "Demographic.Surplus.Bands.V1", "Demographic.Surplus.Bands.V2", 
+                                               "Demographic.UC", "Demographic.WTC", "Demographic.ethnicity.HRP", "Demographic.ethnicity.HRP.Partner", 
+                                               "Demographic.Household.Type.LCFS","Demographic.FishyV2", "Demographic.FishyV3", "LoE_Equivalised_V1",
+                                               "LoE_Equivalised_V2", "awayfromcrisis"))),
                 column(width = 3,
                        selectInput(inputId = "Tab14Variable2",
                                    label = "Grouping variable 2:",
-                                   choices = c("Demographic.Negbud",
-                                               "Demographic.Housing",
-                                               "Demographic.Cohort",
-                                               "Demographic.Housing.Tenure.LCFS",
-                                               "Demographic.Region.LCFS",
-                                               "Demographic.Household.Type.LCFS",
-                                               "Demographic.Derived.Household.Type.LCFS",
-                                               "Demographic.Derived.Household.Type.LCFS.child",
-                                               "Demographic.Disabled",
-                                               "Demographic.Surplus.Bands",
-                                               "Demographic.Role.Type",
-                                               "Demographic.Role.Type.Partner",
-                                               "Demographic.UC",
-                                               "Demographic.Income.Decile",
-                                               "Demographic.UC",
-                                               "Demographic.Housing.Benefit",
-                                               "Demographic.WTC",
-                                               "Demographic.Child.Tax.Credit",
-                                               "Demographic.JSA.Contribution.Based",
-                                               "Demographic.JSA.Income.Based",
-                                               "Demographic.JSA.Combined",
-                                               "Demographic.ESA",
-                                               "Demographic.PIP.Car",
-                                               "Demographic.PIP.Mob",
-                                               "Demographic.Child.Benefit"))),
+                                   choices = c("Demographic.Negbud","Demographic.Negbud.LCFS","Demographic.Age.Group.HRP", "Demographic.Age.Partner", "Demographic.Age.Respondent", 
+                                               "Demographic.Child.Gender", "Demographic.Child.Tax.Credit", "Demographic.Child.Benefit", 
+                                               "Demographic.Cohort", "Demographic.Disabled", "Demographic.Derived.Household.Type.LCFS", 
+                                               "Demographic.Derived.Household.Type.LCFS.child", "Demographic.ESA", "Demographic.Expenditure.Decile", 
+                                               "Demographic.FishyV3", "Demographic.Housing", "Demographic.Housing.Benefit", "Demographic.Housing.Tenure.LCFS", 
+                                               "Demographic.HRP.LCFS", "Demographic.Income.Decile", "Demographic.Income.Support", "Demographic.JSA.Combined", 
+                                               "Demographic.JSA.Contribution.Based", "Demographic.JSA.Income.Based", 
+                                               
+                                               "Demographic.PIP.Car", "Demographic.PIP.Mob", "Demographic.Pension.Credit", "Demographic.Means.Tested",
+                                               "Demographic.Relationship.LCFS", "Demographic.Role.Type", "Demographic.Role.Type.Partner", 
+                                               "Demographic.Region.LCFS", "Demographic.Surplus.Bands.V1", "Demographic.Surplus.Bands.V2", 
+                                               "Demographic.UC", "Demographic.WTC", "Demographic.ethnicity.HRP", 
+                                               "Demographic.ethnicity.HRP.Partner", "Demographic.Household.Type.LCFS","Demographic.FishyV2","Demographic.FishyV3", "LoE_Equivalised_V1",
+                                               "LoE_Equivalised_V2", "awayfromcrisis"))),
                 column(width = 3,
                        selectInput(inputId = "Tab14Variable3",
                                    label = "Numeric variable:",
-                                   choices = c("Income.Total.Disposable", "Expenditure.Rent", "Expenditure.Mortgage",
-                                               "Expenditure.Health", "Expenditure.Transport", 
-                                               "Expenditure.Vehicle.Insurance","Expenditure.Comms.Mobile.Phone",
-                                               "Expenditure.Council.Tax", "Expenditure.Mortgage", "Expenditure.Others",
-                                               "Expenditure.Utilities", "Expenditure.Food.House.Keeping", "Expenditure.Personal.Cost",
-                                               "Expenditure.Leisure.Cost", "Expenditure.Water", "Expenditure.Utilities.MART",
-                                               "Expenditure.Food.House.Keeping.MART", "Expenditure.Personal.MART", "Expenditure.Leisure.MART",
-                                               "Expenditure.Total.Essential.Flexible.MART", "Expenditure.Total.Essential.Fixed.LCFS", "Expenditure.Total.Essential.LCFS.MART",
-                                               "Expenditure.Total.Essential.Flexible.LCFS","Income.UC","Income.Gross.Wages.Respondent","Income.Gross.Wages.Partner",
-                                               "Income.Housing.Benefit",
-                                               "Income.WTC",
-                                               "Income.Child.Tax.Credit",
-                                               "Income.JSA.Contribution.Based",
-                                               "Income.JSA.Income.Based",
-                                               "Income.JSA.Combined",
-                                               "Income.ESA",
-                                               "Income.PIP.Car",
-                                               "Income.PIP.Mob",
-                                               "Income.Child.Benefit"))),
+                                   choices = c("Surplus", "Surplus.LCFS" ,"Expenditure.Comms.Mobile.Phone", 
+                                               "Expenditure.Council.Tax", "Expenditure.Council.Tax.Support", "Expenditure.Decile.Numeric", 
+                                               "Expenditure.Flexible.Total.LCFS", "Expenditure.Flexible.Total.LoE", "Expenditure.Fixed.Total", 
+                                               "Expenditure.Food.House.Keeping", "Expenditure.Food.House.Keeping.MART", "Expenditure.Health", "Expenditure.Housing", 
+                                               "Expenditure.Housing.LCFS", "Expenditure.Leisure.Cost", "Expenditure.Leisure.MART", "Expenditure.Mortgage", "Expenditure.Others", 
+                                               "Expenditure.Personal.Cost", "Expenditure.Personal.MART", "Expenditure.Rent", "Expenditure.Rent.Net", 
+                                               "Expenditure.Total","Expenditure.Total.LCFS" , "Expenditure.Transport", 
+                                               "Expenditure.Utilities", "Expenditure.Utilities.MART", "Expenditure.Vehicle.Insurance", "Expenditure.Water", 
+                                               "Income.Carer.Allowance", "Income.Child.Benefit", "Income.Child.Tax.Credit", "Income.Decile.Numeric", 
+                                               "Income.ESA", "Income.ExtPaym.Housing.Benefit", "Income.Gross.Wages.Partner", "Income.Gross.Wages.Respondent", 
+                                               "Income.Housing.Benefit", "Income.Income.Support", "Income.JSA.Combined", "Income.JSA.Contribution.Based", 
+                                               "Income.JSA.Income.Based", "Income.Pension.Credit", "Income.PIP.Car", "Income.PIP.Mob", 
+                                               "Income.Takehome.Wages.Partner", "Income.Takehome.Wages.Respondent", "Income.Total", 
+                                               "Income.Total.Benefits", "Income.UC", "Income.WTC","Income.Equivalised",
+                                               "Expenditure.Equivalised",
+                                               "Surplus.Equivalised"))),
                 column(width = 3,
                        selectInput(inputId = "TimeVariable5",
                                    label = "Time variable:",
@@ -918,52 +762,39 @@ shinyApp(ui = shinyUI(
                 column(width = 4,
                        selectInput(inputId = "Tab15Variable1",
                                    label = "Choose a grouping variable:",
-                                   choices = c("Demographic.Housing",
-                                                "Demographic.Housing.Tenure.LCFS",
-                                               "Demographic.Region.LCFS",
-                                               "Demographic.Household.Type.LCFS",
-                                               "Demographic.Derived.Household.Type.LCFS",
-                                               "Demographic.Derived.Household.Type.LCFS.child",
-                                               "Demographic.Disabled",
-                                               "Demographic.Surplus.Bands",
-                                               "Demographic.Role.Type",
-                                               "Demographic.Role.Type.Partner",
-                                               "Demographic.UC",
-                                               "Demographic.Negbud",
-                                               "Demographic.Income.Decile",
-                                               "Demographic.UC",
-                                               "Demographic.Housing.Benefit",
-                                               "Demographic.WTC",
-                                               "Demographic.Child.Tax.Credit",
-                                               "Demographic.JSA.Contribution.Based",
-                                               "Demographic.JSA.Income.Based",
-                                               "Demographic.JSA.Combined",
-                                               "Demographic.ESA",
-                                               "Demographic.PIP.Car",
-                                               "Demographic.PIP.Mob",
-                                               "Demographic.Child.Benefit"))),
+                                   choices = c("Demographic.Age.Group.HRP", "Demographic.Age.Partner", "Demographic.Age.Respondent", 
+                                               "Demographic.Child.Gender", "Demographic.Child.Tax.Credit", "Demographic.Child.Benefit", 
+                                               "Demographic.Cohort", "Demographic.Disabled", "Demographic.Derived.Household.Type.LCFS", 
+                                               "Demographic.Derived.Household.Type.LCFS.child", "Demographic.ESA", "Demographic.Expenditure.Decile", 
+                                               "Demographic.FishyV3", "Demographic.Housing", "Demographic.Housing.Benefit", "Demographic.Housing.Tenure.LCFS", 
+                                               "Demographic.HRP.LCFS", "Demographic.Income.Decile", "Demographic.Income.Support", "Demographic.JSA.Combined", 
+                                               "Demographic.JSA.Contribution.Based", "Demographic.JSA.Income.Based", "Demographic.Means.Tested","Demographic.Negbud", "Demographic.Negbud.LCFS",
+                                               
+                                               "Demographic.PIP.Car", "Demographic.PIP.Mob", "Demographic.Pension.Credit", 
+                                               "Demographic.Relationship.LCFS", "Demographic.Role.Type", "Demographic.Role.Type.Partner", 
+                                               "Demographic.Region.LCFS", "Demographic.Surplus.Bands.V1", "Demographic.Surplus.Bands.V2", 
+                                               "Demographic.UC", "Demographic.WTC", "Demographic.ethnicity.HRP", "Demographic.ethnicity.HRP.Partner", 
+                                               "Demographic.Household.Type.LCFS", "LoE_Equivalised_V1",
+                                               "LoE_Equivalised_V2", "awayfromcrisis"))),
                 column(width = 4,
                        selectInput(inputId = "Tab15Variable2",
                                    label = "Choose a numeric variable:",
-                                   choices = c("Income.Total.Disposable", "Expenditure.Rent", "Expenditure.Mortgage",
-                                               "Expenditure.Health", "Expenditure.Transport", 
-                                               "Expenditure.Vehicle.Insurance","Expenditure.Comms.Mobile.Phone",
-                                               "Expenditure.Council.Tax", "Expenditure.Mortgage", "Expenditure.Others",
-                                               "Expenditure.Utilities", "Expenditure.Food.House.Keeping", "Expenditure.Personal.Cost",
-                                               "Expenditure.Leisure.Cost", "Expenditure.Water", "Expenditure.Utilities.MART",
-                                               "Expenditure.Food.House.Keeping.MART", "Expenditure.Personal.MART", "Expenditure.Leisure.MART",
-                                               "Expenditure.Total.Essential.Flexible.MART", "Expenditure.Total.Essential.Fixed.LCFS", "Expenditure.Total.Essential.LCFS.MART",
-                                               "Expenditure.Total.Essential.Flexible.LCFS","Income.UC","Income.Gross.Wages.Respondent","Income.Gross.Wages.Partner",
-                                               "Income.Housing.Benefit",
-                                               "Income.WTC",
-                                               "Income.Child.Tax.Credit",
-                                               "Income.JSA.Contribution.Based",
-                                               "Income.JSA.Income.Based",
-                                               "Income.JSA.Combined",
-                                               "Income.ESA",
-                                               "Income.PIP.Car",
-                                               "Income.PIP.Mob",
-                                               "Income.Child.Benefit"))),
+                                   choices = c("Surplus", "Surplus.LCFS" ,"Expenditure.Comms.Mobile.Phone", 
+                                               "Expenditure.Council.Tax", "Expenditure.Council.Tax.Support", "Expenditure.Decile.Numeric", 
+                                               "Expenditure.Flexible.Total.LCFS", "Expenditure.Flexible.Total.LoE", "Expenditure.Fixed.Total", 
+                                               "Expenditure.Food.House.Keeping", "Expenditure.Food.House.Keeping.MART", "Expenditure.Health", "Expenditure.Housing", 
+                                               "Expenditure.Housing.LCFS", "Expenditure.Leisure.Cost", "Expenditure.Leisure.MART", "Expenditure.Mortgage", "Expenditure.Others", 
+                                               "Expenditure.Personal.Cost", "Expenditure.Personal.MART", "Expenditure.Rent", "Expenditure.Rent.Net", 
+                                               "Expenditure.Total","Expenditure.Total.LCFS" , "Expenditure.Transport", 
+                                               "Expenditure.Utilities", "Expenditure.Utilities.MART", "Expenditure.Vehicle.Insurance", "Expenditure.Water", 
+                                               "Income.Carer.Allowance", "Income.Child.Benefit", "Income.Child.Tax.Credit", "Income.Decile.Numeric", 
+                                               "Income.ESA", "Income.ExtPaym.Housing.Benefit", "Income.Gross.Wages.Partner", "Income.Gross.Wages.Respondent", 
+                                               "Income.Housing.Benefit", "Income.Income.Support", "Income.JSA.Combined", "Income.JSA.Contribution.Based", 
+                                               "Income.JSA.Income.Based", "Income.Pension.Credit", "Income.PIP.Car", "Income.PIP.Mob", 
+                                               "Income.Takehome.Wages.Partner", "Income.Takehome.Wages.Respondent", "Income.Total", 
+                                               "Income.Total.Benefits", "Income.UC", "Income.WTC","Income.Equivalised",
+                                               "Expenditure.Equivalised",
+                                               "Surplus.Equivalised"))),
                 column(width = 4,
                        selectInput(inputId = "TimeVariable6",
                                    label = "Choose a time variable:",
@@ -994,30 +825,20 @@ shinyApp(ui = shinyUI(
                 column(width = 4,
                        selectInput(inputId = "Tab16Variable1",
                                    label = "Choose a grouping variable:",
-                                   choices = c("Demographic.Housing",
-                                     "Demographic.Housing.Tenure.LCFS",
-                                               "Demographic.Region.LCFS",
-                                               "Demographic.Household.Type.LCFS",
-                                               "Demographic.Derived.Household.Type.LCFS",
-                                               "Demographic.Derived.Household.Type.LCFS.child",
-                                               "Demographic.Disabled",
-                                                 "Demographic.Surplus.Bands",
-                                     "Demographic.Role.Type",
-                                     "Demographic.Role.Type.Partner",
-                                               "Demographic.UC",
-                                               "Demographic.Negbud",
-                                               "Demographic.Income.Decile",
-                                               "Demographic.UC",
-                                               "Demographic.Housing.Benefit",
-                                               "Demographic.WTC",
-                                               "Demographic.Child.Tax.Credit",
-                                               "Demographic.JSA.Contribution.Based",
-                                               "Demographic.JSA.Income.Based",
-                                               "Demographic.JSA.Combined",
-                                               "Demographic.ESA",
-                                               "Demographic.PIP.Car",
-                                               "Demographic.PIP.Mob",
-                                               "Demographic.Child.Benefit")))
+                                   choices = c("Demographic.Age.Group.HRP", "Demographic.Age.Partner", "Demographic.Age.Respondent", 
+                                               "Demographic.Child.Gender", "Demographic.Child.Tax.Credit", "Demographic.Child.Benefit", 
+                                               "Demographic.Cohort", "Demographic.Disabled", "Demographic.Derived.Household.Type.LCFS", 
+                                               "Demographic.Derived.Household.Type.LCFS.child", "Demographic.ESA", "Demographic.Expenditure.Decile", 
+                                               "Demographic.FishyV3", "Demographic.Housing", "Demographic.Housing.Benefit", "Demographic.Housing.Tenure.LCFS", 
+                                               "Demographic.HRP.LCFS", "Demographic.Income.Decile", "Demographic.Income.Support", "Demographic.JSA.Combined", 
+                                               "Demographic.JSA.Contribution.Based", "Demographic.JSA.Income.Based", "Demographic.Means.Tested","Demographic.Negbud", "Demographic.Negbud.LCFS",
+                                               
+                                               "Demographic.PIP.Car", "Demographic.PIP.Mob", "Demographic.Pension.Credit", 
+                                               "Demographic.Relationship.LCFS", "Demographic.Role.Type", "Demographic.Role.Type.Partner", 
+                                               "Demographic.Region.LCFS", "Demographic.Surplus.Bands.V1", "Demographic.Surplus.Bands.V2", 
+                                               "Demographic.UC", "Demographic.WTC", "Demographic.ethnicity.HRP", "Demographic.ethnicity.HRP.Partner", 
+                                               "Demographic.Household.Type.LCFS", "LoE_Equivalised_V1",
+                                               "LoE_Equivalised_V2", "awayfromcrisis")))
               ),
               tabsetPanel(
                 tabPanel("Plot",
@@ -1048,25 +869,22 @@ shinyApp(ui = shinyUI(
                 column(4, 
                        selectInput(inputId = "Tab18Variable1",
                                    label = "Choose a variable:",
-                                   choices = c("Income.Total.Disposable", "Expenditure.Rent", "Expenditure.Mortgage",
-                                               "Expenditure.Health", "Expenditure.Transport", 
-                                               "Expenditure.Vehicle.Insurance","Expenditure.Comms.Mobile.Phone",
-                                               "Expenditure.Council.Tax", "Expenditure.Mortgage", "Expenditure.Others",
-                                               "Expenditure.Utilities", "Expenditure.Food.House.Keeping", "Expenditure.Personal.Cost",
-                                               "Expenditure.Leisure.Cost", "Expenditure.Water", "Expenditure.Utilities.MART",
-                                               "Expenditure.Food.House.Keeping.MART", "Expenditure.Personal.MART", "Expenditure.Leisure.MART",
-                                               "Expenditure.Total.Essential.Flexible.MART", "Expenditure.Total.Essential.Fixed.LCFS", "Expenditure.Total.Essential.LCFS.MART",
-                                               "Expenditure.Total.Essential.Flexible.LCFS","Income.UC","Income.Gross.Wages.Respondent","Income.Gross.Wages.Partner",
-                                               "Income.Housing.Benefit",
-                                               "Income.WTC",
-                                               "Income.Child.Tax.Credit",
-                                               "Income.JSA.Contribution.Based",
-                                               "Income.JSA.Income.Based",
-                                               "Income.JSA.Combined",
-                                               "Income.ESA",
-                                               "Income.PIP.Car",
-                                               "Income.PIP.Mob",
-                                               "Income.Child.Benefit")  
+                                   choices = c("Surplus", "Surplus.LCFS" ,"Expenditure.Comms.Mobile.Phone", 
+                                               "Expenditure.Council.Tax", "Expenditure.Council.Tax.Support", "Expenditure.Decile.Numeric", 
+                                               "Expenditure.Flexible.Total.LCFS", "Expenditure.Flexible.Total.LoE", "Expenditure.Fixed.Total", 
+                                               "Expenditure.Food.House.Keeping", "Expenditure.Food.House.Keeping.MART", "Expenditure.Health", "Expenditure.Housing", 
+                                               "Expenditure.Housing.LCFS", "Expenditure.Leisure.Cost", "Expenditure.Leisure.MART", "Expenditure.Mortgage", "Expenditure.Others", 
+                                               "Expenditure.Personal.Cost", "Expenditure.Personal.MART", "Expenditure.Rent", "Expenditure.Rent.Net", 
+                                               "Expenditure.Total","Expenditure.Total.LCFS" , "Expenditure.Transport", 
+                                               "Expenditure.Utilities", "Expenditure.Utilities.MART", "Expenditure.Vehicle.Insurance", "Expenditure.Water", 
+                                               "Income.Carer.Allowance", "Income.Child.Benefit", "Income.Child.Tax.Credit", "Income.Decile.Numeric", 
+                                               "Income.ESA", "Income.ExtPaym.Housing.Benefit", "Income.Gross.Wages.Partner", "Income.Gross.Wages.Respondent", 
+                                               "Income.Housing.Benefit", "Income.Income.Support", "Income.JSA.Combined", "Income.JSA.Contribution.Based", 
+                                               "Income.JSA.Income.Based", "Income.Pension.Credit", "Income.PIP.Car", "Income.PIP.Mob", 
+                                               "Income.Takehome.Wages.Partner", "Income.Takehome.Wages.Respondent", "Income.Total", 
+                                               "Income.Total.Benefits", "Income.UC", "Income.WTC","Income.Equivalised",
+                                               "Expenditure.Equivalised",
+                                               "Surplus.Equivalised")  
                        )
                 ),
                 column(4, 
@@ -1111,54 +929,41 @@ shinyApp(ui = shinyUI(
                          column(4, 
                                 selectInput(inputId = "Tab17Variable1",
                                             label = "Choose a grouping variable:",
-                                            choices = c("Demographic.Housing",
-                                              "Demographic.Housing.Tenure.LCFS",
-                                                        "Demographic.Region.LCFS",
-                                                        "Demographic.Household.Type.LCFS",
-                                                        "Demographic.Derived.Household.Type.LCFS",
-                                                        "Demographic.Derived.Household.Type.LCFS.child",
-                                                        "Demographic.Disabled",
-                                                        "Demographic.Surplus.Bands",
-                                              "Demographic.Role.Type",
-                                              "Demographic.Role.Type.Partner",
-                                                        "Demographic.UC",
-                                                        "Demographic.Negbud",
-                                                        "Demographic.Income.Decile",
-                                                        "Demographic.UC",
-                                                        "Demographic.Housing.Benefit",
-                                                        "Demographic.WTC",
-                                                        "Demographic.Child.Tax.Credit",
-                                                        "Demographic.JSA.Contribution.Based",
-                                                        "Demographic.JSA.Income.Based",
-                                                        "Demographic.JSA.Combined",
-                                                        "Demographic.ESA",
-                                                        "Demographic.PIP.Car",
-                                                        "Demographic.PIP.Mob",
-                                                        "Demographic.Child.Benefit")
+                                            choices = c("Demographic.Age.Group.HRP", "Demographic.Age.Partner", "Demographic.Age.Respondent", 
+                                                        "Demographic.Child.Gender", "Demographic.Child.Tax.Credit", "Demographic.Child.Benefit", 
+                                                        "Demographic.Cohort", "Demographic.Disabled", "Demographic.Derived.Household.Type.LCFS", 
+                                                        "Demographic.Derived.Household.Type.LCFS.child", "Demographic.ESA", "Demographic.Expenditure.Decile", 
+                                                        "Demographic.FishyV3", "Demographic.Housing", "Demographic.Housing.Benefit", "Demographic.Housing.Tenure.LCFS", 
+                                                        "Demographic.HRP.LCFS", "Demographic.Income.Decile", "Demographic.Income.Support", "Demographic.JSA.Combined", 
+                                                        "Demographic.JSA.Contribution.Based", "Demographic.JSA.Income.Based", "Demographic.Means.Tested",  "Demographic.Negbud", "Demographic.Negbud.LCFS",
+                                                        
+                                                        "Demographic.PIP.Car", "Demographic.PIP.Mob", "Demographic.Pension.Credit", 
+                                                        "Demographic.Relationship.LCFS", "Demographic.Role.Type", "Demographic.Role.Type.Partner", 
+                                                        "Demographic.Region.LCFS", "Demographic.Surplus.Bands.V1", "Demographic.Surplus.Bands.V2", 
+                                                        "Demographic.UC", "Demographic.WTC", "Demographic.ethnicity.HRP", "Demographic.ethnicity.HRP.Partner", 
+                                                        "Demographic.Household.Type.LCFS", "LoE_Equivalised_V1",
+                                                        "LoE_Equivalised_V2", "awayfromcrisis")
                                 )
                          ),
                          column(4, 
                                 selectInput(inputId = "Tab17Variable2",
                                             label = "Choose a numeric variable:",
-                                            choices = c("Expenditure.Health","Expenditure.Rent", "Expenditure.Mortgage",
-                                                        "Expenditure.Transport", 
-                                                        "Expenditure.Vehicle.Insurance","Expenditure.Comms.Mobile.Phone",
-                                                        "Expenditure.Council.Tax", "Expenditure.Mortgage", "Expenditure.Others",
-                                                        "Expenditure.Utilities", "Expenditure.Food.House.Keeping", "Expenditure.Personal.Cost",
-                                                        "Expenditure.Leisure.Cost", "Expenditure.Water", "Expenditure.Utilities.MART",
-                                                        "Expenditure.Food.House.Keeping.MART", "Expenditure.Personal.MART", "Expenditure.Leisure.MART",
-                                                        "Expenditure.Total.Essential.Flexible.MART", "Expenditure.Total.Essential.Fixed.LCFS", "Expenditure.Total.Essential.LCFS.MART",
-                                                        "Expenditure.Total.Essential.Flexible.LCFS","Income.Total.Disposable","Income.UC","Income.Gross.Wages.Respondent","Income.Gross.Wages.Partner",
-                                                        "Income.Housing.Benefit",
-                                                        "Income.WTC",
-                                                        "Income.Child.Tax.Credit",
-                                                        "Income.JSA.Contribution.Based",
-                                                        "Income.JSA.Income.Based",
-                                                        "Income.JSA.Combined",
-                                                        "Income.ESA",
-                                                        "Income.PIP.Car",
-                                                        "Income.PIP.Mob",
-                                                        "Income.Child.Benefit")
+                                            choices = c("Surplus", "Surplus.LCFS" ,"Expenditure.Comms.Mobile.Phone", 
+                                                        "Expenditure.Council.Tax", "Expenditure.Council.Tax.Support", "Expenditure.Decile.Numeric", 
+                                                        "Expenditure.Flexible.Total.LCFS", "Expenditure.Flexible.Total.LoE", "Expenditure.Fixed.Total", 
+                                                        "Expenditure.Food.House.Keeping", "Expenditure.Food.House.Keeping.MART", "Expenditure.Health", "Expenditure.Housing", 
+                                                        "Expenditure.Housing.LCFS", "Expenditure.Leisure.Cost", "Expenditure.Leisure.MART", "Expenditure.Mortgage", "Expenditure.Others", 
+                                                        "Expenditure.Personal.Cost", "Expenditure.Personal.MART", "Expenditure.Rent", "Expenditure.Rent.Net", 
+                                                        "Expenditure.Total","Expenditure.Total.LCFS" , "Expenditure.Transport", 
+                                                        "Expenditure.Utilities", "Expenditure.Utilities.MART", "Expenditure.Vehicle.Insurance", "Expenditure.Water", 
+                                                        "Income.Carer.Allowance", "Income.Child.Benefit", "Income.Child.Tax.Credit", "Income.Decile.Numeric", 
+                                                        "Income.ESA", "Income.ExtPaym.Housing.Benefit", "Income.Gross.Wages.Partner", "Income.Gross.Wages.Respondent", 
+                                                        "Income.Housing.Benefit", "Income.Income.Support", "Income.JSA.Combined", "Income.JSA.Contribution.Based", 
+                                                        "Income.JSA.Income.Based", "Income.Pension.Credit", "Income.PIP.Car", "Income.PIP.Mob", 
+                                                        "Income.Takehome.Wages.Partner", "Income.Takehome.Wages.Respondent", "Income.Total", 
+                                                        "Income.Total.Benefits", "Income.UC", "Income.WTC","Income.Equivalised",
+                                                        "Expenditure.Equivalised",
+                                                        "Surplus.Equivalised")
                                 )
                          ),
                          column(4, 
@@ -1185,14 +990,30 @@ server = shinyServer(function(input,output, session){
   
   MART.Dash_original <<- MART.Dash # backup original data
   
+  # output$variablePicker <- renderUI({
+  #   selectInput("group_var", "Choose a grouping variable:", choices = names(MART.Dash)[sapply(MART.Dash, is.factor)])
+  # })
+  
   output$variablePicker <- renderUI({
-    selectInput("group_var", "Choose a grouping variable:", choices = names(MART.Dash)[sapply(MART.Dash, is.factor)])
+    # Get all factor variables, excluding "Index", "Month", and "Quarter"
+    factor_vars <- names(MART.Dash)[sapply(MART.Dash, is.factor)]
+    excluded_vars <- c("Index", "Month", "Quarter")
+    valid_vars <- setdiff(factor_vars, excluded_vars)
+    
+    # Create the selectInput with the valid variables
+    selectInput(
+      "group_var", 
+      "Choose a grouping variable:", 
+      choices = valid_vars
+    )
   })
   
   output$levelPicker <- renderUI({
     req(input$group_var)
-    pickerInput('group_levels', 'Select levels:', choices = levels(MART.Dash[, input$group_var]), multiple = TRUE, options = list(`actions-box` = TRUE))
+    pickerInput('group_levels', 'Select levels:', choices = unique(MART.Dash[, input$group_var]), multiple = TRUE, options = list(`actions-box` = TRUE))
   })
+  
+
   
   output$numericVariablePicker <- renderUI({
     selectInput("numeric_var", "Choose a numeric variable:", choices = c("No filter needed", names(MART.Dash[sapply(MART.Dash, is.numeric)])))
@@ -1511,7 +1332,7 @@ server = shinyServer(function(input,output, session){
       mutate(Households = round(only_value * Households / 100, 0)) %>% 
       mutate(Households = case_when(Financial.Year == "2023-24" ~ Households/2,
                                     TRUE ~ Households)) %>% 
-      mutate_if(is.numeric, round, 0) 
+      mutate_if(is.numeric, round, 2) 
     
     # Optional: If you want to remove the temporary 'only_value' column
     Data <- Data %>% select(-only_value) 
@@ -1734,7 +1555,7 @@ server = shinyServer(function(input,output, session){
      )
      
      # Convert your data to a survey design object
-     survey_data <- as_survey_design(data_filtered, weights = Weight.LCFS)
+     survey_data <- as_survey_design(data_filtered, weights = Weight.LCFS) 
      
      # Adjust weights for combined data
      survey_data <- survey_data %>%
@@ -1826,7 +1647,7 @@ server = shinyServer(function(input,output, session){
      }
      
      # Convert your data to a survey design object
-     survey_data <- as_survey_design(data_filtered, weights = Weight.LCFS)
+     survey_data <- as_survey_design(data_filtered, weights = Weight.LCFS) 
      
      # If the Variable1 or Variable2 is not Demographic.Cohort
      if(as.character(Var.Group) != "Demographic.Cohort" ) {
@@ -1966,12 +1787,12 @@ server = shinyServer(function(input,output, session){
                     New.Food = Expenditure.Food.House.Keeping.MART*(Prop6),
                     New.Energy = Expenditure.Utilities.MART*(Prop7),
                     New.Leisure = Expenditure.Leisure.MART*(Prop8),
-                    New.Expenditure.Total = Expenditure.Total.Essential.LCFS.MART - ((Expenditure.Water - New.Water)+(Expenditure.Comms.Mobile.Phone - New.Communications)+
+                    New.Expenditure.Total = Expenditure.Total - ((Expenditure.Water - New.Water)+(Expenditure.Comms.Mobile.Phone - New.Communications)+
                                                                    (Expenditure.Vehicle.Insurance - New.Car.Insurance)+(Expenditure.Mortgage - New.Mortgage)+
                                                                    (Expenditure.Transport - New.Transport)+(Expenditure.Food.House.Keeping.MART - New.Food)+
                                                                    (Expenditure.Utilities.MART - New.Energy)+(Expenditure.Leisure.MART - New.Leisure)),
                     
-                    New.Surplus = Income.Total.Disposable - New.Expenditure.Total,
+                    New.Surplus = Income.Total - New.Expenditure.Total,
                     New.Negative.Budget = case_when(New.Surplus <= 0 ~ 'Negative.Budget',
                                                     TRUE ~ 'Positive.Budget'),
                     
@@ -2131,8 +1952,8 @@ server = shinyServer(function(input,output, session){
     dat <- dat %>% dplyr::filter({{Exp1}} > 0 & {{Exp2}} > 0 ) %>% 
       dplyr::mutate(New.Exp1 = {{Exp1}}*(Prop1),
                     New.Exp2 = {{Exp2}}*(Prop2),
-                    New.Expenditure.Total = Expenditure.Total.Essential.LCFS.MART - (({{Exp1}} - New.Exp1)+({{Exp2}} - New.Exp2)),
-                    New.Surplus = Income.Total.Disposable - New.Expenditure.Total,
+                    New.Expenditure.Total = Expenditure.Total - (({{Exp1}} - New.Exp1)+({{Exp2}} - New.Exp2)),
+                    New.Surplus = Income.Total - New.Expenditure.Total,
                     New.Negative.Budget = case_when(New.Surplus <= 0 ~ 'Negative.Budget', TRUE ~ 'Positive.Budget'))
     
     dat.subset <- subset(dat, Financial.Year == levels(Financial.Year)[length(levels(Financial.Year))])
@@ -2257,8 +2078,8 @@ server = shinyServer(function(input,output, session){
     Proportion <- (100+Percentage)/100
     dat <- dat %>% dplyr::filter({{Income}} > 0) %>%
       dplyr::mutate(New.Income = {{Income}}*(Proportion),
-                    New.Income.Total = Income.Total.Disposable + (New.Income - {{Income}}),
-                    New.Surplus = New.Income.Total - Expenditure.Total.Essential.LCFS.MART,
+                    New.Income.Total = Income.Total + (New.Income - {{Income}}),
+                    New.Surplus = New.Income.Total - Expenditure.Total,
                     New.Negative.Budget = case_when(New.Surplus <= 0 ~ 'Negative.Budget',
                                                     TRUE ~ 'Positive.Budget'))
     
@@ -2806,7 +2627,7 @@ server = shinyServer(function(input,output, session){
     TimeVar <- sym(input$TimeVariableNeg)
     
     # Convert MART.Dash to a survey design object
-    survey_data <- as_survey_design(MART.Dash, weights = Weight.LCFS)
+    survey_data <- as_survey_design(MART.Dash, weights = Weight.LCFS) 
     
     # Sample n and Weighted proportions for both variables
     weighted_data <- survey_data %>%
@@ -4372,7 +4193,7 @@ server = shinyServer(function(input,output, session){
     
     # Extract the necessary columns for the two selected variables
     comparison_data <- filtered_data %>%
-      select(!!variable1, !!variable2, Financial.Year) %>% 
+      select(!!variable1, !!variable2, Financial.Year, Weight.LCFS) %>% 
       filter(!is.na(!!variable1) & !is.na(!!variable2) &
                !!variable2 != 0)  # Removed filtering based on variable1
     
@@ -4456,10 +4277,27 @@ server = shinyServer(function(input,output, session){
       unnest(cols = density_data)
     
     # Plotting
-    plot <- ggplot(densities, aes(x = x, y = y, fill = Variable)) +
-      geom_area(alpha=0.5, position="identity") +
-      ylab("Probability") + theme_classic() +
-      theme(text = element_text(size= 20)) +
+    # plot <- ggplot(densities, aes(x = x, y = y, fill = Variable)) +
+    #   geom_area(alpha=0.5, position="identity") +
+    #   ylab("Probability") + theme_classic() +
+    #   theme(text = element_text(size= 20)) +
+    #   scale_fill_manual(values= Cab.Colours) +
+    #   theme(text = element_text(size = 15),
+    #         axis.text.x= element_text(color = "#004b88"),
+    #         axis.text.y= element_text(color = "#004b88"),
+    #         axis.line.x.bottom = element_line(colour = "#004b88"),
+    #         axis.line.y.left = element_line(colour = "#004b88"),
+    #         axis.title.x = element_text(colour = "#004b88"),
+    #         axis.title.y = element_text(colour = "#004b88"),
+    #         legend.background = element_rect(colour = "#004b88", fill = "white"),
+    #         legend.text = element_text(colour = "#004b88"),
+    #         legend.title = element_text(colour = "#004b88"))
+    
+    plot <- ggplot(table17_data(), aes(x = !!variable2, weight = Weight.LCFS, fill = !!variable1)) +
+      geom_density(alpha=0.5) +
+      ylab("Unweighted Density") +
+      xlab(input$Tab17Variable1) + # Replace "Variable Name" with the actual variable name
+      theme_classic() +
       scale_fill_manual(values= Cab.Colours) +
       theme(text = element_text(size = 15),
             axis.text.x= element_text(color = "#004b88"),
@@ -4469,8 +4307,9 @@ server = shinyServer(function(input,output, session){
             axis.title.x = element_text(colour = "#004b88"),
             axis.title.y = element_text(colour = "#004b88"),
             legend.background = element_rect(colour = "#004b88", fill = "white"),
-            legend.text = element_text(colour = "#004b88"),
-            legend.title = element_text(colour = "#004b88"))
+            legend.text = element_text(colour = "#004b88", size = 8),
+            legend.title = element_blank()) +
+      labs(fill = NULL)
     
     plot
   })
@@ -4490,6 +4329,7 @@ server = shinyServer(function(input,output, session){
     variable1 <- rlang::sym(input$Tab17Variable1)
     variable2 <- rlang::sym(input$Tab17Variable2)
     
+
     densities <- table17_data() %>%
       group_by(Variable = !!rlang::sym(variable1)) %>%
       nest() %>%
@@ -4500,12 +4340,31 @@ server = shinyServer(function(input,output, session){
       select(-data) %>%
       unnest(cols = density_data)
     
+    
     # Plotting
-    plot <- ggplot(densities, aes(x = x, y = y, fill = Variable)) +
-      geom_area(alpha=0.5, position="identity") +
-      ylab("Probability") + theme_classic() +
-      xlab(input$Tab17Variable2) + 
-      theme(text = element_text(size= 20)) +
+# plot <- ggplot(original_data, aes(x = value, weight = weights, fill = group)) +
+#   geom_density(alpha=0.5) +
+#   ylab("Weighted Density") +
+#   xlab("Variable Name") + # Replace "Variable Name" with the actual variable name
+#   theme_classic() +
+#   scale_fill_manual(values= Cab.Colours) +
+#   theme(text = element_text(size = 15),
+#         axis.text.x= element_text(color = "#004b88"),
+#         axis.text.y= element_text(color = "#004b88"),
+#         axis.line.x.bottom = element_line(colour = "#004b88"),
+#         axis.line.y.left = element_line(colour = "#004b88"),
+#         axis.title.x = element_text(colour = "#004b88"),
+#         axis.title.y = element_text(colour = "#004b88"),
+#         legend.background = element_rect(colour = "#004b88", fill = "white"),
+#         legend.text = element_text(colour = "#004b88", size = 8),
+#         legend.title = element_blank()) +
+#         labs(fill = NULL)
+    
+    plot <- ggplot(table17_data(), aes(x = !!variable2, weight = Weight.LCFS, fill = !!variable1)) +
+      geom_density(alpha=0.5) +
+      ylab("Unweighted Density") +
+      xlab(input$Tab17Variable1) + # Replace "Variable Name" with the actual variable name
+      theme_classic() +
       scale_fill_manual(values= Cab.Colours) +
       theme(text = element_text(size = 15),
             axis.text.x= element_text(color = "#004b88"),
@@ -4517,7 +4376,7 @@ server = shinyServer(function(input,output, session){
             legend.background = element_rect(colour = "#004b88", fill = "white"),
             legend.text = element_text(colour = "#004b88", size = 8),
             legend.title = element_blank()) +
-            labs(fill = NULL) 
+      labs(fill = NULL)
       
     
     # Convert to Plotly
@@ -4539,24 +4398,24 @@ server = shinyServer(function(input,output, session){
     }
   )
   
-   # Server
-   lapply(1:18, function(i) {
-     output[[paste0("filterStatus", i)]] <- renderText({
-       input$confirm
-       if (is.null(input$group_var)) {
-         return("No filter applied")
-       }
-       else {
-         if(input$numeric_filter_type == "Between") {
-           paste("Current Filter =", input$group_var, levels(MART.Dash[,input$group_var])[input$group_levels],
-                 input$numeric_var, input$numeric_filter_type, paste(input$numeric_range[1], "to", input$numeric_range[2]))
-         } else {
-           paste("Current Filter =", input$group_var, levels(MART.Dash[,input$group_var])[input$group_levels],
-                 input$numeric_var, input$numeric_filter_type, input$numeric_value)
-        }
-      }
-    })
-  })
+   # # Server
+  #  lapply(1:18, function(i) {
+  #    output[[paste0("filterStatus", i)]] <- renderText({
+  #      input$confirm
+  #      if (is.null(input$group_var)) {
+  #        return("No filter applied")
+  #      }
+  #      else {
+  #        if(input$numeric_filter_type == "Between") {
+  #          paste("Current Filter =", input$group_var, levels(MART.Dash[,input$group_var])[input$group_levels],
+  #                input$numeric_var, input$numeric_filter_type, paste(input$numeric_range[1], "to", input$numeric_range[2]))
+  #        } else {
+  #          paste("Current Filter =", input$group_var, levels(MART.Dash[,input$group_var])[input$group_levels],
+  #                input$numeric_var, input$numeric_filter_type, input$numeric_value)
+  #       }
+  #     }
+  #   })
+  # })
 
 }))
 

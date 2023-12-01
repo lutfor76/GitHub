@@ -16,7 +16,7 @@ library(tidyverse)
 library(foreign)
 library(srvyr)
 
-#rm(list=ls())
+rm(list=ls())
 ```
 
 #Expenditure Flexible from MART 1. Utilities; 2. Food; 3. Personal 4. Leisure 

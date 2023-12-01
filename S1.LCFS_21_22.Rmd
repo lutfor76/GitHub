@@ -528,6 +528,8 @@ LCFS_22_Expenditure<-LCFS_22_Expenditure %>%
 
 ```
 
+
+# Income and benefits uprating
 ```{r}
 #lcfs income has been estimated and adjusted by income growth; each income categorised by different categories of income
 LCFS_22_Expenditure_Income <- LCFS_22_Expenditure %>% 
@@ -585,6 +587,11 @@ LCFS_22_Expenditure_Income <- LCFS_22_Expenditure %>%
                                                     Estimated.Benefit.24, 
                                                     Estimated.Other.24)),
           Estimated.Disposable.Income.24=Estimated.gross.income.24*(Income.Total.Disposable.LCFS/Income.Gross.Weekly.LCFS)) 
+
+# Add an index, will come in very handy
+LCFS_22_Expenditure_Income <- LCFS_22_Expenditure_Income %>% 
+  mutate(Index = row_number()) %>% 
+  select(Index, everything())
 
 saveRDS(LCFS_22_Expenditure_Income, "LCFS_22_Expenditure_Income.rds")
 ```

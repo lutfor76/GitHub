@@ -16,13 +16,3427 @@ library(lubridate)
 library(zoo)
 
 # Files
-appdf<- readRDS(file = "appdf31_10_2.rds")
+appdf<- readRDS(file = "tom1.rds")
+Gross.Wage.Lookup <- read.csv(file = "Gross.Wage.Lookup.csv")
+calculate_takehome_pay <- readRDS(file = "calculate_takehome_pay.rds")
 ```
 
-Step 1: Create a workbook with all necessary information
+Before getting started, I reckon I need to create a linking variable to signify which cases are the same across groups
+```{r}
+
+# Rename case to Index, just prefer it
+appdf <- appdf %>% 
+  rename("Index" = "case")
+
+# Pipe 1: 2020-21 > 2021-22P > 2022-23P > 2023-24P
+# Pipe 2: 2021-22 > 2022-23 > 2023-24
+appdf <- appdf %>% 
+  mutate(Pipe = case_when(Demographic.Cohort == "2020-21" | 
+                            Demographic.Cohort == "2021-22P"|
+                            Demographic.Cohort == "2022-23P" |
+                            Demographic.Cohort == "2023-24P" ~ 'Pipe_1',
+                          TRUE ~ 'Pipe_2')) %>% 
+  select(Pipe, Index, everything())
+
+
+
+
+
+```
+
+Step 1: Who is minimum wage?
 ```{r}
 
 
 
+# Rename age variables
+appdf <- appdf %>% 
+  rename("Demographic.Age.Respondent" = "Demographic.HRP.Age.LCFS",
+         "Demographic.Age.Partner" = "Demographic.HRP.Partner.Age.LCFS")
+
+
+# Filter to 2023-24
+NMW <- appdf %>%
+  filter(Financial.Year == "2023-24")
+
 ```
+
+let's do the age categories separately - 23+
+```{r}
+
+NMW23 <- NMW %>%
+  filter(Demographic.Age.Respondent >= 23 | Demographic.Age.Partner >= 23)
+
+# test <- NMW23 %>% 
+#   filter(Demographic.Age.Respondent < 23 | Demographic.Age.Partner < 23) - will need to account for 32 <23 cases 
+
+
+# Modify lookup to allow for some specific joins
+Gross.Wage.Lookup23 <- Gross.Wage.Lookup %>%
+  rename(
+    "Number.Hours.Worked" = "Hours.Respondent",
+    "Number.Hours.Worked.Partner" = "Hours.Partner"
+  )
+
+
+# Can get rid of unneeded data
+Gross.Wage.Lookup23 <- Gross.Wage.Lookup23 %>%
+  filter(Cat == "23+") %>%
+  select(-Cat) %>%
+  filter(Financial.Year == "2023-24")
+
+
+# Join by Number.Hours.Worked and Number.Hours.Worked.Partner
+NMW23 <- NMW23 %>%
+  left_join(Gross.Wage.Lookup23 %>% select(Number.Hours.Worked, Gross.Respondent), by = "Number.Hours.Worked")
+
+NMW23 <- NMW23 %>%
+  left_join(Gross.Wage.Lookup23 %>% select(Number.Hours.Worked.Partner, Gross.Partner), by = "Number.Hours.Worked.Partner")
+
+# Change the gross values to NA if case < 23
+NMW23 <- NMW23 %>%
+  mutate(Gross.Respondent = case_when(Demographic.Age.Respondent < 23 ~ 0,
+                                      TRUE ~ Gross.Respondent )) %>% 
+    mutate(Gross.Partner = case_when(Demographic.Age.Partner < 23 ~ 0,
+                                      TRUE ~ Gross.Partner ))
+
+# Get rid of unwanted NAs in the partner variables
+NMW23 <- NMW23 %>%
+  mutate(
+    Number.Hours.Worked.Partner = if_else(is.na(Number.Hours.Worked.Partner), 0, Number.Hours.Worked.Partner),
+    Gross.Partner = if_else(is.na(Gross.Partner), 0, Gross.Partner),
+    Income.Gross.Wages.Partner = if_else(is.na(Income.Gross.Wages.Partner), 0, Income.Gross.Wages.Partner)
+  )
+
+# Create salaries gross
+NMW23 <- NMW23 %>%
+  mutate(
+    Income.Gross.Salary.Respondent = Income.Gross.Wages.Respondent * 52.1,
+    Income.Gross.Salary.Partner = Income.Gross.Wages.Partner * 52.1
+  ) %>%
+  mutate(
+    Gross.Minimum.Salary.Respondent = Gross.Respondent * 52.1,
+    Gross.Minimum.Salary.Partner = Gross.Partner * 52.1
+  )
+
+# Minimum wage cases will be negative, let's identify them
+NMW23 <- NMW23 %>%
+  mutate(
+    Diff_Gross_Respondent = Income.Gross.Salary.Respondent - Gross.Minimum.Salary.Respondent,
+    Diff_Gross_Partner = Income.Gross.Salary.Partner - Gross.Minimum.Salary.Partner
+  )
+
+# And now label them as such
+NMW23 <- NMW23 %>%
+  mutate(Min_wage_respondent = case_when(
+    Diff_Gross_Respondent < 0 ~ "Min23",
+    TRUE ~ "Not min"
+  )) %>%
+  mutate(Min_wage_partner = case_when(
+    Diff_Gross_Partner < 0 ~ "Min23",
+    TRUE ~ "Not min"
+  ))
+
+# prop.table(table(NMW23$Min_wage_respondent))  # 7.7%
+# prop.table(table(NMW23$Min_wage_partner)) # 6.8%
+
+
+```
+
+let's do the age categories separately - 21-22
+```{r}
+
+NMW21_22 <- NMW %>%
+  filter((Demographic.Age.Respondent > 20 & Demographic.Age.Respondent < 23) | (Demographic.Age.Partner > 20 & Demographic.Age.Partner < 23))
+
+
+# Modify lookup to allow for some specific joins
+Gross.Wage.Lookup21_22 <- Gross.Wage.Lookup %>%
+  rename(
+    "Number.Hours.Worked" = "Hours.Respondent",
+    "Number.Hours.Worked.Partner" = "Hours.Partner"
+  )
+
+
+# Can get rid of unneeded data
+Gross.Wage.Lookup21_22 <- Gross.Wage.Lookup21_22 %>%
+  filter(Cat == "21-22") %>%
+  select(-Cat) %>%
+  filter(Financial.Year == "2023-24")
+
+
+# Join by Number.Hours.Worked and Number.Hours.Worked.Partner
+NMW21_22 <- NMW21_22 %>%
+  left_join(Gross.Wage.Lookup21_22 %>% select(Number.Hours.Worked, Gross.Respondent), by = "Number.Hours.Worked")
+
+NMW21_22 <- NMW21_22 %>%
+  left_join(Gross.Wage.Lookup21_22 %>% select(Number.Hours.Worked.Partner, Gross.Partner), by = "Number.Hours.Worked.Partner")
+
+# Change the gross values to NA if case < 23
+NMW21_22 <- NMW21_22 %>%
+  mutate(Gross.Respondent = case_when(!(Demographic.Age.Respondent > 20 & Demographic.Age.Respondent < 23) ~ 0,
+                                      TRUE ~ Gross.Respondent )) %>% 
+    mutate(Gross.Partner = case_when(!(Demographic.Age.Partner > 20 & Demographic.Age.Partner < 23) ~ 0,
+                                      TRUE ~ Gross.Partner ))
+
+# Get rid of unwanted NAs in the partner variables
+NMW21_22 <- NMW21_22 %>%
+  mutate(
+    Number.Hours.Worked.Partner = if_else(is.na(Number.Hours.Worked.Partner), 0, Number.Hours.Worked.Partner),
+    Gross.Partner = if_else(is.na(Gross.Partner), 0, Gross.Partner),
+    Income.Gross.Wages.Partner = if_else(is.na(Income.Gross.Wages.Partner), 0, Income.Gross.Wages.Partner)
+  )
+
+# Create salaries gross
+NMW21_22 <- NMW21_22 %>%
+  mutate(
+    Income.Gross.Salary.Respondent = Income.Gross.Wages.Respondent * 52.1,
+    Income.Gross.Salary.Partner = Income.Gross.Wages.Partner * 52.1
+  ) %>%
+  mutate(
+    Gross.Minimum.Salary.Respondent = Gross.Respondent * 52.1,
+    Gross.Minimum.Salary.Partner = Gross.Partner * 52.1
+  )
+
+# Minimum wage cases will be negative, let's identify them
+NMW21_22 <- NMW21_22 %>%
+  mutate(
+    Diff_Gross_Respondent = Income.Gross.Salary.Respondent - Gross.Minimum.Salary.Respondent,
+    Diff_Gross_Partner = Income.Gross.Salary.Partner - Gross.Minimum.Salary.Partner
+  )
+
+# And now label them as such
+NMW21_22 <- NMW21_22 %>%
+  mutate(Min_wage_respondent = case_when(
+    Diff_Gross_Respondent < 0 ~ "Min21_22",
+    TRUE ~ "Not min"
+  )) %>%
+  mutate(Min_wage_partner = case_when(
+    Diff_Gross_Partner < 0 ~ "Min21_22",
+    TRUE ~ "Not min"
+  ))
+
+# prop.table(table(NMW21_22$Min_wage_respondent))  # 12%
+# prop.table(table(NMW21_22$Min_wage_partner)) # 8%
+
+
+```
+
+let's do the age categories separately - 18-20
+```{r}
+
+NMW18_20 <- NMW %>%
+  filter((Demographic.Age.Respondent > 17 & Demographic.Age.Respondent < 21) | (Demographic.Age.Partner > 17 & Demographic.Age.Partner < 21))
+
+
+# Modify lookup to allow for some specific joins
+Gross.Wage.Lookup18_20 <- Gross.Wage.Lookup %>%
+  rename(
+    "Number.Hours.Worked" = "Hours.Respondent",
+    "Number.Hours.Worked.Partner" = "Hours.Partner"
+  )
+
+
+# Can get rid of unneeded data
+Gross.Wage.Lookup18_20 <- Gross.Wage.Lookup18_20 %>%
+  filter(Cat == "18_20") %>%
+  select(-Cat) %>%
+  filter(Financial.Year == "2023-24")
+
+
+# Join by Number.Hours.Worked and Number.Hours.Worked.Partner
+NMW18_20 <- NMW18_20 %>%
+  left_join(Gross.Wage.Lookup18_20 %>% select(Number.Hours.Worked, Gross.Respondent), by = "Number.Hours.Worked")
+
+NMW18_20 <- NMW18_20 %>%
+  left_join(Gross.Wage.Lookup18_20 %>% select(Number.Hours.Worked.Partner, Gross.Partner), by = "Number.Hours.Worked.Partner")
+
+# Change the gross values to NA if case < 23
+NMW18_20 <- NMW18_20 %>%
+  mutate(Gross.Respondent = case_when(!(Demographic.Age.Respondent > 17 & Demographic.Age.Respondent < 21) ~ 0,
+                                      TRUE ~ Gross.Respondent )) %>% 
+    mutate(Gross.Partner = case_when(!(Demographic.Age.Partner > 17 & Demographic.Age.Partner < 21) ~ 0,
+                                      TRUE ~ Gross.Partner ))
+
+# Get rid of unwanted NAs in the partner variables
+NMW18_20 <- NMW18_20 %>%
+  mutate(
+    Number.Hours.Worked.Partner = if_else(is.na(Number.Hours.Worked.Partner), 0, Number.Hours.Worked.Partner),
+    Gross.Partner = if_else(is.na(Gross.Partner), 0, Gross.Partner),
+    Income.Gross.Wages.Partner = if_else(is.na(Income.Gross.Wages.Partner), 0, Income.Gross.Wages.Partner)
+  )
+
+# Create salaries gross
+NMW18_20<- NMW18_20 %>%
+  mutate(
+    Income.Gross.Salary.Respondent = Income.Gross.Wages.Respondent * 52.1,
+    Income.Gross.Salary.Partner = Income.Gross.Wages.Partner * 52.1
+  ) %>%
+  mutate(
+    Gross.Minimum.Salary.Respondent = Gross.Respondent * 52.1,
+    Gross.Minimum.Salary.Partner = Gross.Partner * 52.1
+  )
+
+# Minimum wage cases will be negative, let's identify them
+NMW18_20 <- NMW18_20 %>%
+  mutate(
+    Diff_Gross_Respondent = Income.Gross.Salary.Respondent - Gross.Minimum.Salary.Respondent,
+    Diff_Gross_Partner = Income.Gross.Salary.Partner - Gross.Minimum.Salary.Partner
+  )
+
+# And now label them as such
+NMW18_20 <- NMW18_20 %>%
+  mutate(Min_wage_respondent = case_when(
+    Diff_Gross_Respondent < 0 ~ "Min18_20",
+    TRUE ~ "Not min"
+  )) %>%
+  mutate(Min_wage_partner = case_when(
+    Diff_Gross_Partner < 0 ~ "Min18_20",
+    TRUE ~ "Not min"
+  ))
+
+# prop.table(table(NMW18_20$Min_wage_respondent))  NA
+# prop.table(table(NMW18_20$Min_wage_partner)) NA
+
+
+```
+
+ Isolate the minimum wage cases
+```{r}
+# Let's store who is min and join it back into main dataframe
+Min23_Res <- NMW23 %>% 
+  select(Pipe, Index, Min_wage_respondent) %>% 
+  filter(Min_wage_respondent == "Min23") %>% 
+  rename("Min_23_res" = Min_wage_respondent)
+
+Min23_Par <- NMW23 %>% 
+  select(Pipe, Index, Min_wage_partner) %>% 
+  filter(Min_wage_partner == "Min23")%>% 
+  rename("Min_23_par" = Min_wage_partner)
+
+Min21_22_Res <- NMW21_22 %>% 
+  select(Pipe, Index, Min_wage_respondent) %>% 
+  filter(Min_wage_respondent == "Min21_22")%>% 
+  rename("Min_21_22_res" = Min_wage_respondent)
+
+Min21_22_Par <- NMW21_22 %>% 
+  select(Pipe, Index, Min_wage_partner) %>% 
+  filter(Min_wage_partner == "Min21_22")%>% 
+  rename("Min_21_22_par" = Min_wage_partner)
+
+```
+
+Join them back in
+```{r}
+
+# Join Min23_Res back into appdf
+appdf <- appdf %>% 
+  left_join(Min23_Res, by = c("Pipe", "Index"))
+
+# Join Min23_Par back into appdf
+appdf <- appdf %>% 
+  left_join(Min23_Par, by = c("Pipe", "Index"))
+
+# Join Min21_22_Res back into appdf
+appdf <- appdf %>% 
+  left_join(Min21_22_Res, by = c("Pipe", "Index"))
+
+# Join Min21_22_Par back into appdf
+appdf <- appdf %>% 
+  left_join(Min21_22_Par, by = c("Pipe", "Index"))
+
+# Create the one variable now from these separate variables
+appdf <- appdf %>% 
+  mutate(Min_Cat_Respondent = coalesce(Min_23_res, Min_21_22_res),
+         Min_Cat_Partner = coalesce(Min_23_par, Min_21_22_par)) %>% 
+  select(Pipe, Index, Min_Cat_Respondent, Min_Cat_Partner, everything()) %>% 
+  mutate(Min_Cat_Respondent = replace_na(Min_Cat_Respondent, "Not Min"),
+         Min_Cat_Partner = replace_na(Min_Cat_Partner, "Not Min"))
+
+# Rename the values back to Min
+appdf <- appdf %>% 
+  mutate(Min_Cat_Respondent = ifelse(Min_Cat_Respondent == "Not Min", "Not Min", "Min"),
+         Min_Cat_Partner = ifelse(Min_Cat_Partner == "Not Min", "Not Min", "Min"))
+
+
+
+```
+
+## Let's do one symbolic year, it will be easy once we do one
+I'm thinking a takeapart and put back together job here might be least error prone
+Let's do 2020-21 > 2021-22P
+```{r}
+# Pipe 1: 2020-21 > 2021-22P > 2022-23P > 2023-24P
+# Pipe 2: 2021-22 > 2022-23 > 2023-24
+
+Piece1 <- appdf %>% 
+  filter(Demographic.Cohort == "2020-21" | Demographic.Cohort == "2021-22P")
+
+# Let's assemble resources 
+# Read in my wages lookups
+library(readxl)
+excel_path <- "Min_Wages.xlsx"
+sheet_names <- excel_sheets(excel_path)
+sheets <- lapply(sheet_names, function(sheet) {
+  read_excel(excel_path, sheet = sheet)
+})
+names(sheets) <- sheet_names
+list2env(sheets, envir = .GlobalEnv)
+
+```
+So what we have here is one year with correct data (2020-21) and one with incorrect data (2021-22P) - Let's write over the incorrect data.
+Taken a slightly clunky approach here, but there's so many steps that I want the code to be readable.
+```{r}
+
+# Really annoying naming quirk to be fixed
+NMW_2021_22 <- `NMW_2021-22`
+NMW_2022_23 <- `NMW_2022-23`
+NMW_2023_24 <- `NMW_2023-24`
+
+# Calculate takehomes
+current_respondent23 <- NMW_2021_22 %>%
+  rename(
+    "gross_salary" = "Gross.Respondent",
+    "hours_worked_per_week" = "Number.Hours.Worked",
+    "Category.Respondent" = "Category"
+  ) %>%
+  mutate(gross_salary = gross_salary * 52.1) %>%
+  rowwise() %>%
+  mutate(current_respondent_min23 = calculate_takehome_pay(gross_salary, hours_worked_per_week)) %>%
+  mutate_if(is.numeric, round, 2) %>%
+  rename("Number.Hours.Worked" = "hours_worked_per_week") %>%
+  select(Category.Respondent, Number.Hours.Worked, current_respondent_min23) %>%
+  mutate(current_respondent_min23 = current_respondent_min23 / 52.1) %>% 
+  filter(Category.Respondent == "23+")
+
+current_partner23 <- NMW_2021_22 %>%
+  rename(
+    "gross_salary" = "Gross.Partner",
+    "hours_worked_per_week" = "Number.Hours.Worked.Partner",
+    "Category.Partner" = "Category"
+  ) %>%
+  mutate(gross_salary = gross_salary * 52.1) %>%
+  rowwise() %>%
+  mutate(current_partner_min23 = calculate_takehome_pay(gross_salary, hours_worked_per_week)) %>%
+  mutate_if(is.numeric, round, 2) %>%
+  rename("Number.Hours.Worked.Partner" = "hours_worked_per_week") %>%
+  select(Category.Partner, Number.Hours.Worked.Partner, current_partner_min23) %>%
+  mutate(current_partner_min23 = current_partner_min23 / 52.1) %>% 
+  filter(Category.Partner == "23+")
+
+# Calculate takehomes
+current_respondent21_22 <- NMW_2021_22 %>%
+  rename(
+    "gross_salary" = "Gross.Respondent",
+    "hours_worked_per_week" = "Number.Hours.Worked",
+        "Category.Respondent" = "Category"
+  ) %>%
+  mutate(gross_salary = gross_salary * 52.1) %>%
+  rowwise() %>%
+  mutate(current_respondent_min21_22 = calculate_takehome_pay(gross_salary, hours_worked_per_week)) %>%
+  mutate_if(is.numeric, round, 2) %>%
+  rename("Number.Hours.Worked" = "hours_worked_per_week") %>%
+  select(Category.Respondent, Number.Hours.Worked, current_respondent_min21_22) %>%
+  mutate(current_respondent_min21_22 = current_respondent_min21_22 / 52.1) %>% 
+  filter(Category.Respondent == "21-22")
+
+current_partner21_22 <- NMW_2021_22 %>%
+  rename(
+    "gross_salary" = "Gross.Partner",
+    "hours_worked_per_week" = "Number.Hours.Worked.Partner",
+    "Category.Partner" = "Category"
+  ) %>%
+  mutate(gross_salary = gross_salary * 52.1) %>%
+  rowwise() %>%
+  mutate(current_partner_min21_22 = calculate_takehome_pay(gross_salary, hours_worked_per_week)) %>%
+  mutate_if(is.numeric, round, 2) %>%
+  rename("Number.Hours.Worked.Partner" = "hours_worked_per_week") %>%
+  select(Category.Partner, Number.Hours.Worked.Partner, current_partner_min21_22) %>%
+  mutate(current_partner_min21_22 = current_partner_min21_22 / 52.1) %>% 
+  filter(Category.Partner == "21-22")
+
+```
+
+join these into Piece1
+```{r}
+
+# Join Min21_22_Par back into Piece1
+Piece1 <- Piece1 %>% 
+  mutate(Category.Respondent = case_when(Demographic.Age.Respondent >= 23 ~ '23+',
+                                         Demographic.Age.Respondent > 20 & Demographic.Age.Respondent < 23 ~ '21-22',
+                                         TRUE ~ 'Other')) %>% 
+   mutate(Category.Partner = case_when(Demographic.Age.Partner >= 23 ~ '23+',
+                                         Demographic.Age.Partner > 20 & Demographic.Age.Partner < 23 ~ '21-22',
+                                         TRUE ~ 'Other'))   
+
+# joins 
+Piece1 <- Piece1 %>% 
+  left_join(current_respondent23, by = c("Category.Respondent", "Number.Hours.Worked"))
+
+Piece1 <- Piece1 %>% 
+  left_join(current_respondent21_22, by = c("Category.Respondent", "Number.Hours.Worked"))
+
+Piece1 <- Piece1 %>% 
+  left_join(current_partner23, by = c("Category.Partner", "Number.Hours.Worked.Partner"))
+
+Piece1 <- Piece1 %>% 
+  left_join(current_partner21_22, by = c("Category.Partner", "Number.Hours.Worked.Partner"))
+
+
+# Reorder so intuitive
+Piece1 <- Piece1 %>% 
+  select(Pipe, Index, Min_Cat_Respondent, Min_Cat_Partner, Demographic.Age.Respondent, Demographic.Age.Partner,
+         Number.Hours.Worked, Income.Gross.Wages.Respondent, Number.Hours.Worked.Partner, Income.Gross.Wages.Partner, 100:107, everything() )
+
+```
+
+Set some important values based on year
+```{r}
+
+# Define the inflation and benefit uprating rate
+benefit_uprate <- 0.005
+taper_uc <- 0.63
+uc_work_allowance_housing <- 293*12/52.1
+uc_work_allowance_other <- 515*12/52.1
+taper_wtc <- 0.41
+threshold_wtc <-  6565 
+threshold_ctc <- 16480
+
+
+```
+
+Uprate Incomes from earnings
+```{r}
+
+# Other Earning have already been uprated appropriately, associated benefits will still need to be tapered though
+
+
+### Minimum wage
+
+# Need to uprate the gross pay variable
+Piece1 <- Piece1 %>% 
+  mutate(Category.Respondent = case_when(Demographic.Age.Respondent >= 23 ~ '23+',
+                                         Demographic.Age.Respondent > 20 & Demographic.Age.Respondent < 23 ~ '21-22',
+                                         TRUE ~ 'Other')) %>% 
+    mutate(Category.Partner = case_when(Demographic.Age.Partner >= 23 ~ '23+',
+                                         Demographic.Age.Partner > 20 & Demographic.Age.Partner < 23 ~ '21-22',
+                                         TRUE ~ 'Other')) 
+
+NMW_Gross_Res <- NMW_2021_22 %>% 
+  select(2:4) %>% 
+  rename("Category.Respondent" = "Category")
+
+NMW_Gross_Par <- NMW_2021_22 %>% 
+  select(2, 5:6) %>% 
+  rename("Category.Partner" = "Category")
+
+Piece1 <- Piece1 %>% 
+  left_join(NMW_Gross_Res, by = c("Category.Respondent", "Number.Hours.Worked"))
+
+Piece1 <- Piece1 %>% 
+  left_join(NMW_Gross_Par, by = c("Category.Partner", "Number.Hours.Worked.Partner"))
+
+Piece1 <- Piece1 %>% 
+  mutate(Income.Gross.Wages.Respondent_2021_22P = case_when(Demographic.Cohort == "2020-21" ~ Income.Gross.Wages.Respondent,
+                                                   Min_Cat_Respondent == "Min" & Demographic.Cohort == "2021-22P" ~ Gross.Respondent,
+                                                   TRUE ~ Income.Gross.Wages.Respondent)) %>% 
+  mutate(Income.Gross.Wages.Partner_2021_22P  = case_when(Demographic.Cohort == "2020-21" ~ Income.Gross.Wages.Partner,
+                                                   Min_Cat_Partner == "Min" & Demographic.Cohort == "2021-22P" ~ Gross.Partner,
+                                                   TRUE ~ Income.Gross.Wages.Partner))
+
+# NAs to 0
+Piece1 <- Piece1 %>%
+  mutate(
+    current_respondent_min23 = case_when(
+      is.na(current_respondent_min23) ~ 0,
+      TRUE ~ current_respondent_min23
+    ),
+    current_partner_min23 = case_when(
+      is.na(current_partner_min23) ~ 0,
+      TRUE ~ current_partner_min23
+    ),
+        current_respondent_min21_22 = case_when(
+      is.na(current_respondent_min21_22) ~ 0,
+      TRUE ~ current_respondent_min21_22
+    ),
+    current_partner_min21_22 = case_when(
+      is.na(current_partner_min21_22) ~ 0,
+      TRUE ~ current_partner_min21_22
+    ),
+        Number.Hours.Worked.Partner = case_when(
+      is.na(Number.Hours.Worked.Partner) ~ 0,
+      TRUE ~ Number.Hours.Worked.Partner
+    ),
+            Income.Gross.Wages.Partner_2021_22P  = case_when(
+      is.na(Income.Gross.Wages.Partner_2021_22P ) ~ 0,
+      TRUE ~ Income.Gross.Wages.Partner_2021_22P 
+    )
+  )
+
+
+# Need to calculate takehomes from the gross pay variable
+takehome_res <- Piece1 %>% 
+  select(Pipe, Index,Number.Hours.Worked, Income.Gross.Wages.Respondent_2021_22P ) %>% 
+  rename("gross_salary" = "Income.Gross.Wages.Respondent_2021_22P",
+         "hours_worked_per_week" = "Number.Hours.Worked") %>% 
+  mutate(gross_salary = gross_salary*52.1) %>% 
+  rowwise() %>% 
+  mutate(Takehome.Salary.Respondent = calculate_takehome_pay(gross_salary, hours_worked_per_week)) %>% 
+  ungroup() %>% 
+  mutate(Takehome.Respondent = Takehome.Salary.Respondent/52.1) %>% 
+  rename("Gross.Salary.Respondent" = "gross_salary",
+         "Number.Hours.Worked" = "hours_worked_per_week")
+
+takehome_par <- Piece1 %>% 
+  select(Pipe, Index, Number.Hours.Worked.Partner, Income.Gross.Wages.Partner_2021_22P ) %>% 
+  rename("gross_salary" = "Income.Gross.Wages.Partner_2021_22P",
+         "hours_worked_per_week" = "Number.Hours.Worked.Partner") %>% 
+  mutate(gross_salary = gross_salary*52.1) %>% 
+  rowwise() %>% 
+  mutate(Takehome.Salary.Partner = calculate_takehome_pay(gross_salary, hours_worked_per_week)) %>% 
+  ungroup()%>% 
+  mutate(Takehome.Partner = Takehome.Salary.Partner/52.1)%>% 
+  rename("Gross.Salary.Partner" = "gross_salary",
+         "Number.Hours.Worked.Partner" = "hours_worked_per_week")
+
+# Join acting funny here, let's order and use cbind
+Piece1 <- Piece1 %>% 
+  arrange(Pipe, Index)
+
+takehome_res <- takehome_res %>% 
+  arrange(Pipe, Index)
+
+takehome_par <- takehome_par %>% 
+  arrange(Pipe, Index)
+
+Piece1$Gross.Salary.Respondent <- takehome_res$Gross.Salary.Respondent
+Piece1$Takehome.Salary.Respondent <- takehome_res$Takehome.Salary.Respondent
+Piece1$Takehome.Respondent <- takehome_res$Takehome.Respondent
+Piece1$Gross.Salary.Partner <- takehome_par$Gross.Salary.Partner
+Piece1$Takehome.Salary.Partner <- takehome_par$Takehome.Salary.Partner
+Piece1$Takehome.Partner <- takehome_par$Takehome.Partner
+
+
+# Create fully functioning takehome income variable which takes into account year etc
+Piece1 <- Piece1 %>%
+  mutate(Income.Takehome.Wages.Respondent_2021_22P  = case_when(Demographic.Cohort == "2021-22P" & Min_Cat_Respondent == "Min" & Demographic.Age.Respondent >= 23 ~ current_respondent_min23,
+                                                      Demographic.Cohort == "2021-22P" & Min_Cat_Respondent == "Min" & Demographic.Age.Respondent > 20 & Demographic.Age.Respondent > 23 ~ current_respondent_min21_22,
+                                                      TRUE ~ Takehome.Respondent )) %>% 
+    mutate(Income.Takehome.Wages.Partner_2021_22P  = case_when(Demographic.Cohort == "2021-22P" & Min_Cat_Partner == "Min" & Demographic.Age.Respondent >= 23 ~ current_partner_min23,
+                                                      Demographic.Cohort == "2021-22P" & Min_Cat_Partner == "Min" & Demographic.Age.Partner > 20 & Demographic.Age.Partner > 23 ~ current_partner_min21_22,
+                                                      TRUE ~Takehome.Partner ))
+
+
+# # Calculate another couple of variables that will be useful
+Piece1a <- Piece1 %>%
+  filter(Demographic.Cohort == "2020-21") %>%
+  mutate(Difference_Respondent_Gross = 0,
+         Difference_Partner_Gross = 0,
+         Difference_Respondent_Takehome = 0,
+         Difference_Partner_Takehome = 0)
+
+# Extract 2020-21 data for mapping
+data_2020_21 <- Piece1 %>% 
+  filter(Demographic.Cohort == "2020-21") %>% 
+  select(Index, 
+         "Respondent_Gross_2020_21" = Income.Gross.Wages.Respondent, 
+         "Partner_Gross_2020_21" = Income.Gross.Wages.Partner, 
+         "Respondent_Takehome_2020_21" = Takehome.Respondent, 
+         "Partner_Takehome_2020_21" = Takehome.Partner)
+
+# Calculate differences for 2021-22P
+Piece1b <- Piece1 %>% 
+  filter(Demographic.Cohort == "2021-22P") %>% 
+  left_join(data_2020_21, by = "Index") %>%
+  mutate(Difference_Respondent_Gross = Income.Gross.Wages.Respondent_2021_22P - Respondent_Gross_2020_21,
+         Difference_Partner_Gross = Income.Gross.Wages.Partner_2021_22P - Partner_Gross_2020_21,
+         Difference_Respondent_Takehome = Income.Takehome.Wages.Respondent_2021_22P - Respondent_Takehome_2020_21,
+         Difference_Partner_Takehome = Income.Takehome.Wages.Partner_2021_22P - Partner_Takehome_2020_21)
+
+# Combine the datasets
+Piece1V2 <- bind_rows(Piece1a, Piece1b) %>%
+  mutate(Combined.Takehome = (Income.Takehome.Wages.Respondent_2021_22P + Income.Takehome.Wages.Partner_2021_22P) * 52.1,
+         Combined.Gross = (Income.Gross.Wages.Respondent_2021_22P + Income.Gross.Wages.Partner_2021_22P) * 52.1) %>%
+  mutate(Combined.Gross = case_when(Combined.Gross < Combined.Takehome ~ Combined.Takehome,
+                                    TRUE ~ Combined.Gross))
+
+
+
+```
+Summary : For the year 2021-22P; we have now: (1) Uprated gross income for the year 2021-22 specifically by tweaking the minimum wage group;
+(2) we have used this new gross wages to calculate takehome pay; (3) if minimum wage, the takehome pay for the year 2021-22 is the takehome minimum wage for the hours they work.
+
+What hasn't been done: (1) Income.Total hasn't been altered yet; (2) benefits haven't been tapered.
+
+Interesting finding is that households can be a bit worse off due to the combination of minimum wage uprating and general income increase
+
+Benefits
+```{r}
+
+# Rename some stuff so very consistent with my guidance script
+Piece1V2 <- Piece1V2 %>% 
+  rename("Takehome_Respondent_Annual" = "Takehome.Salary.Respondent",
+         "Takehome_Partner_Annual" = "Takehome.Salary.Partner",
+         "Combined_Takehome" = "Combined.Takehome")
+
+
+
+# Taper rate (Lutfor has already uprated the benefits)
+# Q1 are they already tapered
+Piece1V2 <- Piece1V2 %>% 
+  mutate(Work_Allowance_UC_Cat = case_when(
+    (Income.UC > 0 & Demographic.Disabled == "Disability.Benefits") | 
+    (Income.UC > 0 & Demographic.Number.of.Dependent.Child.LCFS >= 1) ~ 'Yes',
+    TRUE ~ 'No'
+  )) %>% 
+  mutate(Work_Allowance_UC = case_when(
+    Work_Allowance_UC_Cat == "Yes" & Income.Housing.Benefit > 0 ~ uc_work_allowance_housing,
+    Work_Allowance_UC_Cat == "Yes" & Income.Housing.Benefit == 0 ~ uc_work_allowance_other,
+    TRUE ~ 0
+  ))
+
+# Apply the taper
+Piece1V2 <- Piece1V2 %>% 
+  mutate(Additional_Wages = Difference_Respondent_Takehome+Difference_Partner_Takehome) %>% 
+  mutate(Adjusted_Universal_Credit = case_when(Demographic.Cohort == "2021-22P"  ~ Income.UC - (Additional_Wages * taper_uc),
+                                               TRUE ~ Income.UC)) %>% 
+  mutate(Adjusted_Housing_Support = case_when(Demographic.Cohort == "2021-22P" ~ Income.Housing.Benefit - (Additional_Wages * taper_uc),
+                                                                                                           TRUE ~ Income.Housing.Benefit))
+                                              
+# Set up application of wtc and ctc tapers
+Piece1V2 <- Piece1V2 %>% 
+  mutate(wtc_threshold_cat = case_when(Combined_Takehome > threshold_wtc ~ 'Yes',
+                                       TRUE ~ 'No')) %>% 
+  mutate(ctc_threshold_cat = case_when(Combined_Takehome > threshold_ctc ~ 'Yes',
+                                       TRUE ~ 'No'))
+
+# Apply wtc and ctc tapers
+Piece1V2 <- Piece1V2 %>% 
+    mutate(Deductible_WTC = case_when(
+    (wtc_threshold_cat == "Yes" & Income.WTC > 0) ~ Additional_Wages,
+    TRUE ~ 0
+  )) %>%
+  mutate(Deductible_CTC = case_when(
+    (ctc_threshold_cat == "Yes" & Income.Child.Tax.Credit > 0) ~ Additional_Wages,
+    TRUE ~ 0
+  )) %>%
+  mutate(Adjusted_WTC = case_when(Demographic.Cohort == "2021-22P"  ~ Income.WTC - (Additional_Wages * taper_wtc),
+                                               TRUE ~ Income.WTC)) %>% 
+  mutate(Adjusted_CTC = case_when(Demographic.Cohort == "2021-22P" ~ Income.Child.Tax.Credit - (Additional_Wages * taper_wtc),
+                                                                                                           TRUE ~ Income.Child.Tax.Credit))
+
+# Quick clean up if needed
+Piece1V2 <- Piece1V2 %>% 
+  mutate(
+    Adjusted_Universal_Credit = ifelse(Adjusted_Universal_Credit < 0, 0, Adjusted_Universal_Credit),
+    Adjusted_Housing_Support = ifelse(Adjusted_Housing_Support < 0, 0, Adjusted_Housing_Support),
+    Adjusted_WTC = ifelse(Adjusted_WTC < 0, 0, Adjusted_WTC),
+    Adjusted_CTC = ifelse(Adjusted_CTC < 0, 0, Adjusted_CTC)
+  )
+
+# Get rid of NAs
+Piece1V2 <- Piece1V2 %>% 
+  mutate(
+    Adjusted_Universal_Credit = replace_na(Adjusted_Universal_Credit, 0),
+    Adjusted_Housing_Support = replace_na(Adjusted_Housing_Support, 0),
+    Adjusted_WTC = replace_na(Adjusted_WTC, 0),
+    Adjusted_CTC = replace_na(Adjusted_CTC, 0),
+    Income.UC = replace_na(Income.UC, 0),
+    Income.Housing.Benefit = replace_na(Income.Housing.Benefit, 0),
+    Income.WTC = replace_na(Income.WTC, 0),
+    Income.Child.Tax.Credit = replace_na(Income.Child.Tax.Credit, 0)
+  )
+
+# Calculate the full taper amount
+Piece1V2 <- Piece1V2 %>% 
+  mutate(Taper_amount = case_when(Demographic.Cohort == "2021-22P" ~ (Income.UC - Adjusted_Universal_Credit) +
+    (Income.Housing.Benefit - Adjusted_Housing_Support) +
+    (Income.WTC - Adjusted_WTC) +
+    (Income.Child.Tax.Credit - Adjusted_CTC),
+    TRUE ~ 0))
+
+# Clean up taper amount
+Piece1V2 <- Piece1V2 %>% 
+  mutate(Taper_amount = ifelse(Taper_amount < 0,0,Taper_amount))
+  
+# New adjusted benefits
+Piece1V2 <- Piece1V2 %>% 
+  mutate(Adjusted_benefits_taper = Income.Total.Benefits - Taper_amount)
+
+
+```
+
+Benefit cap
+```{r}
+
+bencap_couple_london <- 442.31
+bencap_single_parent_london <-442.31
+bencap_single_london <- 296.35
+bencap_couple_notlondon <- 384.62
+bencap_single_parent_notlondon <- 384.62
+bencap_single_notlondon <- 257.69
+
+# Apply benefit cap
+Piece1V2 <- Piece1V2 %>% 
+  mutate(
+    Adjusted_benefits_taper_cap = case_when(
+      Income.WTC > 0 ~ Adjusted_benefits_taper,
+      Demographic.Disabled == "Disability.Benefits" ~ Adjusted_benefits_taper,
+      Demographic.Derived.Household.Type.LCFS == "Couple" &
+        Demographic.Region.LCFS == "London" ~ pmin(Adjusted_benefits_taper, bencap_couple_london),
+      Demographic.Derived.Household.Type.LCFS == "Single Person With Dependent Children" &
+        Demographic.Region.LCFS == "London" ~ pmin(Adjusted_benefits_taper, bencap_single_parent_london),
+      Demographic.Derived.Household.Type.LCFS == "Single Person" &
+        Demographic.Region.LCFS == "London" ~ pmin(Adjusted_benefits_taper, bencap_single_london),
+      Demographic.Derived.Household.Type.LCFS == "Couple" &
+        Demographic.Region.LCFS != "London" ~ pmin(Adjusted_benefits_taper, bencap_couple_notlondon),
+      Demographic.Derived.Household.Type.LCFS == "Single Person With Dependent Children" &
+        Demographic.Region.LCFS != "London" ~ pmin(Adjusted_benefits_taper, bencap_single_parent_notlondon),
+      Demographic.Derived.Household.Type.LCFS == "Single Person" &
+        Demographic.Region.LCFS != "London" ~ pmin(Adjusted_benefits_taper, bencap_single_notlondon),
+      TRUE ~ Adjusted_benefits_taper
+    )
+  )
+
+```
+
+Calculate new Income total
+```{r}
+
+# At this point Lutfor has already uprated benefits and incomes
+# Just needs to be adjusted for Minimum wage and taper rate
+Piece1V2 <- Piece1V2 %>% 
+  mutate(
+    Diff.Min.Res = case_when(
+      Demographic.Cohort == "2021-22P" & Min_Cat_Respondent == "Min" & Category.Respondent == "23+" ~ current_respondent_min23 - Takehome.Respondent,
+      Demographic.Cohort == "2021-22P" & Min_Cat_Respondent == "Min" & Category.Respondent == "21-22" ~ current_respondent_min21_22 - Takehome.Respondent,
+      TRUE ~ 0
+    ),
+    Diff.Min.Par = case_when(
+      Demographic.Cohort == "2021-22P" & Min_Cat_Partner == "Min" & Category.Partner == "23+" ~ current_partner_min23 - Takehome.Partner,
+      Demographic.Cohort == "2021-22P" & Min_Cat_Partner == "Min" & Category.Partner == "21-22" ~ current_partner_min21_22 - Takehome.Partner,
+      TRUE ~ 0
+    ),
+    Additional_Wages_Min = Diff.Min.Res + Diff.Min.Par
+  )
+
+test <- Piece1V2 %>% 
+  select(Income.Total.Disposable, Income.Total.Benefits, Adjusted_benefits_taper, Adjusted_benefits_taper_cap, Taper_amount)
+
+Piece1V2 <- Piece1V2 %>% 
+    mutate(Income.Total.Piece1 = Income.Total.Disposable -
+    Taper_amount + 
+    Additional_Wages_Min)
+
+# Quick look - should get smaller
+Piece1V2 %>% 
+  group_by(Demographic.Cohort) %>% 
+  summarise(Med_Old = mean(Income.Total.Disposable, na.rm=TRUE),
+            Med_New = mean(Income.Total.Piece1, na.rm=TRUE))
+
+
+
+```
+
+
+Surplus
+```{r}
+
+Piece1V2 <- Piece1V2 %>% 
+  mutate(Surplus.Piece1 = case_when(Demographic.Cohort == "2021-22P" ~ Income.Total.Piece1 - Expenditure.Total.Essential.LCFS.MART,
+                                    TRUE ~ Surplus))
+
+# Quick look - should get smaller
+Piece1V2 %>% 
+  group_by(Demographic.Cohort) %>% 
+  summarise(Med_Old = mean(Surplus, na.rm=TRUE),
+            Med_New = mean(Surplus.Piece1, na.rm=TRUE))
+
+
+
+```
+
+Negative Budget
+```{r}
+
+Piece1V2 <- Piece1V2 %>% 
+  mutate(Demographic.Negbud.Piece1 = case_when(Demographic.Cohort == "2021-22P" & Surplus.Piece1 <= 0 ~ 'Negative.Budget',
+                                               Demographic.Cohort == "2021-22P" & Surplus.Piece1 > 0 ~ 'Positive.Budget',
+                                               TRUE ~ Demographic.Negbud))
+
+# should get larger
+prop.table(table( Piece1V2$Demographic.Cohort, Piece1V2$Demographic.Negbud), margin = 1)
+prop.table(table( Piece1V2$Demographic.Cohort, Piece1V2$Demographic.Negbud.Piece1), margin = 1)
+
+```
+
+Which variables to keep
+```{r}
+
+Piece1 <- Piece1V2 %>% 
+  select(-c(Income.Total.Disposable, Min_21_22_res, Min_21_22_par,
+            Category.Respondent, Category.Partner, current_respondent_min23,
+            current_respondent_min21_22, current_partner_min23, current_partner_min21_22,
+            Income.UC, Income.WTC, Income.Housing.Benefit, Income.Child.Tax.Credit, Income.Total.Benefits,
+            Min_23_res, Min_23_par,Takehome.Respondent,Takehome.Partner,
+           Gross.Respondent, Gross.Partner,
+            Difference_Respondent_Gross, Difference_Partner_Gross, Difference_Respondent_Takehome,
+            Difference_Partner_Takehome, Respondent_Gross_2020_21, Partner_Gross_2020_21,
+            Respondent_Takehome_2020_21, Partner_Takehome_2020_21, Work_Allowance_UC_Cat, Work_Allowance_UC,
+            Additional_Wages,wtc_threshold_cat,ctc_threshold_cat,Deductible_WTC, Deductible_CTC,
+            Taper_amount, Adjusted_benefits_taper, Diff.Min.Res, Diff.Min.Par, Surplus, Demographic.Negbud, Income.Gross.Wages.Respondent,
+           Income.Gross.Wages.Partner))
+
+# Some renames
+Piece1 <- Piece1 %>% 
+  rename("Surplus" = "Surplus.Piece1",
+         "Income.Total" = "Income.Total.Piece1",
+         "Demographic.Negbud" = "Demographic.Negbud.Piece1",
+         "Income.UC" = "Adjusted_Universal_Credit",
+         "Income.Housing.Benefit" = "Adjusted_Housing_Support",
+         "Income.WTC" = "Adjusted_WTC",
+         "Income.Child.Tax.Credit" = "Adjusted_CTC",
+         "Income.Total.Benefits" = "Adjusted_benefits_taper_cap",
+         "Income.Gross.Wages.Respondent" = "Income.Gross.Wages.Respondent_2021_22P",
+         "Income.Gross.Wages.Partner" = "Income.Gross.Wages.Partner_2021_22P",
+         "Income.Takehome.Wages.Respondent" = "Income.Takehome.Wages.Respondent_2021_22P",
+         "Income.Takehome.Wages.Partner" = "Income.Takehome.Wages.Partner_2021_22P")
+
+# saveRDS(Piece1, file = "Piece1.rds")
+
+
+```
+
+## Round 2: 2021-22P > 2022-23P
+```{r}
+# Pipe 1: 2020-21 > 2021-22P > 2022-23P > 2023-24P
+# Pipe 2: 2021-22 > 2022-23 > 2023-24
+
+Piece2 <- appdf %>% 
+  filter(Demographic.Cohort == "2021-22P" | Demographic.Cohort == "2022-23P")
+
+# Let's assemble resources 
+# Read in my wages lookups
+library(readxl)
+excel_path <- "Min_Wages.xlsx"
+sheet_names <- excel_sheets(excel_path)
+sheets <- lapply(sheet_names, function(sheet) {
+  read_excel(excel_path, sheet = sheet)
+})
+names(sheets) <- sheet_names
+list2env(sheets, envir = .GlobalEnv)
+
+```
+
+
+```{r}
+
+# Really annoying naming quirk to be fixed
+NMW_2021_22 <- `NMW_2021-22`
+NMW_2022_23 <- `NMW_2022-23`
+NMW_2023_24 <- `NMW_2023-24`
+
+# Calculate takehomes
+current_respondent23 <- NMW_2022_23 %>%
+  rename(
+    "gross_salary" = "Gross.Respondent",
+    "hours_worked_per_week" = "Number.Hours.Worked",
+    "Category.Respondent" = "Category"
+  ) %>%
+  mutate(gross_salary = gross_salary * 52.1) %>%
+  rowwise() %>%
+  mutate(current_respondent_min23 = calculate_takehome_pay(gross_salary, hours_worked_per_week)) %>%
+  mutate_if(is.numeric, round, 2) %>%
+  rename("Number.Hours.Worked" = "hours_worked_per_week") %>%
+  select(Category.Respondent, Number.Hours.Worked, current_respondent_min23) %>%
+  mutate(current_respondent_min23 = current_respondent_min23 / 52.1) %>% 
+  filter(Category.Respondent == "23+")
+
+current_partner23 <- NMW_2022_23 %>%
+  rename(
+    "gross_salary" = "Gross.Partner",
+    "hours_worked_per_week" = "Number.Hours.Worked.Partner",
+    "Category.Partner" = "Category"
+  ) %>%
+  mutate(gross_salary = gross_salary * 52.1) %>%
+  rowwise() %>%
+  mutate(current_partner_min23 = calculate_takehome_pay(gross_salary, hours_worked_per_week)) %>%
+  mutate_if(is.numeric, round, 2) %>%
+  rename("Number.Hours.Worked.Partner" = "hours_worked_per_week") %>%
+  select(Category.Partner, Number.Hours.Worked.Partner, current_partner_min23) %>%
+  mutate(current_partner_min23 = current_partner_min23 / 52.1) %>% 
+  filter(Category.Partner == "23+")
+
+# Calculate takehomes
+current_respondent21_22 <- NMW_2022_23 %>%
+  rename(
+    "gross_salary" = "Gross.Respondent",
+    "hours_worked_per_week" = "Number.Hours.Worked",
+        "Category.Respondent" = "Category"
+  ) %>%
+  mutate(gross_salary = gross_salary * 52.1) %>%
+  rowwise() %>%
+  mutate(current_respondent_min21_22 = calculate_takehome_pay(gross_salary, hours_worked_per_week)) %>%
+  mutate_if(is.numeric, round, 2) %>%
+  rename("Number.Hours.Worked" = "hours_worked_per_week") %>%
+  select(Category.Respondent, Number.Hours.Worked, current_respondent_min21_22) %>%
+  mutate(current_respondent_min21_22 = current_respondent_min21_22 / 52.1) %>% 
+  filter(Category.Respondent == "21-22")
+
+current_partner21_22 <- NMW_2022_23 %>%
+  rename(
+    "gross_salary" = "Gross.Partner",
+    "hours_worked_per_week" = "Number.Hours.Worked.Partner",
+    "Category.Partner" = "Category"
+  ) %>%
+  mutate(gross_salary = gross_salary * 52.1) %>%
+  rowwise() %>%
+  mutate(current_partner_min21_22 = calculate_takehome_pay(gross_salary, hours_worked_per_week)) %>%
+  mutate_if(is.numeric, round, 2) %>%
+  rename("Number.Hours.Worked.Partner" = "hours_worked_per_week") %>%
+  select(Category.Partner, Number.Hours.Worked.Partner, current_partner_min21_22) %>%
+  mutate(current_partner_min21_22 = current_partner_min21_22 / 52.1) %>% 
+  filter(Category.Partner == "21-22")
+
+```
+
+join these into Piece2
+```{r}
+
+# Join Min21_22_Par back into Piece2
+Piece2 <- Piece2 %>% 
+  mutate(Category.Respondent = case_when(Demographic.Age.Respondent >= 23 ~ '23+',
+                                         Demographic.Age.Respondent > 20 & Demographic.Age.Respondent < 23 ~ '21-22',
+                                         TRUE ~ 'Other')) %>% 
+   mutate(Category.Partner = case_when(Demographic.Age.Partner >= 23 ~ '23+',
+                                         Demographic.Age.Partner > 20 & Demographic.Age.Partner < 23 ~ '21-22',
+                                         TRUE ~ 'Other'))   
+
+# joins 
+Piece2 <- Piece2 %>% 
+  left_join(current_respondent23, by = c("Category.Respondent", "Number.Hours.Worked"))
+
+Piece2 <- Piece2 %>% 
+  left_join(current_respondent21_22, by = c("Category.Respondent", "Number.Hours.Worked"))
+
+Piece2 <- Piece2 %>% 
+  left_join(current_partner23, by = c("Category.Partner", "Number.Hours.Worked.Partner"))
+
+Piece2 <- Piece2 %>% 
+  left_join(current_partner21_22, by = c("Category.Partner", "Number.Hours.Worked.Partner"))
+
+
+# Reorder so intuitive
+Piece2 <- Piece2 %>% 
+  select(Pipe, Index, Min_Cat_Respondent, Min_Cat_Partner, Demographic.Age.Respondent, Demographic.Age.Partner,
+         Number.Hours.Worked, Income.Gross.Wages.Respondent, Number.Hours.Worked.Partner, Income.Gross.Wages.Partner, 100:107, everything() )
+
+```
+
+Set some important values based on year
+```{r}
+
+# Define the inflation and benefit uprating rate
+benefit_uprate <- 0.031
+taper_uc <- 0.55
+uc_work_allowance_housing <- 344*12/52.1
+uc_work_allowance_other <- 573*12/52.1
+taper_wtc <- 0.41
+threshold_wtc <-  6770 
+threshold_ctc <- 17005
+
+
+```
+
+Uprate Incomes from earnings
+```{r}
+
+# Other Earning have already been uprated appropriately, associated benefits will still need to be tapered though
+
+
+### Minimum wage
+
+# Need to uprate the gross pay variable
+Piece2 <- Piece2 %>% 
+  mutate(Category.Respondent = case_when(Demographic.Age.Respondent >= 23 ~ '23+',
+                                         Demographic.Age.Respondent > 20 & Demographic.Age.Respondent < 23 ~ '21-22',
+                                         TRUE ~ 'Other')) %>% 
+    mutate(Category.Partner = case_when(Demographic.Age.Partner >= 23 ~ '23+',
+                                         Demographic.Age.Partner > 20 & Demographic.Age.Partner < 23 ~ '21-22',
+                                         TRUE ~ 'Other')) 
+
+NMW_Gross_Res <- NMW_2022_23 %>% 
+  select(2:4) %>% 
+  rename("Category.Respondent" = "Category")
+
+NMW_Gross_Par <- NMW_2022_23 %>% 
+  select(2, 5:6) %>% 
+  rename("Category.Partner" = "Category")
+
+Piece2 <- Piece2 %>% 
+  left_join(NMW_Gross_Res, by = c("Category.Respondent", "Number.Hours.Worked"))
+
+Piece2 <- Piece2 %>%  
+  left_join(NMW_Gross_Par, by = c("Category.Partner", "Number.Hours.Worked.Partner"))
+
+Piece2 <- Piece2 %>% 
+  mutate(Income.Gross.Wages.Respondent_2022_23P = case_when(Demographic.Cohort == "2021-22P" ~ Income.Gross.Wages.Respondent,
+                                                   Min_Cat_Respondent == "Min" & Demographic.Cohort == "2022-23P" ~ Gross.Respondent,
+                                                   TRUE ~ Income.Gross.Wages.Respondent)) %>% 
+  mutate(Income.Gross.Wages.Partner_2022_23P  = case_when(Demographic.Cohort == "2021-22P" ~ Income.Gross.Wages.Partner,
+                                                   Min_Cat_Partner == "Min" & Demographic.Cohort == "2022-23P" ~ Gross.Partner,
+                                                   TRUE ~ Income.Gross.Wages.Partner))
+
+# NAs to 0
+Piece2 <- Piece2 %>% 
+  mutate(
+    current_respondent_min23 = case_when(
+      is.na(current_respondent_min23) ~ 0,
+      TRUE ~ current_respondent_min23
+    ),
+    current_partner_min23 = case_when(
+      is.na(current_partner_min23) ~ 0,
+      TRUE ~ current_partner_min23
+    ),
+        current_respondent_min21_22 = case_when(
+      is.na(current_respondent_min21_22) ~ 0,
+      TRUE ~ current_respondent_min21_22
+    ),
+    current_partner_min21_22 = case_when(
+      is.na(current_partner_min21_22) ~ 0,
+      TRUE ~ current_partner_min21_22
+    ),
+        Number.Hours.Worked.Partner = case_when(
+      is.na(Number.Hours.Worked.Partner) ~ 0,
+      TRUE ~ Number.Hours.Worked.Partner
+    ),
+            Income.Gross.Wages.Partner_2022_23P  = case_when(
+      is.na(Income.Gross.Wages.Partner_2022_23P ) ~ 0,
+      TRUE ~ Income.Gross.Wages.Partner_2022_23P 
+    )
+  )
+
+
+# Need to calculate takehomes from the gross pay variable
+takehome_res <- Piece2 %>% 
+  select(Pipe, Index,Number.Hours.Worked, Income.Gross.Wages.Respondent_2022_23P ) %>% 
+  rename("gross_salary" = "Income.Gross.Wages.Respondent_2022_23P",
+         "hours_worked_per_week" = "Number.Hours.Worked") %>% 
+  mutate(gross_salary = gross_salary*52.1) %>% 
+  rowwise() %>% 
+  mutate(Takehome.Salary.Respondent = calculate_takehome_pay(gross_salary, hours_worked_per_week)) %>% 
+  ungroup() %>% 
+  mutate(Takehome.Respondent = Takehome.Salary.Respondent/52.1) %>% 
+  rename("Gross.Salary.Respondent" = "gross_salary",
+         "Number.Hours.Worked" = "hours_worked_per_week")
+
+takehome_par <- Piece2 %>% 
+  select(Pipe, Index, Number.Hours.Worked.Partner, Income.Gross.Wages.Partner_2022_23P ) %>% 
+  rename("gross_salary" = "Income.Gross.Wages.Partner_2022_23P",
+         "hours_worked_per_week" = "Number.Hours.Worked.Partner") %>% 
+  mutate(gross_salary = gross_salary*52.1) %>% 
+  rowwise() %>% 
+  mutate(Takehome.Salary.Partner = calculate_takehome_pay(gross_salary, hours_worked_per_week)) %>% 
+  ungroup()%>% 
+  mutate(Takehome.Partner = Takehome.Salary.Partner/52.1)%>% 
+  rename("Gross.Salary.Partner" = "gross_salary",
+         "Number.Hours.Worked.Partner" = "hours_worked_per_week")
+
+# Join acting funny here, let's order and use cbind
+Piece2 <- Piece2 %>% 
+  arrange(Pipe, Index)
+
+takehome_res <- takehome_res %>% 
+  arrange(Pipe, Index)
+
+takehome_par <- takehome_par %>% 
+  arrange(Pipe, Index)
+
+Piece2$Gross.Salary.Respondent <- takehome_res$Gross.Salary.Respondent
+Piece2$Takehome.Salary.Respondent <- takehome_res$Takehome.Salary.Respondent
+Piece2$Takehome.Respondent <- takehome_res$Takehome.Respondent
+Piece2$Gross.Salary.Partner <- takehome_par$Gross.Salary.Partner
+Piece2$Takehome.Salary.Partner <- takehome_par$Takehome.Salary.Partner
+Piece2$Takehome.Partner <- takehome_par$Takehome.Partner
+
+
+# Create fully functioning takehome income variable which takes into account year etc
+Piece2 <- Piece2 %>%
+  mutate(Income.Takehome.Wages.Respondent_2022_23P  = case_when(Demographic.Cohort == "2022-23P" & Min_Cat_Respondent == "Min" & Demographic.Age.Respondent >= 23 ~ current_respondent_min23,
+                                                      Demographic.Cohort == "2022-23P" & Min_Cat_Respondent == "Min" & Demographic.Age.Respondent > 20 & Demographic.Age.Respondent > 23 ~ current_respondent_min21_22,
+                                                      TRUE ~ Takehome.Respondent )) %>% 
+    mutate(Income.Takehome.Wages.Partner_2022_23P  = case_when(Demographic.Cohort == "2022-23P" & Min_Cat_Partner == "Min" & Demographic.Age.Respondent >= 23 ~ current_partner_min23,
+                                                      Demographic.Cohort == "2022-23P" & Min_Cat_Partner == "Min" & Demographic.Age.Partner > 20 & Demographic.Age.Partner > 23 ~ current_partner_min21_22,
+                                                      TRUE ~Takehome.Partner ))
+
+
+# # Calculate another couple of variables that will be useful
+Piece2a <- Piece2 %>%
+  filter(Demographic.Cohort == "2021-22P") %>%
+  mutate(Difference_Respondent_Gross = 0,
+         Difference_Partner_Gross = 0,
+         Difference_Respondent_Takehome = 0,
+         Difference_Partner_Takehome = 0)
+
+# Extract 2020-21 data for mapping
+data_2021_22 <- Piece2 %>% 
+  filter(Demographic.Cohort == "2021-22P") %>% 
+  select(Index, 
+         "Respondent_Gross_2021_22P" = Income.Gross.Wages.Respondent, 
+         "Partner_Gross_2021_22P" = Income.Gross.Wages.Partner, 
+         "Respondent_Takehome_2021_22P" = Takehome.Respondent, 
+         "Partner_Takehome_2021_22P" = Takehome.Partner)
+
+# Calculate differences for 2021-22P
+Piece2b <- Piece2 %>% 
+  filter(Demographic.Cohort == "2022-23P") %>% 
+  left_join(data_2021_22, by = "Index") %>%
+  mutate(Difference_Respondent_Gross = Income.Gross.Wages.Respondent_2022_23P - Respondent_Gross_2021_22P,
+         Difference_Partner_Gross = Income.Gross.Wages.Partner_2022_23P - Partner_Gross_2021_22P,
+         Difference_Respondent_Takehome = Income.Takehome.Wages.Respondent_2022_23P - Respondent_Takehome_2021_22P,
+         Difference_Partner_Takehome = Income.Takehome.Wages.Partner_2022_23P - Partner_Takehome_2021_22P)
+
+# Combine the datasets
+Piece2V2 <- bind_rows(Piece2a, Piece2b) %>%
+  mutate(Combined.Takehome = (Income.Takehome.Wages.Respondent_2022_23P + Income.Takehome.Wages.Partner_2022_23P) * 52.1,
+         Combined.Gross = (Income.Gross.Wages.Respondent_2022_23P + Income.Gross.Wages.Partner_2022_23P) * 52.1) %>%
+  mutate(Combined.Gross = case_when(Combined.Gross < Combined.Takehome ~ Combined.Takehome,
+                                    TRUE ~ Combined.Gross))
+
+
+
+```
+Summary : For the year 2021-22P; we have now: (1) Uprated gross income for the year 2021-22 specifically by tweaking the minimum wage group;
+(2) we have used this new gross wages to calculate takehome pay; (3) if minimum wage, the takehome pay for the year 2021-22 is the takehome minimum wage for the hours they work.
+
+What hasn't been done: (1) Income.Total hasn't been altered yet; (2) benefits haven't been tapered.
+
+Interesting finding is that households can be a bit worse off due to the combination of minimum wage uprating and general income increase
+
+Benefits
+```{r}
+
+# Rename some stuff so very consistent with my guidance script
+Piece2V2 <- Piece2V2 %>% 
+  rename("Takehome_Respondent_Annual" = "Takehome.Salary.Respondent",
+         "Takehome_Partner_Annual" = "Takehome.Salary.Partner",
+         "Combined_Takehome" = "Combined.Takehome")
+
+# Taper rate (Lutfor has already uprated the benefits)
+# Q1 are they already tapered
+Piece2V2 <- Piece2V2 %>% 
+  mutate(Work_Allowance_UC_Cat = case_when(
+    (Income.UC > 0 & Demographic.Disabled == "Disability.Benefits") | 
+    (Income.UC > 0 & Demographic.Number.of.Dependent.Child.LCFS >= 1) ~ 'Yes',
+    TRUE ~ 'No'
+  )) %>% 
+  mutate(Work_Allowance_UC = case_when(
+    Work_Allowance_UC_Cat == "Yes" & Income.Housing.Benefit > 0 ~ uc_work_allowance_housing,
+    Work_Allowance_UC_Cat == "Yes" & Income.Housing.Benefit == 0 ~ uc_work_allowance_other,
+    TRUE ~ 0
+  ))
+
+# Apply the taper
+Piece2V2 <- Piece2V2 %>% 
+  mutate(Additional_Wages = Difference_Respondent_Takehome+Difference_Partner_Takehome) %>% 
+  mutate(Adjusted_Universal_Credit = case_when(Demographic.Cohort == "2022-23P"  ~ Income.UC - (Additional_Wages * taper_uc),
+                                               TRUE ~ Income.UC)) %>% 
+  mutate(Adjusted_Housing_Support = case_when(Demographic.Cohort == "2022-23P" ~ Income.Housing.Benefit - (Additional_Wages * taper_uc),
+                                                                                                           TRUE ~ Income.Housing.Benefit))
+                                              
+# Set up application of wtc and ctc tapers
+Piece2V2 <- Piece2V2 %>% 
+  mutate(wtc_threshold_cat = case_when(Combined_Takehome > threshold_wtc ~ 'Yes',
+                                       TRUE ~ 'No')) %>% 
+  mutate(ctc_threshold_cat = case_when(Combined_Takehome > threshold_ctc ~ 'Yes',
+                                       TRUE ~ 'No'))
+
+# Apply wtc and ctc tapers
+Piece2V2 <- Piece2V2 %>% 
+    mutate(Deductible_WTC = case_when(
+    (wtc_threshold_cat == "Yes" & Income.WTC > 0) ~ Additional_Wages,
+    TRUE ~ 0
+  )) %>%
+  mutate(Deductible_CTC = case_when(
+    (ctc_threshold_cat == "Yes" & Income.Child.Tax.Credit > 0) ~ Additional_Wages,
+    TRUE ~ 0
+  )) %>%
+  mutate(Adjusted_WTC = case_when(Demographic.Cohort == "2022-23P"  ~ Income.WTC - (Additional_Wages * taper_wtc),
+                                               TRUE ~ Income.WTC)) %>% 
+  mutate(Adjusted_CTC = case_when(Demographic.Cohort == "2022-23P" ~ Income.Child.Tax.Credit - (Additional_Wages * taper_wtc),
+                                                                                                           TRUE ~ Income.Child.Tax.Credit))
+
+# Quick clean up if needed
+Piece2V2 <- Piece2V2 %>% 
+  mutate(
+    Adjusted_Universal_Credit = ifelse(Adjusted_Universal_Credit < 0, 0, Adjusted_Universal_Credit),
+    Adjusted_Housing_Support = ifelse(Adjusted_Housing_Support < 0, 0, Adjusted_Housing_Support),
+    Adjusted_WTC = ifelse(Adjusted_WTC < 0, 0, Adjusted_WTC),
+    Adjusted_CTC = ifelse(Adjusted_CTC < 0, 0, Adjusted_CTC)
+  )
+
+# Get rid of NAs
+Piece2V2 <- Piece2V2 %>% 
+  mutate(
+    Adjusted_Universal_Credit = replace_na(Adjusted_Universal_Credit, 0),
+    Adjusted_Housing_Support = replace_na(Adjusted_Housing_Support, 0),
+    Adjusted_WTC = replace_na(Adjusted_WTC, 0),
+    Adjusted_CTC = replace_na(Adjusted_CTC, 0),
+    Income.UC = replace_na(Income.UC, 0),
+    Income.Housing.Benefit = replace_na(Income.Housing.Benefit, 0),
+    Income.WTC = replace_na(Income.WTC, 0),
+    Income.Child.Tax.Credit = replace_na(Income.Child.Tax.Credit, 0)
+  )
+
+# Calculate the full taper amount
+Piece2V2 <- Piece2V2 %>% 
+  mutate(Taper_amount = case_when(Demographic.Cohort == "2022-23P" ~ (Income.UC - Adjusted_Universal_Credit) +
+    (Income.Housing.Benefit - Adjusted_Housing_Support) +
+    (Income.WTC - Adjusted_WTC) +
+    (Income.Child.Tax.Credit - Adjusted_CTC),
+    TRUE ~ 0))
+
+# Clean up taper amount
+Piece2V2 <- Piece2V2 %>% 
+  mutate(Taper_amount = ifelse(Taper_amount < 0,0,Taper_amount))
+  
+# New adjusted benefits
+Piece2V2 <- Piece2V2 %>% 
+  mutate(Adjusted_benefits_taper = Income.Total.Benefits - Taper_amount)
+
+
+```
+
+Benefit cap
+```{r}
+
+bencap_couple_london <- 442.31
+bencap_single_parent_london <-442.31
+bencap_single_london <- 296.35
+bencap_couple_notlondon <- 384.62
+bencap_single_parent_notlondon <- 384.62
+bencap_single_notlondon <- 257.69
+
+# Apply benefit cap
+Piece2V2 <- Piece2V2 %>% 
+  mutate(
+    Adjusted_benefits_taper_cap = case_when(
+      Income.WTC > 0 ~ Adjusted_benefits_taper,
+      Demographic.Disabled == "Disability.Benefits" ~ Adjusted_benefits_taper,
+      Demographic.Derived.Household.Type.LCFS == "Couple" &
+        Demographic.Region.LCFS == "London" ~ pmin(Adjusted_benefits_taper, bencap_couple_london),
+      Demographic.Derived.Household.Type.LCFS == "Single Person With Dependent Children" &
+        Demographic.Region.LCFS == "London" ~ pmin(Adjusted_benefits_taper, bencap_single_parent_london),
+      Demographic.Derived.Household.Type.LCFS == "Single Person" &
+        Demographic.Region.LCFS == "London" ~ pmin(Adjusted_benefits_taper, bencap_single_london),
+      Demographic.Derived.Household.Type.LCFS == "Couple" &
+        Demographic.Region.LCFS != "London" ~ pmin(Adjusted_benefits_taper, bencap_couple_notlondon),
+      Demographic.Derived.Household.Type.LCFS == "Single Person With Dependent Children" &
+        Demographic.Region.LCFS != "London" ~ pmin(Adjusted_benefits_taper, bencap_single_parent_notlondon),
+      Demographic.Derived.Household.Type.LCFS == "Single Person" &
+        Demographic.Region.LCFS != "London" ~ pmin(Adjusted_benefits_taper, bencap_single_notlondon),
+      TRUE ~ Adjusted_benefits_taper
+    )
+  )
+
+```
+
+Calculate new Income total
+```{r}
+
+# At this point Lutfor has already uprated benefits and incomes
+# Just needs to be adjusted for Minimum wage and taper rate
+Piece2V2 <- Piece2V2 %>% 
+  mutate(
+    Diff.Min.Res = case_when(
+      Demographic.Cohort == "2022-23P" & Min_Cat_Respondent == "Min" & Category.Respondent == "23+" ~ current_respondent_min23 - Takehome.Respondent,
+      Demographic.Cohort == "2022-23P" & Min_Cat_Respondent == "Min" & Category.Respondent == "21-22" ~ current_respondent_min21_22 - Takehome.Respondent,
+      TRUE ~ 0
+    ),
+    Diff.Min.Par = case_when(
+      Demographic.Cohort == "2022-23P" & Min_Cat_Partner == "Min" & Category.Partner == "23+" ~ current_partner_min23 - Takehome.Partner,
+      Demographic.Cohort == "2022-23P" & Min_Cat_Partner == "Min" & Category.Partner == "21-22" ~ current_partner_min21_22 - Takehome.Partner,
+      TRUE ~ 0
+    ),
+    Additional_Wages_Min = Diff.Min.Res + Diff.Min.Par
+  )
+
+Piece2V2 <- Piece2V2 %>% 
+    mutate(Income.Total.Piece2 = Income.Total.Disposable -
+    Taper_amount + 
+    Additional_Wages_Min)
+
+# Quick look - should get smaller
+Piece2V2 %>% 
+  group_by(Demographic.Cohort) %>% 
+  summarise(Med_Old = mean(Income.Total.Disposable, na.rm=TRUE),
+            Med_New = mean(Income.Total.Piece2, na.rm=TRUE))
+
+
+
+```
+
+
+Surplus
+```{r}
+
+Piece2V2 <- Piece2V2 %>% 
+  mutate(Surplus.Piece2 = case_when(Demographic.Cohort == "2022-23P" ~ Income.Total.Piece2 - Expenditure.Total.Essential.LCFS.MART,
+                                    TRUE ~ Surplus))
+
+# Quick look - should get smaller
+Piece2V2 %>% 
+  group_by(Demographic.Cohort) %>% 
+  summarise(Med_Old = mean(Surplus, na.rm=TRUE),
+            Med_New = mean(Surplus.Piece2, na.rm=TRUE))
+
+
+
+```
+
+Negative Budget
+```{r}
+
+Piece2V2 <- Piece2V2 %>% 
+  mutate(Demographic.Negbud.Piece2 = case_when(Demographic.Cohort == "2022-23P" & Surplus.Piece2 <= 0 ~ 'Negative.Budget',
+                                               Demographic.Cohort == "2022-23P" & Surplus.Piece2 > 0 ~ 'Positive.Budget',
+                                               TRUE ~ Demographic.Negbud))
+
+# should get larger
+prop.table(table( Piece2V2$Demographic.Cohort, Piece2V2$Demographic.Negbud), margin = 1)
+prop.table(table( Piece2V2$Demographic.Cohort, Piece2V2$Demographic.Negbud.Piece2), margin = 1)
+
+```
+
+Which variables to keep
+```{r}
+
+Piece2 <- Piece2V2 %>% 
+  select(-c(Income.Total.Disposable, Min_21_22_res, Min_21_22_par,
+            Category.Respondent, Category.Partner, current_respondent_min23,
+            current_respondent_min21_22, current_partner_min23, current_partner_min21_22,
+            Income.UC, Income.WTC, Income.Housing.Benefit, Income.Child.Tax.Credit, Income.Total.Benefits,
+            Min_23_res, Min_23_par,Takehome.Respondent,Takehome.Partner,
+           Gross.Respondent, Gross.Partner,
+            Difference_Respondent_Gross, Difference_Partner_Gross, Difference_Respondent_Takehome,
+            Difference_Partner_Takehome, Respondent_Gross_2021_22P, Partner_Gross_2021_22P,
+            Respondent_Takehome_2021_22P, Partner_Takehome_2021_22P, Work_Allowance_UC_Cat, Work_Allowance_UC,
+            Additional_Wages,wtc_threshold_cat,ctc_threshold_cat,Deductible_WTC, Deductible_CTC,
+            Taper_amount, Adjusted_benefits_taper, Diff.Min.Res, Diff.Min.Par, Surplus, Demographic.Negbud, Income.Gross.Wages.Respondent,
+           Income.Gross.Wages.Partner))
+
+# Some renames
+Piece2 <- Piece2 %>% 
+  rename("Surplus" = "Surplus.Piece2",
+         "Income.Total" = "Income.Total.Piece2",
+         "Demographic.Negbud" = "Demographic.Negbud.Piece2",
+         "Income.UC" = "Adjusted_Universal_Credit",
+         "Income.Housing.Benefit" = "Adjusted_Housing_Support",
+         "Income.WTC" = "Adjusted_WTC",
+         "Income.Child.Tax.Credit" = "Adjusted_CTC",
+         "Income.Total.Benefits" = "Adjusted_benefits_taper_cap",
+            "Income.Gross.Wages.Respondent" = "Income.Gross.Wages.Respondent_2022_23P",
+         "Income.Gross.Wages.Partner" = "Income.Gross.Wages.Partner_2022_23P",
+         "Income.Takehome.Wages.Respondent" = "Income.Takehome.Wages.Respondent_2022_23P",
+         "Income.Takehome.Wages.Partner" = "Income.Takehome.Wages.Partner_2022_23P")
+
+# Finally, we discard the earlier year
+Piece2 <- Piece2 %>% 
+  filter(Demographic.Cohort == "2022-23P")
+
+# saveRDS(Piece2, file = "Piece2.rds")
+
+
+```
+
+
+## Round 3: 2022-23P > 2023-24P
+```{r}
+# Pipe 1: 2020-21 > 2021-22P > 2022-23P > 2023-24P
+# Pipe 2: 2021-22 > 2022-23 > 2023-24
+
+Piece3 <- appdf %>% 
+  filter(Demographic.Cohort == "2022-23P" | Demographic.Cohort == "2023-24P")
+
+# Let's assemble resources 
+# Read in my wages lookups
+library(readxl)
+excel_path <- "Min_Wages.xlsx"
+sheet_names <- excel_sheets(excel_path)
+sheets <- lapply(sheet_names, function(sheet) {
+  read_excel(excel_path, sheet = sheet)
+})
+names(sheets) <- sheet_names
+list2env(sheets, envir = .GlobalEnv)
+
+```
+
+
+```{r}
+
+# Really annoying naming quirk to be fixed
+NMW_2021_22 <- `NMW_2021-22`
+NMW_2022_23 <- `NMW_2022-23`
+NMW_2023_24 <- `NMW_2023-24`
+
+# Calculate takehomes
+current_respondent23 <- NMW_2023_24 %>%
+  rename(
+    "gross_salary" = "Gross.Respondent",
+    "hours_worked_per_week" = "Number.Hours.Worked",
+    "Category.Respondent" = "Category"
+  ) %>%
+  mutate(gross_salary = gross_salary * 52.1) %>%
+  rowwise() %>%
+  mutate(current_respondent_min23 = calculate_takehome_pay(gross_salary, hours_worked_per_week)) %>%
+  mutate_if(is.numeric, round, 2) %>%
+  rename("Number.Hours.Worked" = "hours_worked_per_week") %>%
+  select(Category.Respondent, Number.Hours.Worked, current_respondent_min23) %>%
+  mutate(current_respondent_min23 = current_respondent_min23 / 52.1) %>% 
+  filter(Category.Respondent == "23+")
+
+current_partner23 <- NMW_2023_24 %>%
+  rename(
+    "gross_salary" = "Gross.Partner",
+    "hours_worked_per_week" = "Number.Hours.Worked.Partner",
+    "Category.Partner" = "Category"
+  ) %>%
+  mutate(gross_salary = gross_salary * 52.1) %>%
+  rowwise() %>%
+  mutate(current_partner_min23 = calculate_takehome_pay(gross_salary, hours_worked_per_week)) %>%
+  mutate_if(is.numeric, round, 2) %>%
+  rename("Number.Hours.Worked.Partner" = "hours_worked_per_week") %>%
+  select(Category.Partner, Number.Hours.Worked.Partner, current_partner_min23) %>%
+  mutate(current_partner_min23 = current_partner_min23 / 52.1) %>% 
+  filter(Category.Partner == "23+")
+
+# Calculate takehomes
+current_respondent21_22 <- NMW_2023_24 %>%
+  rename(
+    "gross_salary" = "Gross.Respondent",
+    "hours_worked_per_week" = "Number.Hours.Worked",
+        "Category.Respondent" = "Category"
+  ) %>%
+  mutate(gross_salary = gross_salary * 52.1) %>%
+  rowwise() %>%
+  mutate(current_respondent_min21_22 = calculate_takehome_pay(gross_salary, hours_worked_per_week)) %>%
+  mutate_if(is.numeric, round, 2) %>%
+  rename("Number.Hours.Worked" = "hours_worked_per_week") %>%
+  select(Category.Respondent, Number.Hours.Worked, current_respondent_min21_22) %>%
+  mutate(current_respondent_min21_22 = current_respondent_min21_22 / 52.1) %>% 
+  filter(Category.Respondent == "21-22")
+
+current_partner21_22 <- NMW_2023_24 %>%
+  rename(
+    "gross_salary" = "Gross.Partner",
+    "hours_worked_per_week" = "Number.Hours.Worked.Partner",
+    "Category.Partner" = "Category"
+  ) %>%
+  mutate(gross_salary = gross_salary * 52.1) %>%
+  rowwise() %>%
+  mutate(current_partner_min21_22 = calculate_takehome_pay(gross_salary, hours_worked_per_week)) %>%
+  mutate_if(is.numeric, round, 2) %>%
+  rename("Number.Hours.Worked.Partner" = "hours_worked_per_week") %>%
+  select(Category.Partner, Number.Hours.Worked.Partner, current_partner_min21_22) %>%
+  mutate(current_partner_min21_22 = current_partner_min21_22 / 52.1) %>% 
+  filter(Category.Partner == "21-22")
+
+```
+
+join these into Piece3
+```{r}
+
+# Join Min21_22_Par back into Piece2
+Piece3 <- Piece3 %>% 
+  mutate(Category.Respondent = case_when(Demographic.Age.Respondent >= 23 ~ '23+',
+                                         Demographic.Age.Respondent > 20 & Demographic.Age.Respondent < 23 ~ '21-22',
+                                         TRUE ~ 'Other')) %>% 
+   mutate(Category.Partner = case_when(Demographic.Age.Partner >= 23 ~ '23+',
+                                         Demographic.Age.Partner > 20 & Demographic.Age.Partner < 23 ~ '21-22',
+                                         TRUE ~ 'Other'))   
+
+# joins 
+Piece3 <- Piece3 %>% 
+  left_join(current_respondent23, by = c("Category.Respondent", "Number.Hours.Worked"))
+
+Piece3 <- Piece3 %>%  
+  left_join(current_respondent21_22, by = c("Category.Respondent", "Number.Hours.Worked"))
+
+Piece3 <- Piece3 %>% 
+  left_join(current_partner23, by = c("Category.Partner", "Number.Hours.Worked.Partner"))
+
+Piece3 <- Piece3 %>% 
+  left_join(current_partner21_22, by = c("Category.Partner", "Number.Hours.Worked.Partner"))
+
+
+# Reorder so intuitive
+Piece3 <- Piece3 %>% 
+  select(Pipe, Index, Min_Cat_Respondent, Min_Cat_Partner, Demographic.Age.Respondent, Demographic.Age.Partner,
+         Number.Hours.Worked, Income.Gross.Wages.Respondent, Number.Hours.Worked.Partner, Income.Gross.Wages.Partner, 100:107, everything() )
+
+```
+
+Set some important values based on year
+```{r}
+
+# Define the inflation and benefit uprating rate
+benefit_uprate <- 0.101
+taper_uc <- 0.55
+uc_work_allowance_housing <- 379*12/52.1
+uc_work_allowance_other <- 631*12/52.1
+taper_wtc <- 0.41
+threshold_wtc <-  7455 
+threshold_ctc <- 18725
+
+
+```
+
+Uprate Incomes from earnings
+```{r}
+
+# Other Earning have already been uprated appropriately, associated benefits will still need to be tapered though
+
+
+### Minimum wage
+
+# Need to uprate the gross pay variable
+Piece3 <- Piece3 %>% 
+  mutate(Category.Respondent = case_when(Demographic.Age.Respondent >= 23 ~ '23+',
+                                         Demographic.Age.Respondent > 20 & Demographic.Age.Respondent < 23 ~ '21-22',
+                                         TRUE ~ 'Other')) %>% 
+    mutate(Category.Partner = case_when(Demographic.Age.Partner >= 23 ~ '23+',
+                                         Demographic.Age.Partner > 20 & Demographic.Age.Partner < 23 ~ '21-22',
+                                         TRUE ~ 'Other')) 
+
+NMW_Gross_Res <- NMW_2023_24 %>% 
+  select(2:4) %>% 
+  rename("Category.Respondent" = "Category")
+
+NMW_Gross_Par <- NMW_2023_24 %>% 
+  select(2, 5:6) %>% 
+  rename("Category.Partner" = "Category")
+
+Piece3 <- Piece3 %>% 
+  left_join(NMW_Gross_Res, by = c("Category.Respondent", "Number.Hours.Worked"))
+
+Piece3 <- Piece3 %>% 
+  left_join(NMW_Gross_Par, by = c("Category.Partner", "Number.Hours.Worked.Partner"))
+
+Piece3 <- Piece3 %>% 
+  mutate(Income.Gross.Wages.Respondent_2023_24P = case_when(Demographic.Cohort == "2022-23P" ~ Income.Gross.Wages.Respondent,
+                                                   Min_Cat_Respondent == "Min" & Demographic.Cohort == "2023-24P" ~ Gross.Respondent,
+                                                   TRUE ~ Income.Gross.Wages.Respondent)) %>% 
+  mutate(Income.Gross.Wages.Partner_2023_24P  = case_when(Demographic.Cohort == "2022-23P" ~ Income.Gross.Wages.Partner,
+                                                   Min_Cat_Partner == "Min" & Demographic.Cohort == "2023-24P" ~ Gross.Partner,
+                                                   TRUE ~ Income.Gross.Wages.Partner))
+
+# NAs to 0
+Piece3 <- Piece3 %>% 
+  mutate(
+    current_respondent_min23 = case_when(
+      is.na(current_respondent_min23) ~ 0,
+      TRUE ~ current_respondent_min23
+    ),
+    current_partner_min23 = case_when(
+      is.na(current_partner_min23) ~ 0,
+      TRUE ~ current_partner_min23
+    ),
+        current_respondent_min21_22 = case_when(
+      is.na(current_respondent_min21_22) ~ 0,
+      TRUE ~ current_respondent_min21_22
+    ),
+    current_partner_min21_22 = case_when(
+      is.na(current_partner_min21_22) ~ 0,
+      TRUE ~ current_partner_min21_22
+    ),
+        Number.Hours.Worked.Partner = case_when(
+      is.na(Number.Hours.Worked.Partner) ~ 0,
+      TRUE ~ Number.Hours.Worked.Partner
+    ),
+            Income.Gross.Wages.Partner_2023_24P  = case_when(
+      is.na(Income.Gross.Wages.Partner_2023_24P ) ~ 0,
+      TRUE ~ Income.Gross.Wages.Partner_2023_24P 
+    )
+  )
+
+
+# Need to calculate takehomes from the gross pay variable
+takehome_res <- Piece3 %>% 
+  select(Pipe, Index,Number.Hours.Worked, Income.Gross.Wages.Respondent_2023_24P ) %>% 
+  rename("gross_salary" = "Income.Gross.Wages.Respondent_2023_24P",
+         "hours_worked_per_week" = "Number.Hours.Worked") %>% 
+  mutate(gross_salary = gross_salary*52.1) %>% 
+  rowwise() %>% 
+  mutate(Takehome.Salary.Respondent = calculate_takehome_pay(gross_salary, hours_worked_per_week)) %>% 
+  ungroup() %>% 
+  mutate(Takehome.Respondent = Takehome.Salary.Respondent/52.1) %>% 
+  rename("Gross.Salary.Respondent" = "gross_salary",
+         "Number.Hours.Worked" = "hours_worked_per_week")
+
+takehome_par <- Piece3 %>% 
+  select(Pipe, Index, Number.Hours.Worked.Partner, Income.Gross.Wages.Partner_2023_24P ) %>% 
+  rename("gross_salary" = "Income.Gross.Wages.Partner_2023_24P",
+         "hours_worked_per_week" = "Number.Hours.Worked.Partner") %>% 
+  mutate(gross_salary = gross_salary*52.1) %>% 
+  rowwise() %>% 
+  mutate(Takehome.Salary.Partner = calculate_takehome_pay(gross_salary, hours_worked_per_week)) %>% 
+  ungroup()%>% 
+  mutate(Takehome.Partner = Takehome.Salary.Partner/52.1)%>% 
+  rename("Gross.Salary.Partner" = "gross_salary",
+         "Number.Hours.Worked.Partner" = "hours_worked_per_week")
+
+# Join acting funny here, let's order and use cbind
+Piece3 <- Piece3 %>% 
+  arrange(Pipe, Index)
+
+takehome_res <- takehome_res %>% 
+  arrange(Pipe, Index)
+
+takehome_par <- takehome_par %>% 
+  arrange(Pipe, Index)
+
+Piece3$Gross.Salary.Respondent <- takehome_res$Gross.Salary.Respondent
+Piece3$Takehome.Salary.Respondent <- takehome_res$Takehome.Salary.Respondent
+Piece3$Takehome.Respondent <- takehome_res$Takehome.Respondent
+Piece3$Gross.Salary.Partner <- takehome_par$Gross.Salary.Partner
+Piece3$Takehome.Salary.Partner <- takehome_par$Takehome.Salary.Partner
+Piece3$Takehome.Partner <- takehome_par$Takehome.Partner
+
+
+# Create fully functioning takehome income variable which takes into account year etc
+Piece3 <- Piece3 %>%
+  mutate(Income.Takehome.Wages.Respondent_2023_24P  = case_when(Demographic.Cohort == "2023-24P" & Min_Cat_Respondent == "Min" & Demographic.Age.Respondent >= 23 ~ current_respondent_min23,
+                                                      Demographic.Cohort == "2023-24P" & Min_Cat_Respondent == "Min" & Demographic.Age.Respondent > 20 & Demographic.Age.Respondent > 23 ~ current_respondent_min21_22,
+                                                      TRUE ~ Takehome.Respondent )) %>% 
+    mutate(Income.Takehome.Wages.Partner_2023_24P  = case_when(Demographic.Cohort == "2023-24P" & Min_Cat_Partner == "Min" & Demographic.Age.Respondent >= 23 ~ current_partner_min23,
+                                                      Demographic.Cohort == "2023-24P" & Min_Cat_Partner == "Min" & Demographic.Age.Partner > 20 & Demographic.Age.Partner > 23 ~ current_partner_min21_22,
+                                                      TRUE ~Takehome.Partner ))
+
+
+# # Calculate another couple of variables that will be useful
+Piece3a <- Piece3 %>%
+  filter(Demographic.Cohort == "2022-23P") %>%
+  mutate(Difference_Respondent_Gross = 0,
+         Difference_Partner_Gross = 0,
+         Difference_Respondent_Takehome = 0,
+         Difference_Partner_Takehome = 0)
+
+# Extract 2022-23 data for mapping
+data_2022_23 <- Piece3 %>% 
+  filter(Demographic.Cohort == "2022-23P") %>% 
+  select(Index, 
+         "Respondent_Gross_2022_23P" = Income.Gross.Wages.Respondent, 
+         "Partner_Gross_2022_23P" = Income.Gross.Wages.Partner, 
+         "Respondent_Takehome_2022_23P" = Takehome.Respondent, 
+         "Partner_Takehome_2022_23P" = Takehome.Partner)
+
+# Calculate differences for 2023-24P
+Piece3b <- Piece3 %>% 
+  filter(Demographic.Cohort == "2023-24P") %>% 
+  left_join(data_2022_23, by = "Index") %>%
+  mutate(Difference_Respondent_Gross = Income.Gross.Wages.Respondent_2023_24P - Respondent_Gross_2022_23P,
+         Difference_Partner_Gross = Income.Gross.Wages.Partner_2023_24P - Partner_Gross_2022_23P,
+         Difference_Respondent_Takehome = Income.Takehome.Wages.Respondent_2023_24P - Respondent_Takehome_2022_23P,
+         Difference_Partner_Takehome = Income.Takehome.Wages.Partner_2023_24P - Partner_Takehome_2022_23P)
+
+# Combine the datasets
+Piece3V2 <- bind_rows(Piece3a, Piece3b) %>%
+  mutate(Combined.Takehome = (Income.Takehome.Wages.Respondent_2023_24P + Income.Takehome.Wages.Partner_2023_24P) * 52.1,
+         Combined.Gross = (Income.Gross.Wages.Respondent_2023_24P + Income.Gross.Wages.Partner_2023_24P) * 52.1) %>%
+  mutate(Combined.Gross = case_when(Combined.Gross < Combined.Takehome ~ Combined.Takehome,
+                                    TRUE ~ Combined.Gross))
+
+
+
+```
+Summary : For the year 2021-22P; we have now: (1) Uprated gross income for the year 2021-22 specifically by tweaking the minimum wage group;
+(2) we have used this new gross wages to calculate takehome pay; (3) if minimum wage, the takehome pay for the year 2021-22 is the takehome minimum wage for the hours they work.
+
+What hasn't been done: (1) Income.Total hasn't been altered yet; (2) benefits haven't been tapered.
+
+Interesting finding is that households can be a bit worse off due to the combination of minimum wage uprating and general income increase
+
+Benefits
+```{r}
+
+# Rename some stuff so very consistent with my guidance script
+Piece3V2 <- Piece3V2 %>% 
+  rename("Takehome_Respondent_Annual" = "Takehome.Salary.Respondent",
+         "Takehome_Partner_Annual" = "Takehome.Salary.Partner",
+         "Combined_Takehome" = "Combined.Takehome")
+
+# Taper rate (Lutfor has already uprated the benefits)
+# Q1 are they already tapered
+Piece3V2 <- Piece3V2 %>% 
+  mutate(Work_Allowance_UC_Cat = case_when(
+    (Income.UC > 0 & Demographic.Disabled == "Disability.Benefits") | 
+    (Income.UC > 0 & Demographic.Number.of.Dependent.Child.LCFS >= 1) ~ 'Yes',
+    TRUE ~ 'No'
+  )) %>% 
+  mutate(Work_Allowance_UC = case_when(
+    Work_Allowance_UC_Cat == "Yes" & Income.Housing.Benefit > 0 ~ uc_work_allowance_housing,
+    Work_Allowance_UC_Cat == "Yes" & Income.Housing.Benefit == 0 ~ uc_work_allowance_other,
+    TRUE ~ 0
+  ))
+
+# Apply the taper
+Piece3V2 <- Piece3V2 %>% 
+  mutate(Additional_Wages = Difference_Respondent_Takehome+Difference_Partner_Takehome) %>% 
+  mutate(Adjusted_Universal_Credit = case_when(Demographic.Cohort == "2023-24P"  ~ Income.UC - (Additional_Wages * taper_uc),
+                                               TRUE ~ Income.UC)) %>% 
+  mutate(Adjusted_Housing_Support = case_when(Demographic.Cohort == "2023-24P" ~ Income.Housing.Benefit - (Additional_Wages * taper_uc),
+                                                                                                           TRUE ~ Income.Housing.Benefit))
+                                              
+# Set up application of wtc and ctc tapers
+Piece3V2 <- Piece3V2 %>% 
+  mutate(wtc_threshold_cat = case_when(Combined_Takehome > threshold_wtc ~ 'Yes',
+                                       TRUE ~ 'No')) %>% 
+  mutate(ctc_threshold_cat = case_when(Combined_Takehome > threshold_ctc ~ 'Yes',
+                                       TRUE ~ 'No'))
+
+# Apply wtc and ctc tapers
+Piece3V2 <- Piece3V2 %>% 
+    mutate(Deductible_WTC = case_when(
+    (wtc_threshold_cat == "Yes" & Income.WTC > 0) ~ Additional_Wages,
+    TRUE ~ 0
+  )) %>%
+  mutate(Deductible_CTC = case_when(
+    (ctc_threshold_cat == "Yes" & Income.Child.Tax.Credit > 0) ~ Additional_Wages,
+    TRUE ~ 0
+  )) %>%
+  mutate(Adjusted_WTC = case_when(Demographic.Cohort == "2023-24P"  ~ Income.WTC - (Additional_Wages * taper_wtc),
+                                               TRUE ~ Income.WTC)) %>% 
+  mutate(Adjusted_CTC = case_when(Demographic.Cohort == "2023-24P" ~ Income.Child.Tax.Credit - (Additional_Wages * taper_wtc),
+                                                                                                           TRUE ~ Income.Child.Tax.Credit))
+
+# Quick clean up if needed
+Piece3V2 <- Piece3V2 %>% 
+  mutate(
+    Adjusted_Universal_Credit = ifelse(Adjusted_Universal_Credit < 0, 0, Adjusted_Universal_Credit),
+    Adjusted_Housing_Support = ifelse(Adjusted_Housing_Support < 0, 0, Adjusted_Housing_Support),
+    Adjusted_WTC = ifelse(Adjusted_WTC < 0, 0, Adjusted_WTC),
+    Adjusted_CTC = ifelse(Adjusted_CTC < 0, 0, Adjusted_CTC)
+  )
+
+# Get rid of NAs
+Piece3V2 <- Piece3V2 %>% 
+  mutate(
+    Adjusted_Universal_Credit = replace_na(Adjusted_Universal_Credit, 0),
+    Adjusted_Housing_Support = replace_na(Adjusted_Housing_Support, 0),
+    Adjusted_WTC = replace_na(Adjusted_WTC, 0),
+    Adjusted_CTC = replace_na(Adjusted_CTC, 0),
+    Income.UC = replace_na(Income.UC, 0),
+    Income.Housing.Benefit = replace_na(Income.Housing.Benefit, 0),
+    Income.WTC = replace_na(Income.WTC, 0),
+    Income.Child.Tax.Credit = replace_na(Income.Child.Tax.Credit, 0)
+  )
+
+# Calculate the full taper amount
+Piece3V2 <- Piece3V2 %>% 
+  mutate(Taper_amount = case_when(Demographic.Cohort == "2023-24P" ~ (Income.UC - Adjusted_Universal_Credit) +
+    (Income.Housing.Benefit - Adjusted_Housing_Support) +
+    (Income.WTC - Adjusted_WTC) +
+    (Income.Child.Tax.Credit - Adjusted_CTC),
+    TRUE ~ 0))
+
+# Clean up taper amount
+Piece3V2 <- Piece3V2 %>% 
+  mutate(Taper_amount = ifelse(Taper_amount < 0,0,Taper_amount))
+  
+# New adjusted benefits
+Piece3V2 <- Piece3V2 %>% 
+  mutate(Adjusted_benefits_taper = Income.Total.Benefits - Taper_amount)
+
+
+```
+
+Benefit cap
+```{r}
+
+bencap_couple_london <- 486.98
+bencap_single_parent_london <-486.98
+bencap_single_london <- 326.29
+bencap_couple_notlondon <- 423.46
+bencap_single_parent_notlondon <- 423.46
+bencap_single_notlondon <- 283.71
+
+# Apply benefit cap
+Piece3V2 <- Piece3V2 %>% 
+  mutate(
+    Adjusted_benefits_taper_cap = case_when(
+      Income.WTC > 0 ~ Adjusted_benefits_taper,
+      Demographic.Disabled == "Disability.Benefits" ~ Adjusted_benefits_taper,
+      Demographic.Derived.Household.Type.LCFS == "Couple" &
+        Demographic.Region.LCFS == "London" ~ pmin(Adjusted_benefits_taper, bencap_couple_london),
+      Demographic.Derived.Household.Type.LCFS == "Single Person With Dependent Children" &
+        Demographic.Region.LCFS == "London" ~ pmin(Adjusted_benefits_taper, bencap_single_parent_london),
+      Demographic.Derived.Household.Type.LCFS == "Single Person" &
+        Demographic.Region.LCFS == "London" ~ pmin(Adjusted_benefits_taper, bencap_single_london),
+      Demographic.Derived.Household.Type.LCFS == "Couple" &
+        Demographic.Region.LCFS != "London" ~ pmin(Adjusted_benefits_taper, bencap_couple_notlondon),
+      Demographic.Derived.Household.Type.LCFS == "Single Person With Dependent Children" &
+        Demographic.Region.LCFS != "London" ~ pmin(Adjusted_benefits_taper, bencap_single_parent_notlondon),
+      Demographic.Derived.Household.Type.LCFS == "Single Person" &
+        Demographic.Region.LCFS != "London" ~ pmin(Adjusted_benefits_taper, bencap_single_notlondon),
+      TRUE ~ Adjusted_benefits_taper
+    )
+  )
+
+```
+
+Calculate new Income total
+```{r}
+
+# At this point Lutfor has already uprated benefits and incomes
+# Just needs to be adjusted for Minimum wage and taper rate
+Piece3V2 <- Piece3V2 %>% 
+  mutate(
+    Diff.Min.Res = case_when(
+      Demographic.Cohort == "2023-24P" & Min_Cat_Respondent == "Min" & Category.Respondent == "23+" ~ current_respondent_min23 - Takehome.Respondent,
+      Demographic.Cohort == "2023-24P" & Min_Cat_Respondent == "Min" & Category.Respondent == "21-22" ~ current_respondent_min21_22 - Takehome.Respondent,
+      TRUE ~ 0
+    ),
+    Diff.Min.Par = case_when(
+      Demographic.Cohort == "2023-24P" & Min_Cat_Partner == "Min" & Category.Partner == "23+" ~ current_partner_min23 - Takehome.Partner,
+      Demographic.Cohort == "2023-24P" & Min_Cat_Partner == "Min" & Category.Partner == "21-22" ~ current_partner_min21_22 - Takehome.Partner,
+      TRUE ~ 0
+    ),
+    Additional_Wages_Min = Diff.Min.Res + Diff.Min.Par
+  )
+
+Piece3V2 <- Piece3V2 %>% 
+    mutate(Income.Total.Piece3 = Income.Total.Disposable -
+    Taper_amount + 
+    Additional_Wages_Min)
+
+# Quick look - should get smaller
+Piece3V2 %>% 
+  group_by(Demographic.Cohort) %>% 
+  summarise(Med_Old = mean(Income.Total.Disposable, na.rm=TRUE),
+            Med_New = mean(Income.Total.Piece3, na.rm=TRUE))
+
+
+
+```
+
+
+Surplus
+```{r}
+
+Piece3V2 <- Piece3V2 %>% 
+  mutate(Surplus.Piece3 = case_when(Demographic.Cohort == "2023-24P" ~ Income.Total.Piece3 - Expenditure.Total.Essential.LCFS.MART,
+                                    TRUE ~ Surplus))
+
+# Quick look - should get smaller
+Piece3V2 %>% 
+  group_by(Demographic.Cohort) %>% 
+  summarise(Med_Old = mean(Surplus, na.rm=TRUE),
+            Med_New = mean(Surplus.Piece3, na.rm=TRUE))
+
+
+
+```
+
+Negative Budget
+```{r}
+
+Piece3V2 <- Piece3V2 %>% 
+  mutate(Demographic.Negbud.Piece3 = case_when(Demographic.Cohort == "2023-24P" & Surplus.Piece3 <= 0 ~ 'Negative.Budget',
+                                               Demographic.Cohort == "2023-24P" & Surplus.Piece3 > 0 ~ 'Positive.Budget',
+                                               TRUE ~ Demographic.Negbud))
+
+# should get larger
+prop.table(table( Piece3V2$Demographic.Cohort, Piece3V2$Demographic.Negbud), margin = 1)
+prop.table(table( Piece3V2$Demographic.Cohort, Piece3V2$Demographic.Negbud.Piece3), margin = 1)
+
+```
+
+Which variables to keep
+```{r}
+
+Piece3 <- Piece3V2 %>% 
+  select(-c(Income.Total.Disposable, Min_21_22_res, Min_21_22_par,
+            Category.Respondent, Category.Partner, current_respondent_min23,
+            current_respondent_min21_22, current_partner_min23, current_partner_min21_22,
+            Income.UC, Income.WTC, Income.Housing.Benefit, Income.Child.Tax.Credit, Income.Total.Benefits,
+            Min_23_res, Min_23_par,Takehome.Respondent,Takehome.Partner,
+           Gross.Respondent, Gross.Partner,
+            Difference_Respondent_Gross, Difference_Partner_Gross, Difference_Respondent_Takehome,
+            Difference_Partner_Takehome, Respondent_Gross_2022_23P, Partner_Gross_2022_23P,
+            Respondent_Takehome_2022_23P, Partner_Takehome_2022_23P, Work_Allowance_UC_Cat, Work_Allowance_UC,
+            Additional_Wages,wtc_threshold_cat,ctc_threshold_cat,Deductible_WTC, Deductible_CTC,
+            Taper_amount, Adjusted_benefits_taper, Diff.Min.Res, Diff.Min.Par, Surplus, Demographic.Negbud, Income.Gross.Wages.Respondent,
+           Income.Gross.Wages.Partner))
+
+# Some renames
+Piece3 <- Piece3 %>% 
+  rename("Surplus" = "Surplus.Piece3",
+         "Income.Total" = "Income.Total.Piece3",
+         "Demographic.Negbud" = "Demographic.Negbud.Piece3",
+         "Income.UC" = "Adjusted_Universal_Credit",
+         "Income.Housing.Benefit" = "Adjusted_Housing_Support",
+         "Income.WTC" = "Adjusted_WTC",
+         "Income.Child.Tax.Credit" = "Adjusted_CTC",
+         "Income.Total.Benefits" = "Adjusted_benefits_taper_cap",
+                  "Income.Gross.Wages.Respondent" = "Income.Gross.Wages.Respondent_2023_24P",
+         "Income.Gross.Wages.Partner" = "Income.Gross.Wages.Partner_2023_24P",
+         "Income.Takehome.Wages.Respondent" = "Income.Takehome.Wages.Respondent_2023_24P",
+         "Income.Takehome.Wages.Partner" = "Income.Takehome.Wages.Partner_2023_24P")
+
+# Finally, get rid of old data
+Piece3 <- Piece3 %>% 
+  filter(Demographic.Cohort == "2023-24P")
+
+# saveRDS(Piece3, file = "Piece3.rds")
+
+```
+
+
+## Pipe 2: 2021-22 > 2022-23 > 2023-24
+## Round 2: 2021-22P > 2022-23P
+```{r}
+# Pipe 1: 2020-21 > 2021-22P > 2022-23P > 2023-24P
+# Pipe 2: 2021-22 > 2022-23 > 2023-24
+
+Piece4 <- appdf %>% 
+  filter(Demographic.Cohort == "2021-22" | Demographic.Cohort == "2022-23")
+
+# Let's assemble resources 
+# Read in my wages lookups
+library(readxl)
+excel_path <- "Min_Wages.xlsx"
+sheet_names <- excel_sheets(excel_path)
+sheets <- lapply(sheet_names, function(sheet) {
+  read_excel(excel_path, sheet = sheet)
+})
+names(sheets) <- sheet_names
+list2env(sheets, envir = .GlobalEnv)
+
+```
+
+
+```{r}
+
+# Really annoying naming quirk to be fixed
+NMW_2021_22 <- `NMW_2021-22`
+NMW_2022_23 <- `NMW_2022-23`
+NMW_2023_24 <- `NMW_2023-24`
+
+# Calculate takehomes
+current_respondent23 <- NMW_2022_23 %>%
+  rename(
+    "gross_salary" = "Gross.Respondent",
+    "hours_worked_per_week" = "Number.Hours.Worked",
+    "Category.Respondent" = "Category"
+  ) %>%
+  mutate(gross_salary = gross_salary * 52.1) %>%
+  rowwise() %>%
+  mutate(current_respondent_min23 = calculate_takehome_pay(gross_salary, hours_worked_per_week)) %>%
+  mutate_if(is.numeric, round, 2) %>%
+  rename("Number.Hours.Worked" = "hours_worked_per_week") %>%
+  select(Category.Respondent, Number.Hours.Worked, current_respondent_min23) %>%
+  mutate(current_respondent_min23 = current_respondent_min23 / 52.1) %>% 
+  filter(Category.Respondent == "23+")
+
+current_partner23 <- NMW_2022_23 %>%
+  rename(
+    "gross_salary" = "Gross.Partner",
+    "hours_worked_per_week" = "Number.Hours.Worked.Partner",
+    "Category.Partner" = "Category"
+  ) %>%
+  mutate(gross_salary = gross_salary * 52.1) %>%
+  rowwise() %>%
+  mutate(current_partner_min23 = calculate_takehome_pay(gross_salary, hours_worked_per_week)) %>%
+  mutate_if(is.numeric, round, 2) %>%
+  rename("Number.Hours.Worked.Partner" = "hours_worked_per_week") %>%
+  select(Category.Partner, Number.Hours.Worked.Partner, current_partner_min23) %>%
+  mutate(current_partner_min23 = current_partner_min23 / 52.1) %>% 
+  filter(Category.Partner == "23+")
+
+# Calculate takehomes
+current_respondent21_22 <- NMW_2022_23 %>%
+  rename(
+    "gross_salary" = "Gross.Respondent",
+    "hours_worked_per_week" = "Number.Hours.Worked",
+        "Category.Respondent" = "Category"
+  ) %>%
+  mutate(gross_salary = gross_salary * 52.1) %>%
+  rowwise() %>%
+  mutate(current_respondent_min21_22 = calculate_takehome_pay(gross_salary, hours_worked_per_week)) %>%
+  mutate_if(is.numeric, round, 2) %>%
+  rename("Number.Hours.Worked" = "hours_worked_per_week") %>%
+  select(Category.Respondent, Number.Hours.Worked, current_respondent_min21_22) %>%
+  mutate(current_respondent_min21_22 = current_respondent_min21_22 / 52.1) %>% 
+  filter(Category.Respondent == "21-22")
+
+current_partner21_22 <- NMW_2022_23 %>%
+  rename(
+    "gross_salary" = "Gross.Partner",
+    "hours_worked_per_week" = "Number.Hours.Worked.Partner",
+    "Category.Partner" = "Category"
+  ) %>%
+  mutate(gross_salary = gross_salary * 52.1) %>%
+  rowwise() %>%
+  mutate(current_partner_min21_22 = calculate_takehome_pay(gross_salary, hours_worked_per_week)) %>%
+  mutate_if(is.numeric, round, 2) %>%
+  rename("Number.Hours.Worked.Partner" = "hours_worked_per_week") %>%
+  select(Category.Partner, Number.Hours.Worked.Partner, current_partner_min21_22) %>%
+  mutate(current_partner_min21_22 = current_partner_min21_22 / 52.1) %>% 
+  filter(Category.Partner == "21-22")
+
+```
+
+join these into Piece4
+```{r}
+
+# Join Min21_22_Par back into Piece2
+Piece4 <- Piece4 %>% 
+  mutate(Category.Respondent = case_when(Demographic.Age.Respondent >= 23 ~ '23+',
+                                         Demographic.Age.Respondent > 20 & Demographic.Age.Respondent < 23 ~ '21-22',
+                                         TRUE ~ 'Other')) %>% 
+   mutate(Category.Partner = case_when(Demographic.Age.Partner >= 23 ~ '23+',
+                                         Demographic.Age.Partner > 20 & Demographic.Age.Partner < 23 ~ '21-22',
+                                         TRUE ~ 'Other'))   
+
+# joins 
+Piece4 <- Piece4 %>% 
+  left_join(current_respondent23, by = c("Category.Respondent", "Number.Hours.Worked"))
+
+Piece4 <- Piece4 %>% 
+  left_join(current_respondent21_22, by = c("Category.Respondent", "Number.Hours.Worked"))
+
+Piece4 <- Piece4 %>% 
+  left_join(current_partner23, by = c("Category.Partner", "Number.Hours.Worked.Partner"))
+
+Piece4 <- Piece4 %>%  
+  left_join(current_partner21_22, by = c("Category.Partner", "Number.Hours.Worked.Partner"))
+
+
+# Reorder so intuitive
+Piece4 <- Piece4 %>% 
+  select(Pipe, Index, Min_Cat_Respondent, Min_Cat_Partner, Demographic.Age.Respondent, Demographic.Age.Partner,
+         Number.Hours.Worked, Income.Gross.Wages.Respondent, Number.Hours.Worked.Partner, Income.Gross.Wages.Partner, 100:107, everything() )
+
+```
+
+Set some important values based on year
+```{r}
+
+# Define the inflation and benefit uprating rate
+benefit_uprate <- 0.031
+taper_uc <- 0.55
+uc_work_allowance_housing <- 344*12/52.1
+uc_work_allowance_other <- 573*12/52.1
+taper_wtc <- 0.41
+threshold_wtc <-  6770 
+threshold_ctc <- 17005
+
+
+```
+
+Uprate Incomes from earnings
+```{r}
+
+# Other Earning have already been uprated appropriately, associated benefits will still need to be tapered though
+
+
+### Minimum wage
+
+# Need to uprate the gross pay variable
+Piece4 <- Piece4 %>% 
+  mutate(Category.Respondent = case_when(Demographic.Age.Respondent >= 23 ~ '23+',
+                                         Demographic.Age.Respondent > 20 & Demographic.Age.Respondent < 23 ~ '21-22',
+                                         TRUE ~ 'Other')) %>% 
+    mutate(Category.Partner = case_when(Demographic.Age.Partner >= 23 ~ '23+',
+                                         Demographic.Age.Partner > 20 & Demographic.Age.Partner < 23 ~ '21-22',
+                                         TRUE ~ 'Other')) 
+
+NMW_Gross_Res <- NMW_2022_23 %>% 
+  select(2:4) %>% 
+  rename("Category.Respondent" = "Category")
+
+NMW_Gross_Par <- NMW_2022_23 %>% 
+  select(2, 5:6) %>% 
+  rename("Category.Partner" = "Category")
+
+Piece4 <- Piece4 %>% 
+  left_join(NMW_Gross_Res, by = c("Category.Respondent", "Number.Hours.Worked"))
+
+Piece4 <- Piece4 %>%  
+  left_join(NMW_Gross_Par, by = c("Category.Partner", "Number.Hours.Worked.Partner"))
+
+Piece4 <- Piece4 %>% 
+  mutate(Income.Gross.Wages.Respondent_2022_23 = case_when(Demographic.Cohort == "2021-22" ~ Income.Gross.Wages.Respondent,
+                                                   Min_Cat_Respondent == "Min" & Demographic.Cohort == "2022-23" ~ Gross.Respondent,
+                                                   TRUE ~ Income.Gross.Wages.Respondent)) %>% 
+  mutate(Income.Gross.Wages.Partner_2022_23  = case_when(Demographic.Cohort == "2021-22" ~ Income.Gross.Wages.Partner,
+                                                   Min_Cat_Partner == "Min" & Demographic.Cohort == "2022-23" ~ Gross.Partner,
+                                                   TRUE ~ Income.Gross.Wages.Partner))
+
+# NAs to 0
+Piece4 <- Piece4 %>% 
+  mutate(
+    current_respondent_min23 = case_when(
+      is.na(current_respondent_min23) ~ 0,
+      TRUE ~ current_respondent_min23
+    ),
+    current_partner_min23 = case_when(
+      is.na(current_partner_min23) ~ 0,
+      TRUE ~ current_partner_min23
+    ),
+        current_respondent_min21_22 = case_when(
+      is.na(current_respondent_min21_22) ~ 0,
+      TRUE ~ current_respondent_min21_22
+    ),
+    current_partner_min21_22 = case_when(
+      is.na(current_partner_min21_22) ~ 0,
+      TRUE ~ current_partner_min21_22
+    ),
+        Number.Hours.Worked.Partner = case_when(
+      is.na(Number.Hours.Worked.Partner) ~ 0,
+      TRUE ~ Number.Hours.Worked.Partner
+    ),
+            Income.Gross.Wages.Partner_2022_23  = case_when(
+      is.na(Income.Gross.Wages.Partner_2022_23 ) ~ 0,
+      TRUE ~ Income.Gross.Wages.Partner_2022_23 
+    )
+  )
+
+
+# Need to calculate takehomes from the gross pay variable
+takehome_res <- Piece4 %>% 
+  select(Pipe, Index,Number.Hours.Worked, Income.Gross.Wages.Respondent_2022_23 ) %>% 
+  rename("gross_salary" = "Income.Gross.Wages.Respondent_2022_23",
+         "hours_worked_per_week" = "Number.Hours.Worked") %>% 
+  mutate(gross_salary = gross_salary*52.1) %>% 
+  rowwise() %>% 
+  mutate(Takehome.Salary.Respondent = calculate_takehome_pay(gross_salary, hours_worked_per_week)) %>% 
+  ungroup() %>% 
+  mutate(Takehome.Respondent = Takehome.Salary.Respondent/52.1) %>% 
+  rename("Gross.Salary.Respondent" = "gross_salary",
+         "Number.Hours.Worked" = "hours_worked_per_week")
+
+takehome_par <- Piece4 %>% 
+  select(Pipe, Index, Number.Hours.Worked.Partner, Income.Gross.Wages.Partner_2022_23 ) %>% 
+  rename("gross_salary" = "Income.Gross.Wages.Partner_2022_23",
+         "hours_worked_per_week" = "Number.Hours.Worked.Partner") %>% 
+  mutate(gross_salary = gross_salary*52.1) %>% 
+  rowwise() %>% 
+  mutate(Takehome.Salary.Partner = calculate_takehome_pay(gross_salary, hours_worked_per_week)) %>% 
+  ungroup()%>% 
+  mutate(Takehome.Partner = Takehome.Salary.Partner/52.1)%>% 
+  rename("Gross.Salary.Partner" = "gross_salary",
+         "Number.Hours.Worked.Partner" = "hours_worked_per_week")
+
+# Join acting funny here, let's order and use cbind
+Piece4 <- Piece4 %>% 
+  arrange(Pipe, Index)
+
+takehome_res <- takehome_res %>% 
+  arrange(Pipe, Index)
+
+takehome_par <- takehome_par %>% 
+  arrange(Pipe, Index)
+
+Piece4$Gross.Salary.Respondent <- takehome_res$Gross.Salary.Respondent
+Piece4$Takehome.Salary.Respondent <- takehome_res$Takehome.Salary.Respondent
+Piece4$Takehome.Respondent <- takehome_res$Takehome.Respondent
+Piece4$Gross.Salary.Partner <- takehome_par$Gross.Salary.Partner
+Piece4$Takehome.Salary.Partner <- takehome_par$Takehome.Salary.Partner
+Piece4$Takehome.Partner <- takehome_par$Takehome.Partner
+
+
+# Create fully functioning takehome income variable which takes into account year etc
+Piece4 <- Piece4 %>%
+  mutate(Income.Takehome.Wages.Respondent_2022_23  = case_when(Demographic.Cohort == "2022-23" & Min_Cat_Respondent == "Min" & Demographic.Age.Respondent >= 23 ~ current_respondent_min23,
+                                                      Demographic.Cohort == "2022-23" & Min_Cat_Respondent == "Min" & Demographic.Age.Respondent > 20 & Demographic.Age.Respondent > 23 ~ current_respondent_min21_22,
+                                                      TRUE ~ Takehome.Respondent )) %>% 
+    mutate(Income.Takehome.Wages.Partner_2022_23  = case_when(Demographic.Cohort == "2022-23" & Min_Cat_Partner == "Min" & Demographic.Age.Respondent >= 23 ~ current_partner_min23,
+                                                      Demographic.Cohort == "2022-23" & Min_Cat_Partner == "Min" & Demographic.Age.Partner > 20 & Demographic.Age.Partner > 23 ~ current_partner_min21_22,
+                                                      TRUE ~Takehome.Partner ))
+
+
+# # Calculate another couple of variables that will be useful
+Piece4a <- Piece4 %>%
+  filter(Demographic.Cohort == "2021-22") %>%
+  mutate(Difference_Respondent_Gross = 0,
+         Difference_Partner_Gross = 0,
+         Difference_Respondent_Takehome = 0,
+         Difference_Partner_Takehome = 0)
+
+# Extract 2020-21 data for mapping
+data_2021_22 <- Piece4 %>% 
+  filter(Demographic.Cohort == "2021-22") %>% 
+  select(Index, 
+         "Respondent_Gross_2021_22" = Income.Gross.Wages.Respondent, 
+         "Partner_Gross_2021_22" = Income.Gross.Wages.Partner, 
+         "Respondent_Takehome_2021_22" = Takehome.Respondent, 
+         "Partner_Takehome_2021_22" = Takehome.Partner)
+
+# Calculate differences for 2021-22P
+Piece4b <- Piece4 %>% 
+  filter(Demographic.Cohort == "2022-23") %>% 
+  left_join(data_2021_22, by = "Index") %>%
+  mutate(Difference_Respondent_Gross = Income.Gross.Wages.Respondent_2022_23 - Respondent_Gross_2021_22,
+         Difference_Partner_Gross = Income.Gross.Wages.Partner_2022_23 - Partner_Gross_2021_22,
+         Difference_Respondent_Takehome = Income.Takehome.Wages.Respondent_2022_23 - Respondent_Takehome_2021_22,
+         Difference_Partner_Takehome = Income.Takehome.Wages.Partner_2022_23 - Partner_Takehome_2021_22)
+
+# Combine the datasets
+Piece4V2 <- bind_rows(Piece4a, Piece4b) %>%
+  mutate(Combined.Takehome = (Income.Takehome.Wages.Respondent_2022_23 + Income.Takehome.Wages.Partner_2022_23) * 52.1,
+         Combined.Gross = (Income.Gross.Wages.Respondent_2022_23 + Income.Gross.Wages.Partner_2022_23) * 52.1) %>%
+  mutate(Combined.Gross = case_when(Combined.Gross < Combined.Takehome ~ Combined.Takehome,
+                                    TRUE ~ Combined.Gross))
+
+
+
+```
+Summary : For the year 2021-22P; we have now: (1) Uprated gross income for the year 2021-22 specifically by tweaking the minimum wage group;
+(2) we have used this new gross wages to calculate takehome pay; (3) if minimum wage, the takehome pay for the year 2021-22 is the takehome minimum wage for the hours they work.
+
+What hasn't been done: (1) Income.Total hasn't been altered yet; (2) benefits haven't been tapered.
+
+Interesting finding is that households can be a bit worse off due to the combination of minimum wage uprating and general income increase
+
+Benefits
+```{r}
+
+# Rename some stuff so very consistent with my guidance script
+Piece4V2 <- Piece4V2 %>% 
+  rename("Takehome_Respondent_Annual" = "Takehome.Salary.Respondent",
+         "Takehome_Partner_Annual" = "Takehome.Salary.Partner",
+         "Combined_Takehome" = "Combined.Takehome")
+
+# Taper rate (Lutfor has already uprated the benefits)
+# Q1 are they already tapered
+Piece4V2 <- Piece4V2 %>% 
+  mutate(Work_Allowance_UC_Cat = case_when(
+    (Income.UC > 0 & Demographic.Disabled == "Disability.Benefits") | 
+    (Income.UC > 0 & Demographic.Number.of.Dependent.Child.LCFS >= 1) ~ 'Yes',
+    TRUE ~ 'No'
+  )) %>% 
+  mutate(Work_Allowance_UC = case_when(
+    Work_Allowance_UC_Cat == "Yes" & Income.Housing.Benefit > 0 ~ uc_work_allowance_housing,
+    Work_Allowance_UC_Cat == "Yes" & Income.Housing.Benefit == 0 ~ uc_work_allowance_other,
+    TRUE ~ 0
+  ))
+
+# Apply the taper
+Piece4V2 <- Piece4V2 %>% 
+  mutate(Additional_Wages = Difference_Respondent_Takehome+Difference_Partner_Takehome) %>% 
+  mutate(Adjusted_Universal_Credit = case_when(Demographic.Cohort == "2022-23"  ~ Income.UC - (Additional_Wages * taper_uc),
+                                               TRUE ~ Income.UC)) %>% 
+  mutate(Adjusted_Housing_Support = case_when(Demographic.Cohort == "2022-23" ~ Income.Housing.Benefit - (Additional_Wages * taper_uc),
+                                                                                                           TRUE ~ Income.Housing.Benefit))
+                                              
+# Set up application of wtc and ctc tapers
+Piece4V2 <- Piece4V2 %>% 
+  mutate(wtc_threshold_cat = case_when(Combined_Takehome > threshold_wtc ~ 'Yes',
+                                       TRUE ~ 'No')) %>% 
+  mutate(ctc_threshold_cat = case_when(Combined_Takehome > threshold_ctc ~ 'Yes',
+                                       TRUE ~ 'No'))
+
+# Apply wtc and ctc tapers
+Piece4V2 <- Piece4V2 %>% 
+    mutate(Deductible_WTC = case_when(
+    (wtc_threshold_cat == "Yes" & Income.WTC > 0) ~ Additional_Wages,
+    TRUE ~ 0
+  )) %>%
+  mutate(Deductible_CTC = case_when(
+    (ctc_threshold_cat == "Yes" & Income.Child.Tax.Credit > 0) ~ Additional_Wages,
+    TRUE ~ 0
+  )) %>%
+  mutate(Adjusted_WTC = case_when(Demographic.Cohort == "2022-23"  ~ Income.WTC - (Additional_Wages * taper_wtc),
+                                               TRUE ~ Income.WTC)) %>% 
+  mutate(Adjusted_CTC = case_when(Demographic.Cohort == "2022-23" ~ Income.Child.Tax.Credit - (Additional_Wages * taper_wtc),
+                                                                                                           TRUE ~ Income.Child.Tax.Credit))
+
+# Quick clean up if needed
+Piece4V2 <- Piece4V2 %>% 
+  mutate(
+    Adjusted_Universal_Credit = ifelse(Adjusted_Universal_Credit < 0, 0, Adjusted_Universal_Credit),
+    Adjusted_Housing_Support = ifelse(Adjusted_Housing_Support < 0, 0, Adjusted_Housing_Support),
+    Adjusted_WTC = ifelse(Adjusted_WTC < 0, 0, Adjusted_WTC),
+    Adjusted_CTC = ifelse(Adjusted_CTC < 0, 0, Adjusted_CTC)
+  )
+
+# Get rid of NAs
+Piece4V2 <- Piece4V2 %>% 
+  mutate(
+    Adjusted_Universal_Credit = replace_na(Adjusted_Universal_Credit, 0),
+    Adjusted_Housing_Support = replace_na(Adjusted_Housing_Support, 0),
+    Adjusted_WTC = replace_na(Adjusted_WTC, 0),
+    Adjusted_CTC = replace_na(Adjusted_CTC, 0),
+    Income.UC = replace_na(Income.UC, 0),
+    Income.Housing.Benefit = replace_na(Income.Housing.Benefit, 0),
+    Income.WTC = replace_na(Income.WTC, 0),
+    Income.Child.Tax.Credit = replace_na(Income.Child.Tax.Credit, 0)
+  )
+
+# Calculate the full taper amount
+Piece4V2 <- Piece4V2 %>% 
+  mutate(Taper_amount = case_when(Demographic.Cohort == "2022-23" ~ (Income.UC - Adjusted_Universal_Credit) +
+    (Income.Housing.Benefit - Adjusted_Housing_Support) +
+    (Income.WTC - Adjusted_WTC) +
+    (Income.Child.Tax.Credit - Adjusted_CTC),
+    TRUE ~ 0))
+
+# Clean up taper amount
+Piece4V2 <- Piece4V2 %>% 
+  mutate(Taper_amount = ifelse(Taper_amount < 0,0,Taper_amount))
+  
+# New adjusted benefits
+Piece4V2 <- Piece4V2 %>% 
+  mutate(Adjusted_benefits_taper = Income.Total.Benefits - Taper_amount)
+
+
+```
+
+Benefit cap
+```{r}
+
+bencap_couple_london <- 442.31
+bencap_single_parent_london <-442.31
+bencap_single_london <- 296.35
+bencap_couple_notlondon <- 384.62
+bencap_single_parent_notlondon <- 384.62
+bencap_single_notlondon <- 257.69
+
+# Apply benefit cap
+Piece4V2 <- Piece4V2 %>% 
+  mutate(
+    Adjusted_benefits_taper_cap = case_when(
+      Income.WTC > 0 ~ Adjusted_benefits_taper,
+      Demographic.Disabled == "Disability.Benefits" ~ Adjusted_benefits_taper,
+      Demographic.Derived.Household.Type.LCFS == "Couple" &
+        Demographic.Region.LCFS == "London" ~ pmin(Adjusted_benefits_taper, bencap_couple_london),
+      Demographic.Derived.Household.Type.LCFS == "Single Person With Dependent Children" &
+        Demographic.Region.LCFS == "London" ~ pmin(Adjusted_benefits_taper, bencap_single_parent_london),
+      Demographic.Derived.Household.Type.LCFS == "Single Person" &
+        Demographic.Region.LCFS == "London" ~ pmin(Adjusted_benefits_taper, bencap_single_london),
+      Demographic.Derived.Household.Type.LCFS == "Couple" &
+        Demographic.Region.LCFS != "London" ~ pmin(Adjusted_benefits_taper, bencap_couple_notlondon),
+      Demographic.Derived.Household.Type.LCFS == "Single Person With Dependent Children" &
+        Demographic.Region.LCFS != "London" ~ pmin(Adjusted_benefits_taper, bencap_single_parent_notlondon),
+      Demographic.Derived.Household.Type.LCFS == "Single Person" &
+        Demographic.Region.LCFS != "London" ~ pmin(Adjusted_benefits_taper, bencap_single_notlondon),
+      TRUE ~ Adjusted_benefits_taper
+    )
+  )
+
+```
+
+Calculate new Income total
+```{r}
+
+# At this point Lutfor has already uprated benefits and incomes
+# Just needs to be adjusted for Minimum wage and taper rate
+Piece4V2 <- Piece4V2 %>% 
+  mutate(
+    Diff.Min.Res = case_when(
+      Demographic.Cohort == "2022-23" & Min_Cat_Respondent == "Min" & Category.Respondent == "23+" ~ current_respondent_min23 - Takehome.Respondent,
+      Demographic.Cohort == "2022-23" & Min_Cat_Respondent == "Min" & Category.Respondent == "21-22" ~ current_respondent_min21_22 - Takehome.Respondent,
+      TRUE ~ 0
+    ),
+    Diff.Min.Par = case_when(
+      Demographic.Cohort == "2022-23" & Min_Cat_Partner == "Min" & Category.Partner == "23+" ~ current_partner_min23 - Takehome.Partner,
+      Demographic.Cohort == "2022-23" & Min_Cat_Partner == "Min" & Category.Partner == "21-22" ~ current_partner_min21_22 - Takehome.Partner,
+      TRUE ~ 0
+    ),
+    Additional_Wages_Min = Diff.Min.Res + Diff.Min.Par
+  )
+
+Piece4V2 <- Piece4V2 %>% 
+    mutate(Income.Total.Piece4 = Income.Total.Disposable -
+    Taper_amount + 
+    Additional_Wages_Min)
+
+# Quick look - should get smaller
+Piece4V2 %>% 
+  group_by(Demographic.Cohort) %>% 
+  summarise(Med_Old = mean(Income.Total.Disposable, na.rm=TRUE),
+            Med_New = mean(Income.Total.Piece4, na.rm=TRUE))
+
+
+
+```
+
+
+Surplus
+```{r}
+
+Piece4V2 <- Piece4V2 %>% 
+  mutate(Surplus.Piece4 = case_when(Demographic.Cohort == "2022-23" ~ Income.Total.Piece4 - Expenditure.Total.Essential.LCFS.MART,
+                                    TRUE ~ Surplus))
+
+# Quick look - should get smaller
+Piece4V2 %>% 
+  group_by(Demographic.Cohort) %>% 
+  summarise(Med_Old = mean(Surplus, na.rm=TRUE),
+            Med_New = mean(Surplus.Piece4, na.rm=TRUE))
+
+
+
+```
+
+Negative Budget
+```{r}
+
+Piece4V2 <- Piece4V2 %>% 
+  mutate(Demographic.Negbud.Piece4 = case_when(Demographic.Cohort == "2022-23" & Surplus.Piece4 <= 0 ~ 'Negative.Budget',
+                                               Demographic.Cohort == "2022-23" & Surplus.Piece4 > 0 ~ 'Positive.Budget',
+                                               TRUE ~ Demographic.Negbud))
+
+# should get larger
+prop.table(table( Piece4V2$Demographic.Cohort, Piece4V2$Demographic.Negbud), margin = 1)
+prop.table(table( Piece4V2$Demographic.Cohort, Piece4V2$Demographic.Negbud.Piece4), margin = 1)
+
+```
+
+Which variables to keep
+```{r}
+
+Piece4 <- Piece4V2 %>% 
+  select(-c(Income.Total.Disposable, Min_21_22_res, Min_21_22_par,
+            Category.Respondent, Category.Partner, current_respondent_min23,
+            current_respondent_min21_22, current_partner_min23, current_partner_min21_22,
+            Income.UC, Income.WTC, Income.Housing.Benefit, Income.Child.Tax.Credit, Income.Total.Benefits,
+            Min_23_res, Min_23_par,Takehome.Respondent,Takehome.Partner,
+           Gross.Respondent, Gross.Partner,
+            Difference_Respondent_Gross, Difference_Partner_Gross, Difference_Respondent_Takehome,
+            Difference_Partner_Takehome, Respondent_Gross_2021_22, Partner_Gross_2021_22,
+            Respondent_Takehome_2021_22, Partner_Takehome_2021_22, Work_Allowance_UC_Cat, Work_Allowance_UC,
+            Additional_Wages,wtc_threshold_cat,ctc_threshold_cat,Deductible_WTC, Deductible_CTC,
+            Taper_amount, Adjusted_benefits_taper, Diff.Min.Res, Diff.Min.Par, Surplus, Demographic.Negbud, Income.Gross.Wages.Respondent,
+           Income.Gross.Wages.Partner))
+
+# Some renames
+Piece4 <- Piece4 %>% 
+  rename("Surplus" = "Surplus.Piece4",
+         "Income.Total" = "Income.Total.Piece4",
+         "Demographic.Negbud" = "Demographic.Negbud.Piece4",
+         "Income.UC" = "Adjusted_Universal_Credit",
+         "Income.Housing.Benefit" = "Adjusted_Housing_Support",
+         "Income.WTC" = "Adjusted_WTC",
+         "Income.Child.Tax.Credit" = "Adjusted_CTC",
+         "Income.Total.Benefits" = "Adjusted_benefits_taper_cap",
+          "Income.Gross.Wages.Respondent" = "Income.Gross.Wages.Respondent_2022_23",
+         "Income.Gross.Wages.Partner" = "Income.Gross.Wages.Partner_2022_23",
+         "Income.Takehome.Wages.Respondent" = "Income.Takehome.Wages.Respondent_2022_23",
+         "Income.Takehome.Wages.Partner" = "Income.Takehome.Wages.Partner_2022_23")
+
+
+# saveRDS(Piece4, file = "Piece4.rds")
+
+
+```
+
+
+## Round 5: 2022-23 > 2023-24
+```{r}
+# Pipe 1: 2020-21 > 2021-22P > 2022-23P > 2023-24P
+# Pipe 2: 2021-22 > 2022-23 > 2023-24
+
+Piece5 <- appdf %>% 
+  filter(Demographic.Cohort == "2022-23" | Demographic.Cohort == "2023-24")
+
+# Let's assemble resources 
+# Read in my wages lookups
+library(readxl)
+excel_path <- "Min_Wages.xlsx"
+sheet_names <- excel_sheets(excel_path)
+sheets <- lapply(sheet_names, function(sheet) {
+  read_excel(excel_path, sheet = sheet)
+})
+names(sheets) <- sheet_names
+list2env(sheets, envir = .GlobalEnv)
+
+```
+
+
+```{r}
+
+# Really annoying naming quirk to be fixed
+NMW_2021_22 <- `NMW_2021-22`
+NMW_2022_23 <- `NMW_2022-23`
+NMW_2023_24 <- `NMW_2023-24`
+
+# Calculate takehomes
+current_respondent23 <- NMW_2023_24 %>%
+  rename(
+    "gross_salary" = "Gross.Respondent",
+    "hours_worked_per_week" = "Number.Hours.Worked",
+    "Category.Respondent" = "Category"
+  ) %>%
+  mutate(gross_salary = gross_salary * 52.1) %>%
+  rowwise() %>%
+  mutate(current_respondent_min23 = calculate_takehome_pay(gross_salary, hours_worked_per_week)) %>%
+  mutate_if(is.numeric, round, 2) %>%
+  rename("Number.Hours.Worked" = "hours_worked_per_week") %>%
+  select(Category.Respondent, Number.Hours.Worked, current_respondent_min23) %>%
+  mutate(current_respondent_min23 = current_respondent_min23 / 52.1) %>% 
+  filter(Category.Respondent == "23+")
+
+current_partner23 <- NMW_2023_24 %>%
+  rename(
+    "gross_salary" = "Gross.Partner",
+    "hours_worked_per_week" = "Number.Hours.Worked.Partner",
+    "Category.Partner" = "Category"
+  ) %>%
+  mutate(gross_salary = gross_salary * 52.1) %>%
+  rowwise() %>%
+  mutate(current_partner_min23 = calculate_takehome_pay(gross_salary, hours_worked_per_week)) %>%
+  mutate_if(is.numeric, round, 2) %>%
+  rename("Number.Hours.Worked.Partner" = "hours_worked_per_week") %>%
+  select(Category.Partner, Number.Hours.Worked.Partner, current_partner_min23) %>%
+  mutate(current_partner_min23 = current_partner_min23 / 52.1) %>% 
+  filter(Category.Partner == "23+")
+
+# Calculate takehomes
+current_respondent21_22 <- NMW_2023_24 %>%
+  rename(
+    "gross_salary" = "Gross.Respondent",
+    "hours_worked_per_week" = "Number.Hours.Worked",
+        "Category.Respondent" = "Category"
+  ) %>%
+  mutate(gross_salary = gross_salary * 52.1) %>%
+  rowwise() %>%
+  mutate(current_respondent_min21_22 = calculate_takehome_pay(gross_salary, hours_worked_per_week)) %>%
+  mutate_if(is.numeric, round, 2) %>%
+  rename("Number.Hours.Worked" = "hours_worked_per_week") %>%
+  select(Category.Respondent, Number.Hours.Worked, current_respondent_min21_22) %>%
+  mutate(current_respondent_min21_22 = current_respondent_min21_22 / 52.1) %>% 
+  filter(Category.Respondent == "21-22")
+
+current_partner21_22 <- NMW_2023_24 %>%
+  rename(
+    "gross_salary" = "Gross.Partner",
+    "hours_worked_per_week" = "Number.Hours.Worked.Partner",
+    "Category.Partner" = "Category"
+  ) %>%
+  mutate(gross_salary = gross_salary * 52.1) %>%
+  rowwise() %>%
+  mutate(current_partner_min21_22 = calculate_takehome_pay(gross_salary, hours_worked_per_week)) %>%
+  mutate_if(is.numeric, round, 2) %>%
+  rename("Number.Hours.Worked.Partner" = "hours_worked_per_week") %>%
+  select(Category.Partner, Number.Hours.Worked.Partner, current_partner_min21_22) %>%
+  mutate(current_partner_min21_22 = current_partner_min21_22 / 52.1) %>% 
+  filter(Category.Partner == "21-22")
+
+```
+
+join these into Piece3
+```{r}
+
+# Join Min21_22_Par back into Piece2
+Piece5 <- Piece5 %>% 
+  mutate(Category.Respondent = case_when(Demographic.Age.Respondent >= 23 ~ '23+',
+                                         Demographic.Age.Respondent > 20 & Demographic.Age.Respondent < 23 ~ '21-22',
+                                         TRUE ~ 'Other')) %>% 
+   mutate(Category.Partner = case_when(Demographic.Age.Partner >= 23 ~ '23+',
+                                         Demographic.Age.Partner > 20 & Demographic.Age.Partner < 23 ~ '21-22',
+                                         TRUE ~ 'Other'))   
+
+# joins 
+Piece5 <- Piece5 %>%  
+  left_join(current_respondent23, by = c("Category.Respondent", "Number.Hours.Worked"))
+
+Piece5 <- Piece5 %>% 
+  left_join(current_respondent21_22, by = c("Category.Respondent", "Number.Hours.Worked"))
+
+Piece5 <- Piece5 %>% 
+  left_join(current_partner23, by = c("Category.Partner", "Number.Hours.Worked.Partner"))
+
+Piece5 <- Piece5 %>% 
+  left_join(current_partner21_22, by = c("Category.Partner", "Number.Hours.Worked.Partner"))
+
+
+# Reorder so intuitive
+Piece5 <- Piece5 %>% 
+  select(Pipe, Index, Min_Cat_Respondent, Min_Cat_Partner, Demographic.Age.Respondent, Demographic.Age.Partner,
+         Number.Hours.Worked, Income.Gross.Wages.Respondent, Number.Hours.Worked.Partner, Income.Gross.Wages.Partner, 100:107, everything() )
+
+```
+
+Set some important values based on year
+```{r}
+
+# Define the inflation and benefit uprating rate
+benefit_uprate <- 0.101
+taper_uc <- 0.55
+uc_work_allowance_housing <- 379*12/52.1
+uc_work_allowance_other <- 631*12/52.1
+taper_wtc <- 0.41
+threshold_wtc <-  7455 
+threshold_ctc <- 18725
+
+
+```
+
+Uprate Incomes from earnings
+```{r}
+
+# Other Earning have already been uprated appropriately, associated benefits will still need to be tapered though
+
+
+### Minimum wage
+
+# Need to uprate the gross pay variable
+Piece5 <- Piece5 %>% 
+  mutate(Category.Respondent = case_when(Demographic.Age.Respondent >= 23 ~ '23+',
+                                         Demographic.Age.Respondent > 20 & Demographic.Age.Respondent < 23 ~ '21-22',
+                                         TRUE ~ 'Other')) %>% 
+    mutate(Category.Partner = case_when(Demographic.Age.Partner >= 23 ~ '23+',
+                                         Demographic.Age.Partner > 20 & Demographic.Age.Partner < 23 ~ '21-22',
+                                         TRUE ~ 'Other')) 
+
+NMW_Gross_Res <- NMW_2023_24 %>% 
+  select(2:4) %>% 
+  rename("Category.Respondent" = "Category")
+
+NMW_Gross_Par <- NMW_2023_24 %>% 
+  select(2, 5:6) %>% 
+  rename("Category.Partner" = "Category")
+
+Piece5 <- Piece5 %>% 
+  left_join(NMW_Gross_Res, by = c("Category.Respondent", "Number.Hours.Worked"))
+
+Piece5 <- Piece5 %>% 
+  left_join(NMW_Gross_Par, by = c("Category.Partner", "Number.Hours.Worked.Partner"))
+
+Piece5 <- Piece5 %>% 
+  mutate(Income.Gross.Wages.Respondent_2023_24 = case_when(Demographic.Cohort == "2022-23" ~ Income.Gross.Wages.Respondent,
+                                                   Min_Cat_Respondent == "Min" & Demographic.Cohort == "2023-24" ~ Gross.Respondent,
+                                                   TRUE ~ Income.Gross.Wages.Respondent)) %>% 
+  mutate(Income.Gross.Wages.Partner_2023_24  = case_when(Demographic.Cohort == "2022-23" ~ Income.Gross.Wages.Partner,
+                                                   Min_Cat_Partner == "Min" & Demographic.Cohort == "2023-24" ~ Gross.Partner,
+                                                   TRUE ~ Income.Gross.Wages.Partner))
+
+# NAs to 0
+Piece5 <- Piece5 %>% 
+  mutate(
+    current_respondent_min23 = case_when(
+      is.na(current_respondent_min23) ~ 0,
+      TRUE ~ current_respondent_min23
+    ),
+    current_partner_min23 = case_when(
+      is.na(current_partner_min23) ~ 0,
+      TRUE ~ current_partner_min23
+    ),
+        current_respondent_min21_22 = case_when(
+      is.na(current_respondent_min21_22) ~ 0,
+      TRUE ~ current_respondent_min21_22
+    ),
+    current_partner_min21_22 = case_when(
+      is.na(current_partner_min21_22) ~ 0,
+      TRUE ~ current_partner_min21_22
+    ),
+        Number.Hours.Worked.Partner = case_when(
+      is.na(Number.Hours.Worked.Partner) ~ 0,
+      TRUE ~ Number.Hours.Worked.Partner
+    ),
+            Income.Gross.Wages.Partner_2023_24  = case_when(
+      is.na(Income.Gross.Wages.Partner_2023_24 ) ~ 0,
+      TRUE ~ Income.Gross.Wages.Partner_2023_24 
+    )
+  )
+
+
+# Need to calculate takehomes from the gross pay variable
+takehome_res <- Piece5 %>% 
+  select(Pipe, Index,Number.Hours.Worked, Income.Gross.Wages.Respondent_2023_24 ) %>% 
+  rename("gross_salary" = "Income.Gross.Wages.Respondent_2023_24",
+         "hours_worked_per_week" = "Number.Hours.Worked") %>% 
+  mutate(gross_salary = gross_salary*52.1) %>% 
+  rowwise() %>% 
+  mutate(Takehome.Salary.Respondent = calculate_takehome_pay(gross_salary, hours_worked_per_week)) %>% 
+  ungroup() %>% 
+  mutate(Takehome.Respondent = Takehome.Salary.Respondent/52.1) %>% 
+  rename("Gross.Salary.Respondent" = "gross_salary",
+         "Number.Hours.Worked" = "hours_worked_per_week")
+
+takehome_par <- Piece5 %>% 
+  select(Pipe, Index, Number.Hours.Worked.Partner, Income.Gross.Wages.Partner_2023_24 ) %>% 
+  rename("gross_salary" = "Income.Gross.Wages.Partner_2023_24",
+         "hours_worked_per_week" = "Number.Hours.Worked.Partner") %>% 
+  mutate(gross_salary = gross_salary*52.1) %>% 
+  rowwise() %>% 
+  mutate(Takehome.Salary.Partner = calculate_takehome_pay(gross_salary, hours_worked_per_week)) %>% 
+  ungroup()%>% 
+  mutate(Takehome.Partner = Takehome.Salary.Partner/52.1)%>% 
+  rename("Gross.Salary.Partner" = "gross_salary",
+         "Number.Hours.Worked.Partner" = "hours_worked_per_week")
+
+# Join acting funny here, let's order and use cbind
+Piece5 <- Piece5 %>% 
+  arrange(Pipe, Index)
+
+takehome_res <- takehome_res %>% 
+  arrange(Pipe, Index)
+
+takehome_par <- takehome_par %>% 
+  arrange(Pipe, Index)
+
+Piece5$Gross.Salary.Respondent <- takehome_res$Gross.Salary.Respondent
+Piece5$Takehome.Salary.Respondent <- takehome_res$Takehome.Salary.Respondent
+Piece5$Takehome.Respondent <- takehome_res$Takehome.Respondent
+Piece5$Gross.Salary.Partner <- takehome_par$Gross.Salary.Partner
+Piece5$Takehome.Salary.Partner <- takehome_par$Takehome.Salary.Partner
+Piece5$Takehome.Partner <- takehome_par$Takehome.Partner
+
+
+# Create fully functioning takehome income variable which takes into account year etc
+Piece5 <- Piece5 %>%
+  mutate(Income.Takehome.Wages.Respondent_2023_24  = case_when(Demographic.Cohort == "2023-24" & Min_Cat_Respondent == "Min" & Demographic.Age.Respondent >= 23 ~ current_respondent_min23,
+                                                      Demographic.Cohort == "2023-24" & Min_Cat_Respondent == "Min" & Demographic.Age.Respondent > 20 & Demographic.Age.Respondent > 23 ~ current_respondent_min21_22,
+                                                      TRUE ~ Takehome.Respondent )) %>% 
+    mutate(Income.Takehome.Wages.Partner_2023_24  = case_when(Demographic.Cohort == "2023-24" & Min_Cat_Partner == "Min" & Demographic.Age.Respondent >= 23 ~ current_partner_min23,
+                                                      Demographic.Cohort == "2023-24" & Min_Cat_Partner == "Min" & Demographic.Age.Partner > 20 & Demographic.Age.Partner > 23 ~ current_partner_min21_22,
+                                                      TRUE ~Takehome.Partner ))
+
+
+# # Calculate another couple of variables that will be useful
+Piece5a <- Piece5 %>%
+  filter(Demographic.Cohort == "2022-23") %>%
+  mutate(Difference_Respondent_Gross = 0,
+         Difference_Partner_Gross = 0,
+         Difference_Respondent_Takehome = 0,
+         Difference_Partner_Takehome = 0)
+
+# Extract 2022-23 data for mapping
+data_2022_23 <- Piece5 %>% 
+  filter(Demographic.Cohort == "2022-23") %>% 
+  select(Index, 
+         "Respondent_Gross_2022_23" = Income.Gross.Wages.Respondent, 
+         "Partner_Gross_2022_23" = Income.Gross.Wages.Partner, 
+         "Respondent_Takehome_2022_23" = Takehome.Respondent, 
+         "Partner_Takehome_2022_23" = Takehome.Partner)
+
+# Calculate differences for 2023-24P
+Piece5b <- Piece5 %>% 
+  filter(Demographic.Cohort == "2023-24") %>% 
+  left_join(data_2022_23, by = "Index") %>%
+  mutate(Difference_Respondent_Gross = Income.Gross.Wages.Respondent_2023_24 - Respondent_Gross_2022_23,
+         Difference_Partner_Gross = Income.Gross.Wages.Partner_2023_24 - Partner_Gross_2022_23,
+         Difference_Respondent_Takehome = Income.Takehome.Wages.Respondent_2023_24 - Respondent_Takehome_2022_23,
+         Difference_Partner_Takehome = Income.Takehome.Wages.Partner_2023_24 - Partner_Takehome_2022_23)
+
+# Combine the datasets
+Piece5V2 <- bind_rows(Piece5a, Piece5b) %>%
+  mutate(Combined.Takehome = (Income.Takehome.Wages.Respondent_2023_24 + Income.Takehome.Wages.Partner_2023_24) * 52.1,
+         Combined.Gross = (Income.Gross.Wages.Respondent_2023_24 + Income.Gross.Wages.Partner_2023_24) * 52.1) %>%
+  mutate(Combined.Gross = case_when(Combined.Gross < Combined.Takehome ~ Combined.Takehome,
+                                    TRUE ~ Combined.Gross))
+
+
+
+```
+Summary : For the year 2021-22P; we have now: (1) Uprated gross income for the year 2021-22 specifically by tweaking the minimum wage group;
+(2) we have used this new gross wages to calculate takehome pay; (3) if minimum wage, the takehome pay for the year 2021-22 is the takehome minimum wage for the hours they work.
+
+What hasn't been done: (1) Income.Total hasn't been altered yet; (2) benefits haven't been tapered.
+
+Interesting finding is that households can be a bit worse off due to the combination of minimum wage uprating and general income increase
+
+Benefits
+```{r}
+
+# Rename some stuff so very consistent with my guidance script
+Piece5V2 <- Piece5V2 %>% 
+  rename("Takehome_Respondent_Annual" = "Takehome.Salary.Respondent",
+         "Takehome_Partner_Annual" = "Takehome.Salary.Partner",
+         "Combined_Takehome" = "Combined.Takehome")
+
+# Taper rate (Lutfor has already uprated the benefits)
+# Q1 are they already tapered
+Piece5V2 <- Piece5V2 %>% 
+  mutate(Work_Allowance_UC_Cat = case_when(
+    (Income.UC > 0 & Demographic.Disabled == "Disability.Benefits") | 
+    (Income.UC > 0 & Demographic.Number.of.Dependent.Child.LCFS >= 1) ~ 'Yes',
+    TRUE ~ 'No'
+  )) %>% 
+  mutate(Work_Allowance_UC = case_when(
+    Work_Allowance_UC_Cat == "Yes" & Income.Housing.Benefit > 0 ~ uc_work_allowance_housing,
+    Work_Allowance_UC_Cat == "Yes" & Income.Housing.Benefit == 0 ~ uc_work_allowance_other,
+    TRUE ~ 0
+  ))
+
+# Apply the taper
+Piece5V2 <- Piece5V2 %>% 
+  mutate(Additional_Wages = Difference_Respondent_Takehome+Difference_Partner_Takehome) %>% 
+  mutate(Adjusted_Universal_Credit = case_when(Demographic.Cohort == "2023-24"  ~ Income.UC - (Additional_Wages * taper_uc),
+                                               TRUE ~ Income.UC)) %>% 
+  mutate(Adjusted_Housing_Support = case_when(Demographic.Cohort == "2023-24" ~ Income.Housing.Benefit - (Additional_Wages * taper_uc),
+                                                                                                           TRUE ~ Income.Housing.Benefit))
+                                              
+# Set up application of wtc and ctc tapers
+Piece5V2 <- Piece5V2 %>% 
+  mutate(wtc_threshold_cat = case_when(Combined_Takehome > threshold_wtc ~ 'Yes',
+                                       TRUE ~ 'No')) %>% 
+  mutate(ctc_threshold_cat = case_when(Combined_Takehome > threshold_ctc ~ 'Yes',
+                                       TRUE ~ 'No'))
+
+# Apply wtc and ctc tapers
+Piece5V2 <- Piece5V2 %>% 
+    mutate(Deductible_WTC = case_when(
+    (wtc_threshold_cat == "Yes" & Income.WTC > 0) ~ Additional_Wages,
+    TRUE ~ 0
+  )) %>%
+  mutate(Deductible_CTC = case_when(
+    (ctc_threshold_cat == "Yes" & Income.Child.Tax.Credit > 0) ~ Additional_Wages,
+    TRUE ~ 0
+  )) %>%
+  mutate(Adjusted_WTC = case_when(Demographic.Cohort == "2023-24"  ~ Income.WTC - (Additional_Wages * taper_wtc),
+                                               TRUE ~ Income.WTC)) %>% 
+  mutate(Adjusted_CTC = case_when(Demographic.Cohort == "2023-24" ~ Income.Child.Tax.Credit - (Additional_Wages * taper_wtc),
+                                                                                                           TRUE ~ Income.Child.Tax.Credit))
+
+# Quick clean up if needed
+Piece5V2 <- Piece5V2 %>% 
+  mutate(
+    Adjusted_Universal_Credit = ifelse(Adjusted_Universal_Credit < 0, 0, Adjusted_Universal_Credit),
+    Adjusted_Housing_Support = ifelse(Adjusted_Housing_Support < 0, 0, Adjusted_Housing_Support),
+    Adjusted_WTC = ifelse(Adjusted_WTC < 0, 0, Adjusted_WTC),
+    Adjusted_CTC = ifelse(Adjusted_CTC < 0, 0, Adjusted_CTC)
+  )
+
+# Get rid of NAs
+Piece5V2 <- Piece5V2 %>% 
+  mutate(
+    Adjusted_Universal_Credit = replace_na(Adjusted_Universal_Credit, 0),
+    Adjusted_Housing_Support = replace_na(Adjusted_Housing_Support, 0),
+    Adjusted_WTC = replace_na(Adjusted_WTC, 0),
+    Adjusted_CTC = replace_na(Adjusted_CTC, 0),
+    Income.UC = replace_na(Income.UC, 0),
+    Income.Housing.Benefit = replace_na(Income.Housing.Benefit, 0),
+    Income.WTC = replace_na(Income.WTC, 0),
+    Income.Child.Tax.Credit = replace_na(Income.Child.Tax.Credit, 0)
+  )
+
+# Calculate the full taper amount
+Piece5V2 <- Piece5V2 %>% 
+  mutate(Taper_amount = case_when(Demographic.Cohort == "2023-24" ~ (Income.UC - Adjusted_Universal_Credit) +
+    (Income.Housing.Benefit - Adjusted_Housing_Support) +
+    (Income.WTC - Adjusted_WTC) +
+    (Income.Child.Tax.Credit - Adjusted_CTC),
+    TRUE ~ 0))
+
+# Clean up taper amount
+Piece5V2 <- Piece5V2 %>% 
+  mutate(Taper_amount = ifelse(Taper_amount < 0,0,Taper_amount))
+  
+# New adjusted benefits
+Piece5V2 <- Piece5V2 %>% 
+  mutate(Adjusted_benefits_taper = Income.Total.Benefits - Taper_amount)
+
+
+```
+
+Benefit cap
+```{r}
+
+bencap_couple_london <- 486.98
+bencap_single_parent_london <-486.98
+bencap_single_london <- 326.29
+bencap_couple_notlondon <- 423.46
+bencap_single_parent_notlondon <- 423.46
+bencap_single_notlondon <- 283.71
+
+# Apply benefit cap
+Piece5V2 <- Piece5V2 %>% 
+  mutate(
+    Adjusted_benefits_taper_cap = case_when(
+      Income.WTC > 0 ~ Adjusted_benefits_taper,
+      Demographic.Disabled == "Disability.Benefits" ~ Adjusted_benefits_taper,
+      Demographic.Derived.Household.Type.LCFS == "Couple" &
+        Demographic.Region.LCFS == "London" ~ pmin(Adjusted_benefits_taper, bencap_couple_london),
+      Demographic.Derived.Household.Type.LCFS == "Single Person With Dependent Children" &
+        Demographic.Region.LCFS == "London" ~ pmin(Adjusted_benefits_taper, bencap_single_parent_london),
+      Demographic.Derived.Household.Type.LCFS == "Single Person" &
+        Demographic.Region.LCFS == "London" ~ pmin(Adjusted_benefits_taper, bencap_single_london),
+      Demographic.Derived.Household.Type.LCFS == "Couple" &
+        Demographic.Region.LCFS != "London" ~ pmin(Adjusted_benefits_taper, bencap_couple_notlondon),
+      Demographic.Derived.Household.Type.LCFS == "Single Person With Dependent Children" &
+        Demographic.Region.LCFS != "London" ~ pmin(Adjusted_benefits_taper, bencap_single_parent_notlondon),
+      Demographic.Derived.Household.Type.LCFS == "Single Person" &
+        Demographic.Region.LCFS != "London" ~ pmin(Adjusted_benefits_taper, bencap_single_notlondon),
+      TRUE ~ Adjusted_benefits_taper
+    )
+  )
+
+```
+
+Calculate new Income total
+```{r}
+
+# At this point Lutfor has already uprated benefits and incomes
+# Just needs to be adjusted for Minimum wage and taper rate
+Piece5V2 <- Piece5V2 %>% 
+  mutate(
+    Diff.Min.Res = case_when(
+      Demographic.Cohort == "2023-24" & Min_Cat_Respondent == "Min" & Category.Respondent == "23+" ~ current_respondent_min23 - Takehome.Respondent,
+      Demographic.Cohort == "2023-24" & Min_Cat_Respondent == "Min" & Category.Respondent == "21-22" ~ current_respondent_min21_22 - Takehome.Respondent,
+      TRUE ~ 0
+    ),
+    Diff.Min.Par = case_when(
+      Demographic.Cohort == "2023-24" & Min_Cat_Partner == "Min" & Category.Partner == "23+" ~ current_partner_min23 - Takehome.Partner,
+      Demographic.Cohort == "2023-24" & Min_Cat_Partner == "Min" & Category.Partner == "21-22" ~ current_partner_min21_22 - Takehome.Partner,
+      TRUE ~ 0
+    ),
+    Additional_Wages_Min = Diff.Min.Res + Diff.Min.Par
+  )
+
+Piece5V2 <- Piece5V2 %>% 
+    mutate(Income.Total.Piece5 = Income.Total.Disposable -
+    Taper_amount + 
+    Additional_Wages_Min)
+
+# Quick look - should get smaller
+Piece5V2 %>% 
+  group_by(Demographic.Cohort) %>% 
+  summarise(Med_Old = mean(Income.Total.Disposable, na.rm=TRUE),
+            Med_New = mean(Income.Total.Piece5, na.rm=TRUE))
+
+
+
+```
+
+
+Surplus
+```{r}
+
+Piece5V2 <- Piece5V2 %>% 
+  mutate(Surplus.Piece5 = case_when(Demographic.Cohort == "2023-24" ~ Income.Total.Piece5 - Expenditure.Total.Essential.LCFS.MART,
+                                    TRUE ~ Surplus))
+
+# Quick look - should get smaller
+Piece5V2 %>% 
+  group_by(Demographic.Cohort) %>% 
+  summarise(Med_Old = mean(Surplus, na.rm=TRUE),
+            Med_New = mean(Surplus.Piece5, na.rm=TRUE))
+
+
+
+```
+
+Negative Budget
+```{r}
+
+Piece5V2 <- Piece5V2 %>% 
+  mutate(Demographic.Negbud.Piece5 = case_when(Demographic.Cohort == "2023-24" & Surplus.Piece5 <= 0 ~ 'Negative.Budget',
+                                               Demographic.Cohort == "2023-24" & Surplus.Piece5 > 0 ~ 'Positive.Budget',
+                                               TRUE ~ Demographic.Negbud))
+
+# should get larger
+prop.table(table( Piece5V2$Demographic.Cohort, Piece5V2$Demographic.Negbud), margin = 1)
+prop.table(table( Piece5V2$Demographic.Cohort, Piece5V2$Demographic.Negbud.Piece5), margin = 1)
+
+```
+
+Which variables to keep
+```{r}
+
+Piece5 <- Piece5V2 %>% 
+  select(-c(Income.Total.Disposable, Min_21_22_res, Min_21_22_par,
+            Category.Respondent, Category.Partner, current_respondent_min23,
+            current_respondent_min21_22, current_partner_min23, current_partner_min21_22,
+            Income.UC, Income.WTC, Income.Housing.Benefit, Income.Child.Tax.Credit, Income.Total.Benefits,
+            Min_23_res, Min_23_par,Takehome.Respondent,Takehome.Partner,
+           Gross.Respondent, Gross.Partner,
+            Difference_Respondent_Gross, Difference_Partner_Gross, Difference_Respondent_Takehome,
+            Difference_Partner_Takehome, Respondent_Gross_2022_23, Partner_Gross_2022_23,
+            Respondent_Takehome_2022_23, Partner_Takehome_2022_23, Work_Allowance_UC_Cat, Work_Allowance_UC,
+            Additional_Wages,wtc_threshold_cat,ctc_threshold_cat,Deductible_WTC, Deductible_CTC,
+            Taper_amount, Adjusted_benefits_taper, Diff.Min.Res, Diff.Min.Par, Surplus, Demographic.Negbud, Income.Gross.Wages.Respondent,
+           Income.Gross.Wages.Partner))
+
+# Some renames
+Piece5 <- Piece5 %>% 
+  rename("Surplus" = "Surplus.Piece5",
+         "Income.Total" = "Income.Total.Piece5",
+         "Demographic.Negbud" = "Demographic.Negbud.Piece5",
+         "Income.UC" = "Adjusted_Universal_Credit",
+         "Income.Housing.Benefit" = "Adjusted_Housing_Support",
+         "Income.WTC" = "Adjusted_WTC",
+         "Income.Child.Tax.Credit" = "Adjusted_CTC",
+         "Income.Total.Benefits" = "Adjusted_benefits_taper_cap",
+          "Income.Gross.Wages.Respondent" = "Income.Gross.Wages.Respondent_2023_24",
+         "Income.Gross.Wages.Partner" = "Income.Gross.Wages.Partner_2023_24",
+         "Income.Takehome.Wages.Respondent" = "Income.Takehome.Wages.Respondent_2023_24",
+         "Income.Takehome.Wages.Partner" = "Income.Takehome.Wages.Partner_2023_24")
+
+# Finally, get rid of old data
+Piece5 <- Piece5 %>% 
+  filter(Demographic.Cohort == "2023-24")
+
+# saveRDS(Piece5, file = "Piece5.rds")
+
+```
+
+
+## Join together
+```{r}
+
+# Clear Environment
+rm(list = ls())
+
+# Libraries
+library(tidyverse)
+library(lubridate)
+library(zoo)
+
+# Files
+Piece1<- readRDS(file = "Piece1.rds")
+Piece2<- readRDS(file = "Piece2.rds")
+Piece3<- readRDS(file = "Piece3.rds")
+Piece4<- readRDS(file = "Piece4.rds")
+Piece5<- readRDS(file = "Piece5.rds")
+
+# Bit of organising
+tom_finished <- bind_rows(Piece1,Piece2,Piece3,Piece4,Piece5) %>% 
+  arrange(Pipe, Index) %>% 
+  select(Pipe, Index, Month, Quarter, Financial.Year, 
+        starts_with("Demographic"),
+        starts_with("Income"),
+        starts_with("Expenditure"),
+        everything())
+
+# All characters as factors
+# str(HELCA)
+tom_finished[sapply(tom_finished, is.character)] <- lapply(tom_finished[sapply(tom_finished, is.character)], as.factor)
+
+# re-run these just in case
+tom_finished <- tom_finished %>% 
+  mutate(Expenditure.Housing = case_when(Expenditure.Mortgage > 0 ~ Expenditure.Housing+Expenditure.Mortgage,
+                                         TRUE ~ Expenditure.Housing))
+
+
+# create housing variable
+tom_finished <- tom_finished %>%
+  mutate(Demographic.Housing = case_when(
+    Demographic.Housing.Tenure.LCFS %in% c("Local authority rented unfurn", "Housing association") ~ "Social Housing",
+    Demographic.Housing.Tenure.LCFS %in% c("Other rented unfurnished", "Rented furnished") ~ "Private Rental",
+    Demographic.Housing.Tenure.LCFS == "Owned with mortgage" ~ "Mortgage",
+    Demographic.Housing.Tenure.LCFS == "Owned outright" ~ "Owned Outright",
+    TRUE ~ "Other"  # This will include categories like "Rent free", "Owned by rental purchase", and "Not Recorded"
+  ))
+
+
+
+```
+
+Income Deciles
+```{r}
+
+tom_finished <- tom_finished %>%
+  group_by(Financial.Year) %>%
+  mutate(
+    Income.Decile.Numeric = ntile(Income.Total, 10),  # Numerical deciles
+    Demographic.Income.Decile = paste("Decile", Income.Decile.Numeric)  # Categorical deciles
+  ) %>%
+  ungroup() %>% 
+  mutate(Demographic.Income.Decile = case_when(Demographic.Income.Decile == 1 ~ 'Bottom Decile',
+                                               Demographic.Income.Decile == 10 ~ 'Top Decile',
+                                               TRUE ~ Demographic.Income.Decile))
+
+
+
+```
+
+Expenditure Deciles
+```{r}
+
+# Quick rename session
+tom_finished <- tom_finished %>%
+  rename("Expenditure.Total" = "Expenditure.Total.Essential.LCFS.MART",
+         "Expenditure.Fixed.Total" = "Expenditure.Total.Essential.Fixed.LCFS",
+         "Expenditure.Flexible.Total.LoE" = "Expenditure.Total.Essential.Flexible.MART",
+         "Expenditure.Flexible.Total.LCFS" = "Expenditure.Total.Essential.Flexible.LCFS")
+
+tom_finished <- tom_finished %>%
+  group_by(Financial.Year) %>%
+  mutate(
+    Expenditure.Decile.Numeric = ntile(Expenditure.Total, 10),  # Numerical deciles
+    Demographic.Expenditure.Decile = paste("Decile", Expenditure.Decile.Numeric)  # Categorical deciles
+  ) %>%
+  ungroup() %>% 
+  mutate(Demographic.Expenditure.Decile = case_when(Demographic.Expenditure.Decile == 1 ~ 'Bottom Decile',
+                                               Demographic.Expenditure.Decile == 10 ~ 'Top Decile',
+                                               TRUE ~ Demographic.Expenditure.Decile))
+
+
+
+
+```
+
+Inc.Exp decile mismatch cases
+```{r}
+
+
+
+# Create a fishy variable
+tom_finished <- tom_finished %>%
+  mutate(
+    Exp_Inc_Difference = Expenditure.Decile.Numeric - Income.Decile.Numeric
+  ) 
+
+# Create MTB variable
+tom_finished <- tom_finished %>%
+  mutate(Demographic.Means.Tested = case_when(Income.JSA.Contribution.Based > 0 |
+                                                 Income.JSA.Income.Based > 0 |
+                                                 Income.ESA >0 |
+                                                 Income.ExtPaym.Housing.Benefit > 0 |
+                                                 Income.UC > 0 |
+                                                 Income.Child.Tax.Credit > 0 |
+                                                 Income.Pension.Credit > 0 |
+                                                 Income.Carer.Allowance > 0 |
+                                                 Income.Housing.Benefit > 0 |
+                                                 Income.JSA.Combined > 0 |
+                                                 Income.Income.Support > 0 |
+                                                 Income.WTC > 0 ~ 'MTB',
+                                               TRUE ~ 'Not MTB'))
+
+
+
+# Fishy variable
+tom_finished <- tom_finished %>%
+  mutate(
+    Demographic.FishyV3 = case_when(
+      is.na(Exp_Inc_Difference) ~ 'Unknown',  # Handling NA values
+      Exp_Inc_Difference >= 4 & Demographic.Means.Tested != "MTB" & 
+      !Demographic.Income.Decile %in% c("Decile 4", "Decile 5", "Decile 6") ~ 'Timmy',
+      Income.Total <= 0 ~ 'Fishy',
+      Expenditure.Total <= 0 ~ 'Fishy',
+      TRUE ~ 'Not so fishy'
+    )
+  )
+
+
+# Get rid of NAs
+tom_finished <- tom_finished %>% 
+  mutate(
+    Demographic.Number.of.Child.LCFS = replace_na(Demographic.Number.of.Child.LCFS, 0),
+    Demographic.Number.of.Dependent.Child.LCFS = replace_na(Demographic.Number.of.Dependent.Child.LCFS, 0),
+    Demographic.Number.of.Non.Dependent.Child.LCFS = replace_na(Demographic.Number.of.Non.Dependent.Child.LCFS, 0),
+    `Demographic.Number.of.Child.<1.LCFS` = replace_na(`Demographic.Number.of.Child.<1.LCFS`, 0),
+    `Demographic.Number.of.Child.<5.LCFS` = replace_na(`Demographic.Number.of.Child.<5.LCFS`, 0),
+    `Demographic.Number.of.Child.5-9.LCFS` = replace_na(`Demographic.Number.of.Child.5-9.LCFS`, 0),
+    `Demographic.Number.of.Child.10-15.LCFS` = replace_na(`Demographic.Number.of.Child.10-15.LCFS`, 0),
+    `Demographic.Number.of.Child.<16.LCFS` = replace_na(`Demographic.Number.of.Child.<16.LCFS`, 0),
+    `Demographic.Number.of.Child.16-18.LCFS` = replace_na(`Demographic.Number.of.Child.16-18.LCFS`, 0)
+  )
+
+
+
+
+# Function to determine the number of adults based on household type
+calculate_number_of_adults <- function(household_type) {
+  if (household_type %in% c("1 man", "1 woman")) {
+    return(1)
+  } else if (household_type %in% c("1 man and 1 woman", "2 men or 2 women", "1 man, 1 woman and 1 child", "1 woman and 1 child", "1 man and 1 child")) {
+    return(2)
+  } else if (grepl("3 adults", household_type)) {
+    return(3)
+  } else if (grepl("4 adults", household_type)) {
+    return(4)
+  } else if (grepl("5 adults", household_type)) {
+    return(5)
+  } else if (grepl("6 or more adults", household_type)) {
+    return(6) # Assuming a minimum of 6 adults in this category
+  } else {
+    return(NA) # For types that don't clearly indicate the number of adults
+  }
+}
+
+# Apply the function to create the new variable
+tom_finished$Demographic.Number.of.Adult.LCFS <- sapply(tom_finished$Demographic.Household.Type.LCFS, calculate_number_of_adults)
+
+
+# OECD value and equivalised income
+# Function to calculate OECD weight
+calculate_oecd_weight <- function(num_adults, num_children_under_14, num_dependent_over_13, num_non_dependent_over_13) {
+  # Weight calculation based on OECD scale
+  weight <- num_adults + (0.5 * (num_dependent_over_13 + num_non_dependent_over_13)) + (0.3 * num_children_under_14)
+  return(weight)
+}
+
+# use the function to calculate the weight
+tom_finished$OECD_weight <- mapply(calculate_oecd_weight,
+                                   tom_finished$Demographic.Number.of.Adult.LCFS, # Assuming this column exists for number of adults
+                                   tom_finished$`Demographic.Number.of.Child.<16.LCFS`, # Total children under 14
+                                   tom_finished$`Demographic.Number.of.Child.16-18.LCFS`, # Dependent children over 13
+                                   tom_finished$`Demographic.Number.of.Non.Dependent.Child.LCFS`) # Non-dependent children over 13
+
+# Rename those variables with symbolds in it
+tom_finished <- tom_finished %>% 
+  rename("Demographic.Children.Below.1" = "Demographic.Number.of.Child.<1.LCFS",
+         "Demographic.Children.Below.5" =   "Demographic.Number.of.Child.<5.LCFS",
+         "Demographic.Children.5.To.9" = "Demographic.Number.of.Child.5-9.LCFS",
+         "Demographic.Children.10.To.15" = "Demographic.Number.of.Child.10-15.LCFS",
+         "Demographic.Children.Below.16" = "Demographic.Number.of.Child.<16.LCFS",
+         "Demographic.Children.16.To.18" = "Demographic.Number.of.Child.16-18.LCFS")
+
+# Some final tweaks
+tom_finished <- tom_finished %>% 
+  mutate(Expenditure.Total.LCFS = Expenditure.Fixed.Total + Expenditure.Flexible.Total.LCFS)
+```
+
+Handle Utilities discrepancy
+```{r}
+
+tom_finished <- tom_finished %>%
+  mutate(Diff_util = Expenditure.Utilities.MART - Expenditure.Utilities) %>% 
+  mutate(Expenditure.Utilities.MART = case_when(Expenditure.Utilities.MART > Expenditure.Utilities ~ Expenditure.Utilities,
+                                                TRUE ~ Expenditure.Utilities.MART)) %>% 
+  mutate(Diff_util = case_when(Diff_util < 0 ~ 0,
+                               TRUE ~ Diff_util))
+
+# Fix expenditure totals
+tom_finished <- tom_finished %>% 
+  mutate(Expenditure.Total = Expenditure.Total - Diff_util) %>% 
+  mutate(Expenditure.Flexible.Total.LoE = Expenditure.Flexible.Total.LoE - Diff_util) 
+
+```
+
+
+```{r}
+
+# Clean up timmys and fishies
+tom_finished <- tom_finished %>% 
+  mutate(Income.Total = case_when(
+    Demographic.FishyV3 == "Not so fishy" ~ Income.Total,
+    TRUE ~ NA_real_
+  )) %>% 
+  mutate(Expenditure.Total = case_when(
+    Expenditure.Total > 0 & (Demographic.FishyV3 %in% c("Not so fishy", "Timmy")) ~ Expenditure.Total,
+    TRUE ~ NA_real_
+  )) %>% 
+  mutate(Expenditure.Flexible.Total.LoE = case_when(
+    Expenditure.Flexible.Total.LoE > 0 & (Demographic.FishyV3 %in% c("Not so fishy", "Timmy")) ~ Expenditure.Flexible.Total.LoE,
+    TRUE ~ NA_real_
+  )) %>% 
+  mutate(Expenditure.Flexible.Total.LCFS = case_when(
+    Expenditure.Flexible.Total.LCFS > 0 & (Demographic.FishyV3 %in% c("Not so fishy", "Timmy")) ~ Expenditure.Flexible.Total.LCFS,
+    TRUE ~ NA_real_
+  )) %>% 
+  mutate(Expenditure.Fixed.Total = case_when(
+    Expenditure.Fixed.Total > 0 & (Demographic.FishyV3 %in% c("Not so fishy", "Timmy")) ~ Expenditure.Fixed.Total,
+    TRUE ~ NA_real_
+  )) %>% 
+  mutate(Expenditure.Total.LCFS = case_when(
+    Expenditure.Total.LCFS > 0 & (Demographic.FishyV3 %in% c("Not so fishy", "Timmy")) ~ Expenditure.Total.LCFS,
+    TRUE ~ NA_real_
+  ))
+ 
+```
+
+
+```{R}
+
+# calculate equivalised budget values
+tom_finished$Income.Equivalised <- tom_finished$Income.Total / tom_finished$OECD_weight
+tom_finished$Expenditure.Equivalised <- tom_finished$Expenditure.Total / tom_finished$OECD_weight
+tom_finished$Surplus.Equivalised <- tom_finished$Income.Equivalised - tom_finished$Expenditure.Equivalised
+
+# create a couple of LoE variables
+tom_finished <- tom_finished %>% 
+  mutate(LoE_Equivalised_V1 = case_when(Surplus.Equivalised > 0 & Surplus.Equivalised <= 25 ~ 'OTB < 100/m',
+                                        TRUE ~ 'Other')) %>% 
+    mutate(LoE_Equivalised_V2 = case_when(Surplus.Equivalised > 0 & Surplus.Equivalised <= 50 ~ 'OTB < 200/m',
+                                        TRUE ~ 'Other'))
+
+# Redo surplus et al
+tom_finished <- tom_finished %>%
+  mutate(Surplus = Income.Total - Expenditure.Total) %>% 
+  mutate(Demographic.Negbud = case_when(Surplus <= 0 ~ 'Negative.Budget',
+                                        TRUE ~ 'Positive.Budget'))
+
+
+tom_finished <- tom_finished %>%
+  mutate(Surplus.LCFS = Income.Total - Expenditure.Total.LCFS) %>% 
+  mutate(Demographic.Negbud.LCFS = case_when(Surplus.LCFS <= 0 ~ 'Negative.Budget',
+                                        TRUE ~ 'Positive.Budget'))
+
+tom_finished <- tom_finished %>%
+  mutate(
+    Demographic.Surplus.Bands.V1 = case_when(
+      Surplus < 0               ~ "In Deficit",
+      Surplus >= 0 & Surplus < 50   ~ "Struggling",
+      Surplus >= 50 & Surplus < 100 ~ "Getting By",
+      Surplus >= 100 & Surplus < 200 ~ "Comfortable",
+      Surplus >= 200                ~ "Affluent"
+    )
+  )
+
+tom_finished <- tom_finished %>%
+  mutate(
+    Demographic.Surplus.Bands.V2 = case_when(
+      Surplus < 0               ~ "In Deficit",
+      Surplus >= 0 & Surplus < 25   ~ "Struggling",
+      Surplus >= 25 & Surplus < 100 ~ "Getting By",
+      Surplus >= 100 & Surplus < 200 ~ "Comfortable",
+      Surplus >= 200                ~ "Affluent"
+    )
+  )
+
+# Redo now that some extra 
+tom_finished <- tom_finished %>%
+  group_by(Financial.Year) %>%
+  mutate(
+    Income.Decile.Numeric = ntile(Income.Total, 10),  # Numerical deciles
+    Demographic.Income.Decile = paste("Decile", Income.Decile.Numeric)  # Categorical deciles
+  ) %>%
+  ungroup() %>% 
+  mutate(Demographic.Income.Decile = case_when(Demographic.Income.Decile == 1 ~ 'Bottom Decile',
+                                               Demographic.Income.Decile == 10 ~ 'Top Decile',
+                                               TRUE ~ Demographic.Income.Decile))
+
+tom_finished <- tom_finished %>%
+  group_by(Financial.Year) %>%
+  mutate(
+    Expenditure.Decile.Numeric = ntile(Expenditure.Total, 10),  # Numerical deciles
+    Demographic.Expenditure.Decile = paste("Decile", Expenditure.Decile.Numeric)  # Categorical deciles
+  ) %>%
+  ungroup() %>% 
+  mutate(Demographic.Expenditure.Decile = case_when(Demographic.Expenditure.Decile == 1 ~ 'Bottom Decile',
+                                               Demographic.Expenditure.Decile == 10 ~ 'Top Decile',
+                                               TRUE ~ Demographic.Expenditure.Decile))
+tom_finished <- tom_finished %>%
+  mutate(awayfromcrisis= case_when(Surplus<(-50)~"More_than_-£50",
+                                   Surplus>=-50&Surplus<(-20)~"£50_inRed",
+                                   Surplus>=-20&Surplus<(-10)~"£20_inRed", 
+                                   Surplus>=-10&Surplus<0~"£10_inRed",
+                                   Surplus>=0&Surplus<=10~"£10_away",
+                                   Surplus>10&Surplus<=20~"£20_away",
+                                   Surplus>20&Surplus<=50~"£50_away",
+                                   TRUE~"More_than_£50"))
+
+# All characters as factors
+# str(HELCA)
+tom_finished[sapply(tom_finished, is.character)] <- lapply(tom_finished[sapply(tom_finished, is.character)], as.factor)
+
+# Bit of organising
+tom_finished <- tom_finished %>% 
+  arrange(Pipe, Index) %>% 
+  select(Pipe, Index, Month, Quarter, Financial.Year, 
+        starts_with("Demographic"),
+        starts_with("Income"),
+        starts_with("Expenditure"),
+        starts_with("Surplus"),
+        everything())
+
+tom_finished <- tom_finished %>% 
+  select(-Diff_util)
+
+```
+  
+```{r}
+
+saveRDS(tom_finished, file = "tom_finished.rds")
+
+```
+  
+ 
+
 

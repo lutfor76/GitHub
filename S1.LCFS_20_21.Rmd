@@ -442,7 +442,6 @@ for (col_name in columns_to_match_rename) {
 }
 ```
 
-
 ```{r}
 LCFS_21_Expenditure<-LCFS_21_Expenditure %>%    
   mutate(Expenditure.Housing.22.LCFS=(Expenditure.Derived.Housing.21.LCFS*housing.inflation.22),
@@ -608,7 +607,7 @@ mutate(Expenditure.All.Food.24.LCFS=(Expenditure.Food.Non.Alcohol.23.LCFS+Expend
 ```
 
 
-
+# Income and benefits uprating
 ```{r}
 #lcfs income has been estimated and adjusted by income growth; each income categorised by different categories of income
 LCFS_21_Expenditure_Income <- LCFS_21_Expenditure %>% 
@@ -684,6 +683,11 @@ mutate(Estimated.Gross.Income.24=rowSums(select(., Estimated.Wages.24,
                                                   Estimated.Benefit.24,
                                                   Estimated.Other.24)),
        Estimated.Disposable.Income.24=Estimated.Gross.Income.24*(Income.Total.Disposable.LCFS/Income.Gross.Weekly.LCFS))
+
+# Add an index, will come in very handy
+LCFS_21_Expenditure_Income <- LCFS_21_Expenditure_Income %>% 
+  mutate(Index = row_number()) %>% 
+  select(Index, everything())
 
 
 saveRDS(LCFS_21_Expenditure_Income, "LCFS_21_Expenditure_Income.rds")
