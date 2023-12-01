@@ -1,0 +1,571 @@
+---
+title: "S6. bigMART Analysis"
+author: "Lutfor Rahman"
+date: "2023-11-24"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(tidyverse)
+library(srvyr)
+bm<-readRDS("tom_finished.rds") #%>% filter(Demographic.FishyV3 == "Not so fishy")
+names(bm)
+
+test1<-bm %>% select(Income.Total)
+```
+
+
+# 2 Percentage and number of the population currently in a Negative Budget + change over time.
+```{r}
+#1 Percentage and number of the population currently in a Negative Budget + change over time.
+##What % are in negative budget
+bm %>% as_survey_design(weights = Weight.LCFS)%>% 
+        group_by(Financial.Year,Demographic.Negbud)%>%
+                  summarise(n=survey_total()) %>% 
+                  mutate(per_n=n/sum(n))%>%
+                  mutate(population=case_when (Financial.Year!="2020-21"~(n*1000/2),
+                                               TRUE ~ (n*1000)
+                                               )) %>%
+        filter(Demographic.Negbud == "Negative.Budget") %>%
+        select(-(contains("_se"))) %>%
+        tibble()
+```
+
+# 2a Weekly surplus
+```{r}
+#weekly surplus and income by negative budget
+
+bm %>% 
+  as_survey_design(weights=Weight.LCFS) %>% 
+  group_by(Financial.Year,Demographic.Negbud)%>%
+  summarise(tmean_surplus = survey_mean(Surplus, na.rm=TRUE),
+            median_surplus = survey_median(Surplus, na.rm=TRUE),
+            mean_income = survey_mean(Income.Equivalised, na.rm=TRUE),
+            median_income = survey_median(Income.Equivalised, na.rm=TRUE)) %>% 
+   select(-(contains("_se"))) %>%
+  tibble()
+```
+
+# 3 Percentage and number of the population currently on the brink (have less than £100 spare each month?) + change over time. 
+```{r}
+#3. Percentage and number of the population currently on the brink (have less than £100 spare each month?) + change over time. 
+
+brink_bm<-bm %>% mutate(awayfromcrisis= case_when(Surplus<(-50)~"More_than_-£50",
+                                   Surplus>=-50&Surplus<(-20)~"£50_inRed",
+                                   Surplus>=-20&Surplus<(-10)~"£20_inRed", 
+                                   Surplus>=-10&Surplus<0~"£10_inRed",
+                                   Surplus>=0&Surplus<=10~"£10_away",
+                                   Surplus>10&Surplus<=20~"£20_away",
+                                   Surplus>20&Surplus<=50~"£50_away",
+                                   TRUE~"More_than_£50"))
+
+
+ brink_bm %>% as_survey_design(weights = Weight.LCFS)%>% 
+        filter(Financial.Year=="2023-24") %>% 
+        group_by(awayfromcrisis)%>%
+        summarise(n=survey_total(),
+                  population=n*1000/2,
+                  Median_surplus=survey_median(Surplus, na.rm=TRUE),
+                  Mean_surplus=survey_mean(Surplus,na.rm=TRUE)
+        ) %>% 
+        
+        select(-(contains("_se"))) %>%
+        arrange(Mean_surplus) %>%
+        as.data.frame()
+```
+
+
+# 3a.Percentage and number of the population currently on the brink (have less than £100 spare each month?) + change over time. 
+```{r}
+brink_bm %>% as_survey_design(weights = Weight.LCFS)%>% 
+        filter(Financial.Year=="2023-24") %>% 
+        group_by(Demographic.Surplus.Bands.V1)%>%
+        summarise(n=survey_total(),
+                  population=n*1000,
+                  Median_surplus=survey_median(Surplus, na.rm=TRUE),
+                  Mean_surplus=survey_mean(Surplus, na.rm=TRUE)
+        ) %>% 
+        
+        select(-(contains("_se"))) %>%
+        arrange(Mean_surplus) %>%
+        as.data.frame()
+```
+
+# 5. The percentage and number of people in a NB before we reduce LCFS respondent’s flexible spending to our MART data averages.
+```{r}
+#The percentage and number of people in a NB before we reduce LCFS respondent’s flexible spending to our MART data averages.
+
+LCFS_Only_Negative_Budget<-bm %>% mutate(Expenditure.Fixed.Flexible.LCF=Expenditure.Fixed.Total+Expenditure.Flexible.Total.LCFS) %>% 
+   mutate(Surplus.LCFS = (Income.Total - (Expenditure.Fixed.Total + Expenditure.Flexible.Total.LCFS  ))) %>% 
+   mutate(Negbud.LCFS= case_when(Surplus.LCFS<=0 ~ 'Negative.Budget',
+                           TRUE ~ 'Positive.Budget')) 
+
+
+LCFS_Only_Negative_Budget %>% as_survey_design(weights = Weight.LCFS)%>% 
+  group_by(Financial.Year,Negbud.LCFS)%>%
+  summarise(n=survey_total()) %>% 
+  mutate(per_n=n/sum(n))%>%
+  mutate(population=case_when (Financial.Year!="2020-21"~(n*1000/2),
+                               TRUE ~ (n*1000)
+                               )) %>%
+  filter(Negbud.LCFS == "Negative.Budget") %>%
+  select(-(contains("_se"))) %>%
+  tibble()
+```
+
+
+
+# 6. Demographics of those most affected by NB nationally 
+```{r}
+#Demographics of those most affected by NB nationally
+variables_to_group_by <- c("Derived.Household.Type.LCFS", 
+                           "Housing",
+                           "Role.Type",
+                           "Disabled", 
+                           "UC",
+                           "ethnicity.HRP")
+# To understand negative budget by demographic groups 
+results_negative_demographic <- map_dfr(variables_to_group_by, function(var) {
+  bm %>% 
+    as_survey_design(weights = Weight.LCFS) %>%
+    filter(Financial.Year == "2023-24") %>% 
+    group_by(!!sym(paste0("Demographic.", var)), Demographic.Negbud) %>%
+    summarise(n = survey_total()) %>%
+    mutate(per_n = n / sum(n)) %>%
+    mutate(population = n * 1000 / 2) %>%
+    filter(Demographic.Negbud == "Negative.Budget") %>%
+    select(-(contains("_se"))) %>%
+    tibble()
+})
+
+print(results_negative_demographic)
+write.csv(results_negative_demographic, "results_negative_demographic.csv")
+
+```
+
+# 6. Demographics of those most affected by NB nationally and their surplus
+```{r}
+#Demographics of those most affected by NB nationally and their surplus
+
+variables_to_group_by <- c("Derived.Household.Type.LCFS", 
+                           "Housing",
+                           "Role.Type",
+                           "Disabled", 
+                           "UC",
+                           "ethnicity.HRP")
+
+results_surplus_demographic <- map_dfr(variables_to_group_by, function(var) {
+    bm %>% 
+    as_survey_design(weights = Weight.LCFS) %>%
+    filter(Financial.Year == "2023-24") %>% 
+    group_by(!!sym(paste0("Demographic.", var)), Demographic.Negbud) %>%
+    summarise(
+      mean_surplus = survey_mean(Surplus, na.rm = TRUE),
+      median_surplus = survey_median(Surplus, na.rm = TRUE)
+                             ) %>%
+    filter(Demographic.Negbud == "Negative.Budget") %>%
+    select(-(contains("_se"))) %>%
+    tibble()
+})
+
+print(results_surplus_demographic)
+
+write.csv(results_surplus_demographic, "results_surplus_demographic.csv")
+
+```
+
+
+# 7 What are biggest driver of negative budget?
+```{r}
+#7 What are biggest driver of negative budget? To understand which proportion of income goes into expenditure type
+
+variables_to_group_by <- c("Derived.Household.Type.LCFS", 
+                           "Housing",
+                           "Role.Type",
+                           "Disabled", 
+                           "UC",
+                           "ethnicity.HRP")
+
+driver<-bm %>% 
+  mutate(housing_ratio = case_when(Expenditure.Housing <= 0 ~ NA,
+                                   TRUE ~ Expenditure.Housing / Income.Total),
+         rent_ratio = case_when(Expenditure.Rent <= 0 ~ NA,
+                                   TRUE ~ Expenditure.Rent / Income.Total),
+         mortgage_ratio = case_when(Expenditure.Mortgage <= 0 ~ NA,
+                                    TRUE ~ Expenditure.Mortgage / Income.Total),
+         transport_ratio = case_when(Expenditure.Transport <= 0 ~ NA,
+                                     TRUE ~ Expenditure.Transport / Income.Total),
+         utilities_ratio = case_when(Expenditure.Utilities.MART <= 0 ~ NA,
+                                     TRUE ~ Expenditure.Utilities.MART / Income.Total),
+         food_ratio = case_when(Expenditure.Food.House.Keeping.MART <= 0 ~ NA,
+                                     TRUE ~ Expenditure.Food.House.Keeping.MART / Income.Total),
+         essential_ratio = case_when(Expenditure.Total <= 0 ~ NA,
+                                     TRUE ~ Expenditure.Total / Income.Total)
+  )
+
+test<-driver %>% select(housing_ratio, rent_ratio, mortgage_ratio, transport_ratio, utilities_ratio,
+                        food_ratio, essential_ratio, Expenditure.Housing,Expenditure.Rent ,Income.Total, Expenditure.Total)
+
+write.csv(test, "test.csv")
+
+
+#This is to without demographic looking into expenditure ratio
+result_driver_overall <-driver %>% 
+                        as_survey_design(weights = Weight.LCFS) %>%
+                            group_by(Financial.Year, Demographic.Negbud) %>%
+                            summarise(
+                              mean_housing_ratio = survey_mean(housing_ratio, na.rm = TRUE),
+                              median_housing_ratio = survey_median(housing_ratio, na.rm = TRUE),
+                              
+                              mean_rent_ratio = survey_mean(rent_ratio, na.rm = TRUE),
+                              median_rent_ratio = survey_median(rent_ratio, na.rm = TRUE),
+                              
+                              mean_mortgage_ratio = survey_mean(mortgage_ratio, na.rm = TRUE),
+                              median_mortgage_ratio = survey_median(mortgage_ratio, na.rm = TRUE),
+                  
+                              
+                              mean_trans_ratio = survey_mean(transport_ratio, na.rm = TRUE),
+                              median_trans_ratio = survey_median(transport_ratio, na.rm = TRUE),
+                              
+                              mean_utilities_ratio = survey_mean(utilities_ratio, na.rm = TRUE),
+                              median_utilities_ratio = survey_median(utilities_ratio, na.rm = TRUE),
+                                          
+                              mean_food_ratio = survey_mean(food_ratio, na.rm = TRUE),
+                              median_food_ratio = survey_median(food_ratio, na.rm = TRUE),
+                             
+                              mean_essential_ratio = survey_mean(essential_ratio, na.rm = TRUE),
+                              median_essential_ratio = survey_median(essential_ratio, na.rm = TRUE),
+                             
+                            ) %>%
+                             select(-(contains("_se"))) %>%
+                             pivot_longer(cols = starts_with("mean_") | starts_with("median_"),
+                             names_to = c(".value", "measure"),
+                             names_sep = "_") %>%
+                            tibble()
+
+
+print(result_driver_overall)
+write.csv(result_driver_overall, "result_driver_overall.csv")
+```
+
+
+```{r}
+result_driver_demo_utilities <- map_dfr(variables_to_group_by, function(var) {
+  driver %>% 
+as_survey_design(weights = Weight.LCFS) %>%
+    filter(Demographic.Negbud=="Negative.Budget") %>% 
+    group_by(Financial.Year, !!sym(paste0("Demographic.", var))) %>%
+    summarise(
+      mean_utilities_ratio = survey_mean(utilities_ratio, na.rm = TRUE),
+      median_utilities_ratio = survey_median(utilities_ratio, na.rm = TRUE)
+    ) %>%
+    select(-(contains("_se"))) %>%
+    tibble()
+})
+
+print(result_driver_demo_utilities)
+
+write.csv(result_driver_demo_utilities, "result_driver_demo_utilities.csv")
+
+
+
+result_driver_demo_housing <- map_dfr(variables_to_group_by, function(var) {
+  driver %>% 
+as_survey_design(weights = Weight.LCFS) %>%
+    group_by(Financial.Year, !!sym(paste0("Demographic.", var))) %>%
+    summarise(
+      mean_housing_ratio = survey_mean(housing_ratio, na.rm = TRUE),
+      median_housing_ratio = survey_median(housing_ratio, na.rm = TRUE)
+    )  %>%
+    select(-(contains("_se"))) %>%
+    tibble()
+})
+
+print(result_driver_demo_housing)
+
+write.csv(result_driver_demo_housing, "result_driver_demo_housing.csv")
+
+result_driver_demo_food <- map_dfr(variables_to_group_by, function(var) {
+  driver %>% 
+as_survey_design(weights = Weight.LCFS) %>%
+    group_by(Financial.Year, !!sym(paste0("Demographic.", var))) %>%
+    summarise(
+      mean_food_ratio = survey_mean(food_ratio, na.rm = TRUE),
+      median_food_ratio = survey_median(food_ratio, na.rm = TRUE)
+    )  %>%
+    select(-(contains("_se"))) %>%
+    tibble()
+})
+
+write.csv(result_driver_demo_food, "result_driver_demo_food.csv")
+```
+
+
+# 11. By the end of 2023, people will have built up £Xbn of debt because their wages (and/or benefits?) can’t cover their costs. 
+```{r}
+#By the end of 2023, people will have built up £Xbn of debt because their wages (and/or benefits?) can’t cover their costs. 
+debt_23_24 <- bm %>% 
+  as_survey_design(weights = Weight.LCFS) %>% 
+  filter(Financial.Year == "2023-24") %>% 
+  group_by(Financial.Year, Demographic.Negbud) %>%
+  summarise(
+    n = survey_total(),
+    mean_surplus = survey_mean(Surplus, na.rm = TRUE, trim = 0.2),
+    median_surplus = survey_median(Surplus, na.rm = TRUE)
+  ) %>% 
+  mutate(
+    per_n = n / sum(n),
+    total_debt_mean = mean_surplus * n*52.1*1000/2, #to get household number, n need to multiply 1000
+    total_debt_median = median_surplus * n*52.1*1000/2
+  ) %>%
+  select(-(contains("_se"))) %>%
+  tibble()
+
+print(debt_23_24)
+write.csv(debt_23_24, "debt_23_24.csv")
+```
+
+
+#8 What share of the UC standard allowance is taken up by housing + energy for people renting privately, in social housing & mortgage holders.
+
+```{r}
+#What share of the UC standard allowance is taken up by housing + energy for people renting privately, in social housing & mortgage holders
+UC_analysis<-bm %>%
+  filter(Financial.Year=="2023-24") %>% 
+  mutate(
+    UC_Standard_Single_U25 = 292.11*12/52.143,
+    UC_Standard_Single_O25 = 368.74*12/52.143,
+    UC_Standard_Couple_U25 = 458.51*12/52.143,
+    UC_Standard_Couple_O25 = 578.82*12/52.143
+  ) %>% 
+  mutate(
+    UC_Value = case_when(
+      # If single and under 25 then single standard allowance for u25
+      Demographic.Derived.Household.Type.LCFS == "Single Person" & Demographic.Age.Group.HRP %in% c("20 but under 25 yrs", "15 but under 20 yrs") ~ UC_Standard_Single_U25,
+      # Else if single then single standard allowance over 25
+      Demographic.Derived.Household.Type.LCFS == "Single Person" ~ UC_Standard_Single_O25,
+            # If single and under 25 then single standard allowance for u25
+      Demographic.Derived.Household.Type.LCFS == "Single Person With Dependent Children" & Demographic.Age.Group.HRP %in% c("20 but under 25 yrs", "15 but under 20 yrs") ~ UC_Standard_Single_U25,
+      # Else if single then single standard allowance over 25
+      Demographic.Derived.Household.Type.LCFS == "Single Person With Dependent Children" ~ UC_Standard_Single_O25,
+
+      # If couple and under 25 then couple standard allowance for u25
+      Demographic.Derived.Household.Type.LCFS == "Couple" & Demographic.Age.Group.HRP %in% c("20 but under 25 yrs", "15 but under 20 yrs") ~ UC_Standard_Couple_U25,
+      # Else if couple then couple standard allowance over 25
+      Demographic.Derived.Household.Type.LCFS == "Couple" ~ UC_Standard_Couple_O25,
+      
+            # If couple and under 25 then couple standard allowance for u25
+      Demographic.Derived.Household.Type.LCFS == "Couple With Dependent Children" & Demographic.Age.Group.HRP %in% c("20 but under 25 yrs", "15 but under 20 yrs") ~ UC_Standard_Couple_U25,
+      # Else if couple then couple standard allowance over 25
+      Demographic.Derived.Household.Type.LCFS == "Couple With Dependent Children" ~ UC_Standard_Couple_O25,
+
+      # If "Adults only" and under 25 then single standard allowance for u25
+      Demographic.Derived.Household.Type.LCFS == "Adults only" & Demographic.Age.Group.HRP %in% c("20 but under 25 yrs", "15 but under 20 yrs") ~ UC_Standard_Single_U25,
+      # Else if "Adults only" then single standard allowance over 25
+      Demographic.Derived.Household.Type.LCFS == "Adults only" ~ UC_Standard_Single_O25,
+
+      # If "Other adults and Dependent children" and under 25 then couple standard allowance for u25
+      Demographic.Derived.Household.Type.LCFS == "Other adults and Dependent children" & Demographic.Age.Group.HRP %in% c("20 but under 25 yrs", "15 but under 20 yrs") ~ UC_Standard_Couple_U25,
+      # Else is "Other adults and Dependent children" then couple standard allowance over 25
+      Demographic.Derived.Household.Type.LCFS == "Other adults and Dependent children" ~ UC_Standard_Couple_O25,
+      TRUE ~ UC_Standard_Couple_O25
+    )
+  ) %>%
+  mutate(UC_Value = case_when(
+    UC_Value > Income.UC ~ Income.UC,
+    TRUE ~ UC_Value
+  )) %>% 
+  filter(Income.UC>0) %>% 
+  filter(Income.Gross.Wages.Respondent<=0 & Income.Gross.Wages.Partner<=0)
+
+##case when expenditure is zero
+UC_driver <- UC_analysis %>%
+  mutate(housing_ratio = case_when(Expenditure.Housing <= 0 ~ NA,
+                                   TRUE ~ Expenditure.Housing / UC_Value),
+         rent_ratio = case_when(Expenditure.Rent <= 0 ~ NA,
+                                TRUE ~ Expenditure.Rent / UC_Value),
+         transport_ratio = case_when(Expenditure.Transport <= 0 ~ NA,
+                                     TRUE ~ Expenditure.Transport / UC_Value),
+         utilities_ratio = case_when(Expenditure.Utilities.MART <= 0 ~ NA,
+                                     TRUE ~ Expenditure.Utilities.MART / UC_Value),
+         food_ratio = case_when(Expenditure.Food.House.Keeping.MART <= 0 ~ NA,
+                                TRUE ~ Expenditure.Food.House.Keeping.MART / UC_Value),
+         essential_ratio = case_when(Expenditure.Total <= 0 ~ NA,
+                                     TRUE ~ Expenditure.Total / UC_Value)
+  ) %>% 
+  mutate(Expenditure.Housing.Utilities=Expenditure.Housing+Expenditure.Utilities.MART) %>% 
+  mutate(Housing.Utilities_ratio = case_when(Expenditure.Housing.Utilities <= 0 ~ NA,
+                                   TRUE ~ Expenditure.Housing.Utilities / UC_Value))
+
+##
+
+UC_driver %>% 
+as_survey_design(weights = Weight.LCFS) %>%
+   # group_by(Financial.Year)%>%
+    summarise(
+      mean_housing_ratio = survey_mean(housing_ratio, na.rm = TRUE),
+      median_housing_ratio = survey_median(housing_ratio, na.rm = TRUE),
+      
+      mean_rent_ratio = survey_mean(rent_ratio, na.rm = TRUE),
+      median_rent_ratio = survey_median(rent_ratio, na.rm = TRUE),
+      
+      mean_transport_ratio = survey_mean(transport_ratio, na.rm = TRUE),
+      median_transport_ratio = survey_median(transport_ratio, na.rm = TRUE),
+      
+      mean_utilities_ratio = survey_mean(utilities_ratio, na.rm = TRUE),
+      median_utilities_ratio = survey_median(utilities_ratio, na.rm = TRUE),
+      
+      mean_food_ratio = survey_mean(food_ratio, na.rm = TRUE),
+      median_food_ratio = survey_median(food_ratio, na.rm = TRUE),
+      
+      mean_essential_ratio = survey_mean(essential_ratio, na.rm = TRUE),
+      median_essential_ratio = survey_median(essential_ratio, na.rm = TRUE),
+      
+      mean_Housing.Utilities_ratio = survey_mean(Housing.Utilities_ratio, na.rm = TRUE),
+      median_Housing.Utilities_ratio = survey_median(Housing.Utilities_ratio, na.rm = TRUE)
+      
+  ) %>%
+    select(-(contains("_se"))) %>%
+  pivot_longer(cols = starts_with("mean_") | starts_with("median_"),
+               names_to = c(".value", "measure"),
+               names_sep = "_") %>%
+  tibble()
+
+```
+
+# 8 What share of all income (work + benefits) is taken up by housing + energy for people renting privately, in social housing & mortgage holders.
+```{r}
+#What share of all income (work + benefits) is taken up by housing + energy for people renting privately, in social housing & mortgage holders.
+benefits_pop<-bm %>% filter(Income.Total.Benefits>0) 
+
+variables_to_group_by <- c("Derived.Household.Type.LCFS", 
+                           "Housing",
+                           "Role.Type",
+                           "Disabled", 
+                           "UC",
+                           "ethnicity.HRP"
+                           )
+
+driver_benefits<-benefits_pop %>% 
+  mutate(housing_ratio = case_when(Expenditure.Housing <= 0 ~ NA,
+                                   TRUE ~ Expenditure.Housing / Income.Total),
+         rent_ratio = case_when(Expenditure.Rent <= 0 ~ NA,
+                                   TRUE ~ Expenditure.Rent / Income.Total),
+         mortgage_ratio = case_when(Expenditure.Mortgage <= 0 ~ NA,
+                                   TRUE ~ Expenditure.Mortgage / Income.Total),
+         transport_ratio = case_when(Expenditure.Transport <= 0 ~ NA,
+                                   TRUE ~ Expenditure.Transport / Income.Total),
+         utilities_ratio = case_when(Expenditure.Utilities.MART <= 0 ~ NA,
+                                   TRUE ~ Expenditure.Utilities.MART / Income.Total),
+         food_ratio = case_when(Expenditure.Food.House.Keeping.MART <= 0 ~ NA,
+                                   TRUE ~ Expenditure.Food.House.Keeping.MART / Income.Total),
+         essential_ratio = case_when(Expenditure.Total <= 0 ~ NA,
+                                   TRUE ~ Expenditure.Total / Income.Total)
+  )
+        
+result_driver_utilities_benefits <- map_dfr(variables_to_group_by, function(var) {
+  driver_benefits %>% 
+as_survey_design(weights = Weight.LCFS) %>%
+    group_by(Financial.Year, !!sym(paste0("Demographic.", var))) %>%
+    summarise(
+      mean_utilities_ratio = survey_mean(utilities_ratio, na.rm = TRUE),
+      median_utilities_ratio = survey_median(utilities_ratio, na.rm = TRUE)
+    ) %>%
+    select(-(contains("_se"))) %>%
+    tibble()
+})
+
+
+result_driver_housing_benefits <- map_dfr(variables_to_group_by, function(var) {
+  driver_benefits %>% 
+as_survey_design(weights = Weight.LCFS) %>%
+    group_by(Financial.Year, !!sym(paste0("Demographic.", var))) %>%
+    summarise(
+      mean_housing_ratio = survey_mean(housing_ratio, na.rm = TRUE),
+      median_housing_ratio = survey_median(housing_ratio, na.rm = TRUE)
+    )  %>%
+    select(-(contains("_se"))) %>%
+    tibble()
+})
+
+
+
+result_driver_utilities_benefits <- map_dfr(variables_to_group_by, function(var) {
+  driver_benefits %>% 
+as_survey_design(weights = Weight.LCFS) %>%
+    group_by(Financial.Year, !!sym(paste0("Demographic.", var))) %>%
+    summarise(
+      mean_food_ratio = survey_mean(food_ratio, na.rm = TRUE),
+      median_food_ratio = survey_median(food_ratio, na.rm = TRUE)
+    )  %>%
+    select(-(contains("_se"))) %>%
+    tibble()
+})
+
+```
+
+
+```{r}
+calculate_all_ratios <- function(data, weights, filter_condition, ratio_names) {
+  data %>%
+    filter(filter_condition) %>%
+    mutate_at(ratio_names, list(~ case_when(. <= 0 ~ NA, TRUE ~ ./Income.Total))) %>%
+    as_survey_design(weights = Weight.LCFS)
+}
+
+variables_to_group_by <- c(
+  "Derived.Household.Type.LCFS",
+  "Housing",
+  "Role.Type",
+  "Disabled",
+  "UC",
+  "ethnicity.HRP"
+)
+
+benefits_pop <- bm %>% filter(Income.Total.Benefits > 0)
+
+ratio_names <- c("Expenditure.Housing", 
+                 "Expenditure.Utilities.MART", 
+                 "Expenditure.Food.House.Keeping.MART")
+
+result_driver_all_ratios <- map_dfr(variables_to_group_by, function(var) {
+  calculate_all_ratios(benefits_pop, Weight.LCFS, TRUE, ratio_names) %>%
+    group_by(Financial.Year, !!sym(paste0("Demographic.", var))) %>%
+    summarise(across(all_of(ratio_names),
+                     list(mean_ratio = ~ survey_mean(., na.rm = TRUE),
+                          median_ratio = ~ survey_median(., na.rm = TRUE)),
+                     .names = "{.col}_{.fn}")) %>%
+    mutate(across(contains("_mean_ratio"), ~ case_when(. <= 0 ~ NA, TRUE ~ .))) %>%
+    select(-contains("_se")) %>%
+    tibble()
+})
+
+write.csv(result_driver_all_ratios, "result_driver_all_ratios.csv")
+```
+
+# To get to know what is the weekly expenditures 
+```{r}
+expenditure_overall<-bm %>% 
+  as_survey_design(weights = Weight.LCFS) %>%
+  filter(Financial.Year == "2023-24") %>% 
+  mutate(across(starts_with("Expenditure"), ~ ifelse(. == 0, NA, .))) %>%
+  summarise(
+    across(starts_with("Expenditure"), list(mean = ~ survey_mean(., na.rm = TRUE), 
+                                             median = ~ survey_median(., na.rm = TRUE)),
+                                             .names = "{.col}_{.fn}")
+  ) %>%
+  select(-(contains("_se"))) %>%
+  pivot_longer(cols = starts_with("Expenditure"),
+               names_to = c("variable", ".value"),
+               names_sep = "_") %>%
+  tibble()
+write.csv(expenditure_overall, "expenditure_overall.csv")
+
+
+
+```
+

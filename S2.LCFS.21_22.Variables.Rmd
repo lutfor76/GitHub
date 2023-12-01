@@ -358,7 +358,7 @@ for (col_name in columns_to_match_rename) {
 ```{r}
 LCFS_22_Work_Name<-LCFS_22_Work %>% 
   mutate(HRP.Total.Wages.23.LCFS=HRP.Total.Wages.LCFS*wages.inflation.23,
-         HRP.Total.Wages.23.LCFS=HRP.Total.Wages.LCFS*wages.inflation.24,
+         HRP.Total.Wages.24.LCFS=HRP.Total.Wages.LCFS*wages.inflation.24,
          HRP.Partner.Total.Wages.23.LCFS=HRP.Partner.Total.Wages.LCFS*wages.inflation.23,
          HRP.Partner.Total.Wages.24.LCFS=HRP.Partner.Total.Wages.LCFS*wages.inflation.24
          )

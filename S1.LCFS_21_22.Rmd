@@ -25,8 +25,14 @@ LCFS_22<-read.spss("lcfs_2021_dvhh_ukanon.sav", #FY 2021-22
                  to.data.frame = TRUE)
 saveRDS(LCFS_22, "LCFS_22.rds")
 LCFS_22<-readRDS("LCFS_22.rds")# This is FY 2021-22 households data
+
 ```
 
+```{r}
+test<-LCFS_22 %>% select(P547t, P548t)
+
+summary(test)
+```
 
 
 ```{r}
