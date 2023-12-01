@@ -1787,12 +1787,12 @@ server = shinyServer(function(input,output, session){
                     New.Food = Expenditure.Food.House.Keeping.MART*(Prop6),
                     New.Energy = Expenditure.Utilities.MART*(Prop7),
                     New.Leisure = Expenditure.Leisure.MART*(Prop8),
-                    New.Expenditure.Total = Expenditure.Total.Essential.LCFS.MART - ((Expenditure.Water - New.Water)+(Expenditure.Comms.Mobile.Phone - New.Communications)+
+                    New.Expenditure.Total = Expenditure.Total - ((Expenditure.Water - New.Water)+(Expenditure.Comms.Mobile.Phone - New.Communications)+
                                                                    (Expenditure.Vehicle.Insurance - New.Car.Insurance)+(Expenditure.Mortgage - New.Mortgage)+
                                                                    (Expenditure.Transport - New.Transport)+(Expenditure.Food.House.Keeping.MART - New.Food)+
                                                                    (Expenditure.Utilities.MART - New.Energy)+(Expenditure.Leisure.MART - New.Leisure)),
                     
-                    New.Surplus = Income.Total.Disposable - New.Expenditure.Total,
+                    New.Surplus = Income.Total - New.Expenditure.Total,
                     New.Negative.Budget = case_when(New.Surplus <= 0 ~ 'Negative.Budget',
                                                     TRUE ~ 'Positive.Budget'),
                     
@@ -1952,8 +1952,8 @@ server = shinyServer(function(input,output, session){
     dat <- dat %>% dplyr::filter({{Exp1}} > 0 & {{Exp2}} > 0 ) %>% 
       dplyr::mutate(New.Exp1 = {{Exp1}}*(Prop1),
                     New.Exp2 = {{Exp2}}*(Prop2),
-                    New.Expenditure.Total = Expenditure.Total.Essential.LCFS.MART - (({{Exp1}} - New.Exp1)+({{Exp2}} - New.Exp2)),
-                    New.Surplus = Income.Total.Disposable - New.Expenditure.Total,
+                    New.Expenditure.Total = Expenditure.Total - (({{Exp1}} - New.Exp1)+({{Exp2}} - New.Exp2)),
+                    New.Surplus = Income.Total - New.Expenditure.Total,
                     New.Negative.Budget = case_when(New.Surplus <= 0 ~ 'Negative.Budget', TRUE ~ 'Positive.Budget'))
     
     dat.subset <- subset(dat, Financial.Year == levels(Financial.Year)[length(levels(Financial.Year))])
@@ -2078,8 +2078,8 @@ server = shinyServer(function(input,output, session){
     Proportion <- (100+Percentage)/100
     dat <- dat %>% dplyr::filter({{Income}} > 0) %>%
       dplyr::mutate(New.Income = {{Income}}*(Proportion),
-                    New.Income.Total = Income.Total.Disposable + (New.Income - {{Income}}),
-                    New.Surplus = New.Income.Total - Expenditure.Total.Essential.LCFS.MART,
+                    New.Income.Total = Income.Total + (New.Income - {{Income}}),
+                    New.Surplus = New.Income.Total - Expenditure.Total,
                     New.Negative.Budget = case_when(New.Surplus <= 0 ~ 'Negative.Budget',
                                                     TRUE ~ 'Positive.Budget'))
     
