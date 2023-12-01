@@ -1332,7 +1332,7 @@ server = shinyServer(function(input,output, session){
       mutate(Households = round(only_value * Households / 100, 0)) %>% 
       mutate(Households = case_when(Financial.Year == "2023-24" ~ Households/2,
                                     TRUE ~ Households)) %>% 
-      mutate_if(is.numeric, round, 0) 
+      mutate_if(is.numeric, round, 2) 
     
     # Optional: If you want to remove the temporary 'only_value' column
     Data <- Data %>% select(-only_value) 

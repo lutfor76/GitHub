@@ -3122,6 +3122,8 @@ tom_finished <- tom_finished %>%
     TRUE ~ "Other"  # This will include categories like "Rent free", "Owned by rental purchase", and "Not Recorded"
   ))
 
+
+
 ```
 
 Income Deciles
@@ -3137,6 +3139,8 @@ tom_finished <- tom_finished %>%
   mutate(Demographic.Income.Decile = case_when(Demographic.Income.Decile == 1 ~ 'Bottom Decile',
                                                Demographic.Income.Decile == 10 ~ 'Top Decile',
                                                TRUE ~ Demographic.Income.Decile))
+
+
 
 ```
 
@@ -3160,6 +3164,8 @@ tom_finished <- tom_finished %>%
   mutate(Demographic.Expenditure.Decile = case_when(Demographic.Expenditure.Decile == 1 ~ 'Bottom Decile',
                                                Demographic.Expenditure.Decile == 10 ~ 'Top Decile',
                                                TRUE ~ Demographic.Expenditure.Decile))
+
+
 
 
 ```
@@ -3191,6 +3197,8 @@ tom_finished <- tom_finished %>%
                                                  Income.WTC > 0 ~ 'MTB',
                                                TRUE ~ 'Not MTB'))
 
+
+
 # Fishy variable
 tom_finished <- tom_finished %>%
   mutate(
@@ -3198,10 +3206,8 @@ tom_finished <- tom_finished %>%
       is.na(Exp_Inc_Difference) ~ 'Unknown',  # Handling NA values
       Exp_Inc_Difference >= 4 & Demographic.Means.Tested != "MTB" & 
       !Demographic.Income.Decile %in% c("Decile 4", "Decile 5", "Decile 6") ~ 'Timmy',
-      Income.Total == 0 ~ 'Fishy',
-      Expenditure.Total == 0 ~ 'Fishy',
-      Expenditure.Utilities == 0 ~ 'Fishy',
-      Expenditure.Food.House.Keeping == 0 ~ 'Fishy',
+      Income.Total <= 0 ~ 'Fishy',
+      Expenditure.Total <= 0 ~ 'Fishy',
       TRUE ~ 'Not so fishy'
     )
   )
@@ -3220,6 +3226,9 @@ tom_finished <- tom_finished %>%
     `Demographic.Number.of.Child.<16.LCFS` = replace_na(`Demographic.Number.of.Child.<16.LCFS`, 0),
     `Demographic.Number.of.Child.16-18.LCFS` = replace_na(`Demographic.Number.of.Child.16-18.LCFS`, 0)
   )
+
+
+
 
 # Function to determine the number of adults based on household type
 calculate_number_of_adults <- function(household_type) {
@@ -3271,18 +3280,60 @@ tom_finished <- tom_finished %>%
 # Some final tweaks
 tom_finished <- tom_finished %>% 
   mutate(Expenditure.Total.LCFS = Expenditure.Fixed.Total + Expenditure.Flexible.Total.LCFS)
+```
+
+Handle Utilities discrepancy
+```{r}
+
+tom_finished <- tom_finished %>%
+  mutate(Diff_util = Expenditure.Utilities.MART - Expenditure.Utilities) %>% 
+  mutate(Expenditure.Utilities.MART = case_when(Expenditure.Utilities.MART > Expenditure.Utilities ~ Expenditure.Utilities,
+                                                TRUE ~ Expenditure.Utilities.MART)) %>% 
+  mutate(Diff_util = case_when(Diff_util < 0 ~ 0,
+                               TRUE ~ Diff_util))
+
+# Fix expenditure totals
+tom_finished <- tom_finished %>% 
+  mutate(Expenditure.Total = Expenditure.Total - Diff_util) %>% 
+  mutate(Expenditure.Flexible.Total.LoE = Expenditure.Flexible.Total.LoE - Diff_util) 
+
+```
+
+
+```{r}
 
 # Clean up timmys and fishies
 tom_finished <- tom_finished %>% 
-  mutate(Income.Total = case_when(Demographic.FishyV3 == "Not so fishy" ~ Income.Total,
-                                  TRUE ~ NA_real_)) %>% 
-  mutate(Expenditure.Total = case_when(Demographic.FishyV3 == "Not so fishy" | Demographic.FishyV3 == "Timmy"~ Expenditure.Total,TRUE ~ NA_real_)) %>% 
-  mutate(Expenditure.Flexible.Total.LoE = case_when(Demographic.FishyV3 == "Not so fishy"| Demographic.FishyV3 == "Timmy" ~ Expenditure.Flexible.Total.LoE,TRUE ~ NA_real_)) %>% 
-    mutate(Expenditure.Flexible.Total.LCFS = case_when(Demographic.FishyV3 == "Not so fishy"| Demographic.FishyV3 == "Timmy" ~ Expenditure.Flexible.Total.LCFS,TRUE ~ NA_real_)) %>% 
-  mutate(Expenditure.Fixed.Total = case_when(Demographic.FishyV3 == "Not so fishy" | Demographic.FishyV3 == "Timmy"~ Expenditure.Fixed.Total,TRUE ~ NA_real_)) %>% 
-    mutate(Expenditure.Total.LCFS = case_when(Demographic.FishyV3 == "Not so fishy" | Demographic.FishyV3 == "Timmy"~ Expenditure.Total.LCFS,TRUE ~ NA_real_)) 
+  mutate(Income.Total = case_when(
+    Demographic.FishyV3 == "Not so fishy" ~ Income.Total,
+    TRUE ~ NA_real_
+  )) %>% 
+  mutate(Expenditure.Total = case_when(
+    Expenditure.Total > 0 & (Demographic.FishyV3 %in% c("Not so fishy", "Timmy")) ~ Expenditure.Total,
+    TRUE ~ NA_real_
+  )) %>% 
+  mutate(Expenditure.Flexible.Total.LoE = case_when(
+    Expenditure.Flexible.Total.LoE > 0 & (Demographic.FishyV3 %in% c("Not so fishy", "Timmy")) ~ Expenditure.Flexible.Total.LoE,
+    TRUE ~ NA_real_
+  )) %>% 
+  mutate(Expenditure.Flexible.Total.LCFS = case_when(
+    Expenditure.Flexible.Total.LCFS > 0 & (Demographic.FishyV3 %in% c("Not so fishy", "Timmy")) ~ Expenditure.Flexible.Total.LCFS,
+    TRUE ~ NA_real_
+  )) %>% 
+  mutate(Expenditure.Fixed.Total = case_when(
+    Expenditure.Fixed.Total > 0 & (Demographic.FishyV3 %in% c("Not so fishy", "Timmy")) ~ Expenditure.Fixed.Total,
+    TRUE ~ NA_real_
+  )) %>% 
+  mutate(Expenditure.Total.LCFS = case_when(
+    Expenditure.Total.LCFS > 0 & (Demographic.FishyV3 %in% c("Not so fishy", "Timmy")) ~ Expenditure.Total.LCFS,
+    TRUE ~ NA_real_
+  ))
+ 
+```
 
-  
+
+```{R}
+
 # calculate equivalised budget values
 tom_finished$Income.Equivalised <- tom_finished$Income.Total / tom_finished$OECD_weight
 tom_finished$Expenditure.Equivalised <- tom_finished$Expenditure.Total / tom_finished$OECD_weight
@@ -3375,18 +3426,17 @@ tom_finished <- tom_finished %>%
         starts_with("Surplus"),
         everything())
 
-
-  
-  
-
-# saveRDS(tom_finished, file = "tom_finished.rds")
+tom_finished <- tom_finished %>% 
+  select(-Diff_util)
 
 ```
-
-Household adjustment function
+  
 ```{r}
 
-
+saveRDS(tom_finished, file = "tom_finished.rds")
 
 ```
+  
+ 
+
 
