@@ -1023,20 +1023,6 @@ server = shinyServer(function(input,output, session){
     selectInput("numeric_filter_type", "Choose a filter type:", choices = c("Greater than", "Less than", "Equal to", "Between"))
   })
   
-  # output$numericValuePicker <- renderUI({
-  #   if (input$numeric_var != "No filter needed") {
-  #     req(input$numeric_var)
-  #     req(input$numeric_filter_type)
-  #     if (input$numeric_filter_type == "Between") {
-  #       sliderInput('numeric_range', 'Set range:', min = min(MART.Dash[, input$numeric_var], na.rm = TRUE),
-  #                   max = max(MART.Dash[, input$numeric_var], na.rm = TRUE), value = c(min(MART.Dash[, input$numeric_var], na.rm = TRUE),
-  #                                                                                      max(MART.Dash[, input$numeric_var], na.rm = TRUE)))
-  #     } else {
-  #       numericInput('numeric_value', 'Set value:', value = mean(MART.Dash[, input$numeric_var], na.rm = TRUE))
-  #     }
-  #   }
-  # })
-  
   output$numericValuePicker <- renderUI({
     if (input$numeric_var != "No filter needed") {
       req(input$numeric_var)
@@ -1083,21 +1069,7 @@ server = shinyServer(function(input,output, session){
     MART.Dash <<- MART.Dash_original # restore original data
     output$filterStatus <- renderText("OK, phew, back to normal!")
   })
-  
-  # Make tab 1 table
-  # table_data <- reactive({
-  #   
-  #   # MART.Counts(input$Variable1, input$Variable2)
-  #   #MART.Dash <- readRDS("MART.Dash.rds")
-  #   Time = sym(input$Variable1)
-  #   Variable = sym(input$Variable2)
-  #   
-  #   data <- table(MART.Dash[[Time]], MART.Dash[[Variable]])
-  #   data2 <- as.data.frame(data)
-  #   
-  #   data2
-  #   
-  # })
+
   
   # Make tab 1 table
   table_data <- reactive({
