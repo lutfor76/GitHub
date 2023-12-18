@@ -23,6 +23,11 @@ Expenditure.Flexible.MART.24<-readRDS("Expenditure.Flexible.MART.24.rds")
 
 
 ```{r}
+test<-LCFS_22_Expenditure_Income %>% select(starts_with("Income"))
+```
+
+
+```{r}
 ####Joining LCFS and MART data
 LCFS_MART_22<-LCFS_22_Expenditure_Income%>% 
   left_join(Expenditure.Flexible.MART.22, by=c("Demographic.Derived.Household.Type.LCFS.child"="Household.Type.Child", 
@@ -58,6 +63,8 @@ LCFS_MART_22_24 <- rbind(LCFS.MART22,LCFS.MART23, LCFS.MART24)
 
 
 ```{r}
+test1<-LCFS_MART_22_24 %>% select(Income.Total.Disposable)
+
 LCFS_MART_22_24 <- LCFS_MART_22_24 %>% 
   mutate(Income.Total.Disposable = case_when(Year == "2021-22" ~ Income.Total.Disposable.22.LCFS,
                                              Year == "2022-23" ~ Income.Total.Disposable.23.LCFS,

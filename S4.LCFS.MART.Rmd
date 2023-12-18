@@ -21,7 +21,6 @@ saveRDS(helca, file = "lutfor_finished.rds")
 
 ```
 
-This section is some exploratory analysis separate from main pipeline.
 #Means tested benefits
 ```{r}
 
@@ -165,7 +164,6 @@ write_xlsx(results_list, path = file_name)
 
 ##Overall analysis
 ```{r}
-
 ##What % are in negative budget
 helca %>% as_survey_design(weights = Weight.LCFS)%>% 
   filter(Year=="2023-24"|Year=="2023-24P") %>% 
@@ -239,10 +237,4 @@ result_flat <- result %>% as.data.frame() %>% ungroup()
 write.csv(regional.ratio, "regional.ratio.csv")
 ```
 
-
-```{r}
-
-mortgage<-helca %>% select(Expenditure.Mortgage)
-
-```
 

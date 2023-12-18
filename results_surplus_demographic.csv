@@ -1,0 +1,27 @@
+"","Demographic.Derived.Household.Type.LCFS","Demographic.Negbud","mean_surplus","median_surplus","Demographic.Housing","Demographic.Role.Type","Demographic.Disabled","Demographic.UC","Demographic.ethnicity.HRP"
+"1","Adults only","Negative.Budget",-577.49500189378,-246.339990781281,NA,NA,NA,NA,NA
+"2","Couple","Negative.Budget",-186.342966770232,-123.769149590113,NA,NA,NA,NA,NA
+"3","Couple With Dependent Children","Negative.Budget",-164.990667116739,-121.051226065168,NA,NA,NA,NA,NA
+"4","Other adults and Dependent children","Negative.Budget",-209.377139370136,-197.844478961142,NA,NA,NA,NA,NA
+"5","Single Person","Negative.Budget",-77.9358699825909,-51.734415776889,NA,NA,NA,NA,NA
+"6","Single Person With Dependent Children","Negative.Budget",-125.174985683844,-72.9289021645558,NA,NA,NA,NA,NA
+"7",NA,"Negative.Budget",-212.693528893552,-121.051226065168,"Mortgage",NA,NA,NA,NA
+"8",NA,"Negative.Budget",-148.841388465641,-142.128899319524,"Other",NA,NA,NA,NA
+"9",NA,"Negative.Budget",-150.009472844281,-84.8525010712381,"Owned Outright",NA,NA,NA,NA
+"10",NA,"Negative.Budget",-126.388540464934,-90.5245137180339,"Private Rental",NA,NA,NA,NA
+"11",NA,"Negative.Budget",-85.2076457661922,-60.6753826791612,"Social Housing",NA,NA,NA,NA
+"12",NA,"Negative.Budget",-250.892813113578,-152.484715179023,NA,"Full-Time",NA,NA,NA
+"13",NA,"Negative.Budget",-108.07786739012,-64.3900318502657,NA,"Part-Time 0-15",NA,NA,NA
+"14",NA,"Negative.Budget",-128.898393488059,-77.7129650142179,NA,"Part-Time 16-34",NA,NA,NA
+"15",NA,"Negative.Budget",-117.468032565376,-72.0841038634016,NA,"Unemployed",NA,NA,NA
+"16",NA,"Negative.Budget",-160.68558084695,-84.5810266745423,NA,NA,"Disability.Benefits",NA,NA
+"17",NA,"Negative.Budget",-101.965448249609,-82.2709309306478,NA,NA,"Disability.No.Benefits",NA,NA
+"18",NA,"Negative.Budget",-136.7560584233,-78.0811531566381,NA,NA,"None",NA,NA
+"19",NA,"Negative.Budget",-151.732198816659,-86.9558977812587,NA,NA,NA,"Not UC",NA
+"20",NA,"Negative.Budget",-106.249638551682,-75.3179865080466,NA,NA,NA,"UC",NA
+"21",NA,"Negative.Budget",-140.504281921722,-74.0699776084616,NA,NA,NA,NA,"White"
+"22",NA,"Negative.Budget",-165.280882011084,-171.115888864204,NA,NA,NA,NA,"Mixed race"
+"23",NA,"Negative.Budget",-158.399213169414,-168.457247474656,NA,NA,NA,NA,"Asian or Asian British"
+"24",NA,"Negative.Budget",-94.579991309416,-54.3676666090263,NA,NA,NA,NA,"Black or Black British"
+"25",NA,"Negative.Budget",-203.137537508927,-143.334996324734,NA,NA,NA,NA,"Other ethnic group"
+"26",NA,"Negative.Budget",-110.648467505672,-58.9278217999908,NA,NA,NA,NA,NA

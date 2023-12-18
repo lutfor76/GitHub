@@ -88,13 +88,13 @@ shinyApp(ui = shinyUI(
                                             choices = c("Financial.Year")), width = 6),
                          column(selectInput(inputId = "Variable2",
                                             label = "Choose a grouping variable:",
-                                            choices = c("Demographic.Age.Group.HRP", "Demographic.Age.Partner", "Demographic.Age.Respondent", 
+                                            choices = c("Demographic.Negbud","Demographic.Age.Group.HRP", "Demographic.Age.Partner", "Demographic.Age.Respondent", 
                                                         "Demographic.Child.Gender", "Demographic.Child.Tax.Credit", "Demographic.Child.Benefit", 
                                                         "Demographic.Cohort", "Demographic.Disabled", "Demographic.Derived.Household.Type.LCFS", 
                                                         "Demographic.Derived.Household.Type.LCFS.child", "Demographic.ESA", "Demographic.Expenditure.Decile", 
                                                         "Demographic.Fishy", "Demographic.FishyV2", "Demographic.FishyV3", "Demographic.Housing", "Demographic.Housing.Benefit", "Demographic.Housing.Tenure.LCFS", 
                                                         "Demographic.HRP.LCFS", "Demographic.Income.Decile", "Demographic.Income.Support", "Demographic.JSA.Combined", 
-                                                        "Demographic.JSA.Contribution.Based", "Demographic.JSA.Income.Based", "Demographic.Means.Tested","Demographic.Negbud",
+                                                        "Demographic.JSA.Contribution.Based", "Demographic.JSA.Income.Based", "Demographic.Means.Tested",
                                                         "Demographic.PIP.Car", "Demographic.PIP.Mob", "Demographic.Pension.Credit", 
                                                         "Demographic.Relationship.LCFS", "Demographic.Role.Type", "Demographic.Role.Type.Partner", 
                                                         "Demographic.Region.LCFS", "Demographic.Surplus.Bands.V1", "Demographic.Surplus.Bands.V2", 
@@ -119,13 +119,13 @@ shinyApp(ui = shinyUI(
                 column(width = 6, 
                        selectInput(inputId = "Tab2Variable2",
                                    label = "Choose a grouping variable:",
-                                   choices = c("Demographic.Age.Group.HRP", "Demographic.Age.Partner", "Demographic.Age.Respondent", 
+                                   choices = c("Demographic.Negbud", "Demographic.Age.Group.HRP", "Demographic.Age.Partner", "Demographic.Age.Respondent", 
                                                "Demographic.Child.Gender", "Demographic.Child.Tax.Credit", "Demographic.Child.Benefit", 
                                                "Demographic.Cohort", "Demographic.Disabled", "Demographic.Derived.Household.Type.LCFS", 
                                                "Demographic.Derived.Household.Type.LCFS.child", "Demographic.ESA", "Demographic.Expenditure.Decile", 
                                                 "Demographic.FishyV3", "Demographic.Housing", "Demographic.Housing.Benefit", "Demographic.Housing.Tenure.LCFS", 
                                                "Demographic.HRP.LCFS", "Demographic.Income.Decile", "Demographic.Income.Support", "Demographic.JSA.Combined", 
-                                               "Demographic.JSA.Contribution.Based", "Demographic.JSA.Income.Based", "Demographic.Means.Tested","Demographic.Negbud", "Demographic.Negbud.LCFS",
+                                               "Demographic.JSA.Contribution.Based", "Demographic.JSA.Income.Based", "Demographic.Means.Tested","Demographic.Negbud.LCFS",
                                                "Demographic.PIP.Car", "Demographic.PIP.Mob", "Demographic.Pension.Credit", 
                                                "Demographic.Relationship.LCFS", "Demographic.Role.Type", "Demographic.Role.Type.Partner", 
                                                "Demographic.Region.LCFS", "Demographic.Surplus.Bands.V1", "Demographic.Surplus.Bands.V2", 
@@ -153,7 +153,7 @@ shinyApp(ui = shinyUI(
                 column(width = 4, 
                        selectInput(inputId = "Tab3Variable2",
                                    label = "Choose a grouping variable:",
-                                   choices = c("Demographic.Age.Group.HRP", "Demographic.Age.Partner", "Demographic.Age.Respondent", 
+                                   choices = c("Demographic.Role.Type","Demographic.Age.Group.HRP", "Demographic.Age.Partner", "Demographic.Age.Respondent", 
                                                "Demographic.Child.Gender", "Demographic.Child.Tax.Credit", "Demographic.Child.Benefit", 
                                                "Demographic.Cohort", "Demographic.Disabled", "Demographic.Derived.Household.Type.LCFS", 
                                                "Demographic.Derived.Household.Type.LCFS.child", "Demographic.ESA", "Demographic.Expenditure.Decile", 
@@ -162,7 +162,7 @@ shinyApp(ui = shinyUI(
                                                "Demographic.JSA.Contribution.Based", "Demographic.JSA.Income.Based", "Demographic.Means.Tested","Demographic.Negbud", "Demographic.Negbud.LCFS",
                                                
                                                "Demographic.PIP.Car", "Demographic.PIP.Mob", "Demographic.Pension.Credit", 
-                                               "Demographic.Relationship.LCFS", "Demographic.Role.Type", "Demographic.Role.Type.Partner", 
+                                               "Demographic.Relationship.LCFS", "Demographic.Role.Type.Partner", 
                                                "Demographic.Region.LCFS", "Demographic.Surplus.Bands.V1", "Demographic.Surplus.Bands.V2", 
                                                "Demographic.UC", "Demographic.WTC", "Demographic.ethnicity.HRP", "Demographic.ethnicity.HRP.Partner", 
                                                "Demographic.Household.Type.LCFS", "Demographic.FishyV2", "LoE_Equivalised_V1",
@@ -240,13 +240,13 @@ shinyApp(ui = shinyUI(
                 column(width = 4,
                        selectInput(inputId = "Tab5Variable2",
                                    label = "Choose a grouping variable:",
-                                   choices = c("Demographic.Age.Group.HRP", "Demographic.Age.Partner", "Demographic.Age.Respondent", 
+                                   choices = c("Demographic.Negbud","Demographic.Age.Group.HRP", "Demographic.Age.Partner", "Demographic.Age.Respondent", 
                                                "Demographic.Child.Gender", "Demographic.Child.Tax.Credit", "Demographic.Child.Benefit", 
                                                "Demographic.Cohort", "Demographic.Disabled", "Demographic.Derived.Household.Type.LCFS", 
                                                "Demographic.Derived.Household.Type.LCFS.child", "Demographic.ESA", "Demographic.Expenditure.Decile", 
                                                "Demographic.FishyV3", "Demographic.Housing", "Demographic.Housing.Benefit", "Demographic.Housing.Tenure.LCFS", 
                                                "Demographic.HRP.LCFS", "Demographic.Income.Decile", "Demographic.Income.Support", "Demographic.JSA.Combined", 
-                                               "Demographic.JSA.Contribution.Based", "Demographic.JSA.Income.Based", "Demographic.Means.Tested","Demographic.Negbud", "Demographic.Negbud.LCFS",
+                                               "Demographic.JSA.Contribution.Based", "Demographic.JSA.Income.Based", "Demographic.Means.Tested", "Demographic.Negbud.LCFS",
                                                
                                                "Demographic.PIP.Car", "Demographic.PIP.Mob", "Demographic.Pension.Credit", 
                                                "Demographic.Relationship.LCFS", "Demographic.Role.Type", "Demographic.Role.Type.Partner", 
@@ -427,13 +427,13 @@ shinyApp(ui = shinyUI(
                 column(width = 4,
                        selectInput(inputId = "Tab11Variable1",
                                    label = "Choose a grouping variable:",
-                                   choices = c("Demographic.Age.Group.HRP", "Demographic.Age.Partner", "Demographic.Age.Respondent", 
+                                   choices = c("Demographic.Negbud","Demographic.Age.Group.HRP", "Demographic.Age.Partner", "Demographic.Age.Respondent", 
                                                "Demographic.Child.Gender", "Demographic.Child.Tax.Credit", "Demographic.Child.Benefit", 
                                                "Demographic.Cohort", "Demographic.Disabled", "Demographic.Derived.Household.Type.LCFS", 
                                                "Demographic.Derived.Household.Type.LCFS.child", "Demographic.ESA", "Demographic.Expenditure.Decile", 
                                                "Demographic.FishyV3", "Demographic.Housing", "Demographic.Housing.Benefit", "Demographic.Housing.Tenure.LCFS", 
                                                "Demographic.HRP.LCFS", "Demographic.Income.Decile", "Demographic.Income.Support", "Demographic.JSA.Combined", 
-                                               "Demographic.JSA.Contribution.Based", "Demographic.JSA.Income.Based", "Demographic.Means.Tested","Demographic.Negbud", "Demographic.Negbud.LCFS",
+                                               "Demographic.JSA.Contribution.Based", "Demographic.JSA.Income.Based", "Demographic.Means.Tested", "Demographic.Negbud.LCFS",
                                                
                                                "Demographic.PIP.Car", "Demographic.PIP.Mob", "Demographic.Pension.Credit", 
                                                "Demographic.Relationship.LCFS", "Demographic.Role.Type", "Demographic.Role.Type.Partner", 
@@ -490,16 +490,16 @@ shinyApp(ui = shinyUI(
                 column(width = 4,
                        selectInput(inputId = "Tab20Variable1",
                                    label = "Choose a grouping variable:",
-                                   choices = c("Demographic.Age.Group.HRP", "Demographic.Age.Partner", "Demographic.Age.Respondent", 
+                                   choices = c("Demographic.Role.Type", "Demographic.Age.Group.HRP", "Demographic.Age.Partner", "Demographic.Age.Respondent", 
                                                "Demographic.Child.Gender", "Demographic.Child.Tax.Credit", "Demographic.Child.Benefit", 
                                                "Demographic.Cohort", "Demographic.Disabled", "Demographic.Derived.Household.Type.LCFS", 
                                                "Demographic.Derived.Household.Type.LCFS.child", "Demographic.ESA", "Demographic.Expenditure.Decile", 
                                                "Demographic.FishyV3", "Demographic.Housing", "Demographic.Housing.Benefit", "Demographic.Housing.Tenure.LCFS", 
                                                "Demographic.HRP.LCFS", "Demographic.Income.Decile", "Demographic.Income.Support", "Demographic.JSA.Combined", 
-                                               "Demographic.JSA.Contribution.Based", "Demographic.JSA.Income.Based","Demographic.Means.Tested", "Demographic.Negbud", "Demographic.Negbud.LCFS",
+                                               "Demographic.JSA.Contribution.Based", "Demographic.JSA.Income.Based","Demographic.Means.Tested", 
                                               
                                                "Demographic.PIP.Car", "Demographic.PIP.Mob", "Demographic.Pension.Credit", 
-                                               "Demographic.Relationship.LCFS", "Demographic.Role.Type", "Demographic.Role.Type.Partner", 
+                                               "Demographic.Relationship.LCFS", "Demographic.Role.Type.Partner", 
                                                "Demographic.Region.LCFS", "Demographic.Surplus.Bands.V1", "Demographic.Surplus.Bands.V2", 
                                                "Demographic.UC", "Demographic.WTC", "Demographic.ethnicity.HRP", "Demographic.ethnicity.HRP.Partner", 
                                                "Demographic.Household.Type.LCFS", "LoE_Equivalised_V1",
@@ -537,13 +537,13 @@ shinyApp(ui = shinyUI(
                 column(width = 4,
                        selectInput(inputId = "Tab12Variable1",
                                    label = "Choose a grouping variable:",
-                                   choices = c("Demographic.Age.Group.HRP", "Demographic.Age.Partner", "Demographic.Age.Respondent", 
+                                   choices = c("Demographic.Negbud","Demographic.Age.Group.HRP", "Demographic.Age.Partner", "Demographic.Age.Respondent", 
                                                "Demographic.Child.Gender", "Demographic.Child.Tax.Credit", "Demographic.Child.Benefit", 
                                                "Demographic.Cohort", "Demographic.Disabled", "Demographic.Derived.Household.Type.LCFS", 
                                                "Demographic.Derived.Household.Type.LCFS.child", "Demographic.ESA", "Demographic.Expenditure.Decile", 
                                                "Demographic.FishyV3", "Demographic.Housing", "Demographic.Housing.Benefit", "Demographic.Housing.Tenure.LCFS", 
                                                "Demographic.HRP.LCFS", "Demographic.Income.Decile", "Demographic.Income.Support", "Demographic.JSA.Combined", 
-                                               "Demographic.JSA.Contribution.Based", "Demographic.JSA.Income.Based", "Demographic.Means.Tested","Demographic.Negbud", "Demographic.Negbud.LCFS",
+                                               "Demographic.JSA.Contribution.Based", "Demographic.JSA.Income.Based", "Demographic.Means.Tested", "Demographic.Negbud.LCFS",
                                                
                                                "Demographic.PIP.Car", "Demographic.PIP.Mob", "Demographic.Pension.Credit", 
                                                "Demographic.Relationship.LCFS", "Demographic.Role.Type", "Demographic.Role.Type.Partner", 
@@ -602,7 +602,7 @@ shinyApp(ui = shinyUI(
                 column(width = 3,
                        selectInput(inputId = "Tab13Variable1",
                                    label = "Grouping variable 1:",
-                                   choices = c("Demographic.Age.Group.HRP", "Demographic.Age.Partner", "Demographic.Age.Respondent", 
+                                   choices = c("Demographic.Role.Type","Demographic.Age.Group.HRP", "Demographic.Age.Partner", "Demographic.Age.Respondent", 
                                                "Demographic.Child.Gender", "Demographic.Child.Tax.Credit", "Demographic.Child.Benefit", 
                                                "Demographic.Cohort", "Demographic.Disabled", "Demographic.Derived.Household.Type.LCFS", 
                                                "Demographic.Derived.Household.Type.LCFS.child", "Demographic.ESA", "Demographic.Expenditure.Decile", 
@@ -611,7 +611,7 @@ shinyApp(ui = shinyUI(
                                                "Demographic.JSA.Contribution.Based", "Demographic.JSA.Income.Based", "Demographic.Means.Tested","Demographic.Negbud", "Demographic.Negbud.LCFS",
                                               
                                                "Demographic.PIP.Car", "Demographic.PIP.Mob", "Demographic.Pension.Credit", 
-                                               "Demographic.Relationship.LCFS", "Demographic.Role.Type", "Demographic.Role.Type.Partner", 
+                                               "Demographic.Relationship.LCFS",  "Demographic.Role.Type.Partner", 
                                                "Demographic.Region.LCFS", "Demographic.Surplus.Bands.V1", "Demographic.Surplus.Bands.V2", 
                                                "Demographic.UC", "Demographic.WTC", "Demographic.ethnicity.HRP", "Demographic.ethnicity.HRP.Partner", 
                                                "Demographic.Household.Type.LCFS", "LoE_Equivalised_V1",
@@ -636,7 +636,7 @@ shinyApp(ui = shinyUI(
                 column(width = 3,
                        selectInput(inputId = "Tab13Variable3",
                                    label = "Numeric variable:",
-                                   choices = c("Expenditure.Comms.Mobile.Phone", "Expenditure.Council.Tax", "Expenditure.Council.Tax.Support", 
+                                   choices = c("Surplus", "Surplus.LCFS" ,"Expenditure.Comms.Mobile.Phone", "Expenditure.Council.Tax", "Expenditure.Council.Tax.Support", 
                                                "Expenditure.Decile.Numeric", "Expenditure.Flexible.Total.LCFS", "Expenditure.Flexible.Total.LoE", 
                                                "Expenditure.Fixed.Total", "Expenditure.Food.House.Keeping", "Expenditure.Food.House.Keeping.MART", 
                                                "Expenditure.Health", "Expenditure.Housing", "Expenditure.Housing.LCFS", "Expenditure.Leisure.Cost", 
@@ -648,7 +648,7 @@ shinyApp(ui = shinyUI(
                                                "Income.Gross.Wages.Respondent", "Income.Housing.Benefit", "Income.Income.Support", 
                                                "Income.JSA.Combined", "Income.JSA.Contribution.Based", "Income.JSA.Income.Based", 
                                                "Income.Pension.Credit", "Income.PIP.Car", "Income.PIP.Mob", "Income.Takehome.Wages.Partner", 
-                                               "Income.Takehome.Wages.Respondent", "Income.Total", "Income.Total.Benefits", "Income.UC", "Income.WTC", "Surplus",
+                                               "Income.Takehome.Wages.Respondent", "Income.Total", "Income.Total.Benefits", "Income.UC", "Income.WTC", 
                                                "Income.Equivalised",
                                                "Expenditure.Equivalised",
                                                "Surplus.Equivalised"))),
@@ -682,7 +682,7 @@ shinyApp(ui = shinyUI(
                 column(width = 3,
                        selectInput(inputId = "Tab14Variable1",
                                    label = "Grouping variable 1:",
-                                   choices = c("Demographic.Age.Group.HRP", "Demographic.Age.Partner", "Demographic.Age.Respondent", 
+                                   choices = c("Demographic.Role.Type","Demographic.Age.Group.HRP", "Demographic.Age.Partner", "Demographic.Age.Respondent", 
                                                "Demographic.Child.Gender", "Demographic.Child.Tax.Credit", "Demographic.Child.Benefit", 
                                                "Demographic.Cohort", "Demographic.Disabled", "Demographic.Derived.Household.Type.LCFS", 
                                                "Demographic.Derived.Household.Type.LCFS.child", "Demographic.ESA", "Demographic.Expenditure.Decile", 
@@ -691,7 +691,7 @@ shinyApp(ui = shinyUI(
                                                "Demographic.JSA.Contribution.Based", "Demographic.JSA.Income.Based", "Demographic.Means.Tested","Demographic.Negbud", "Demographic.Negbud.LCFS",
                                               
                                                "Demographic.PIP.Car", "Demographic.PIP.Mob", "Demographic.Pension.Credit", 
-                                               "Demographic.Relationship.LCFS", "Demographic.Role.Type", "Demographic.Role.Type.Partner", 
+                                               "Demographic.Relationship.LCFS",  "Demographic.Role.Type.Partner", 
                                                "Demographic.Region.LCFS", "Demographic.Surplus.Bands.V1", "Demographic.Surplus.Bands.V2", 
                                                "Demographic.UC", "Demographic.WTC", "Demographic.ethnicity.HRP", "Demographic.ethnicity.HRP.Partner", 
                                                "Demographic.Household.Type.LCFS","Demographic.FishyV2", "Demographic.FishyV3", "LoE_Equivalised_V1",
@@ -762,13 +762,13 @@ shinyApp(ui = shinyUI(
                 column(width = 4,
                        selectInput(inputId = "Tab15Variable1",
                                    label = "Choose a grouping variable:",
-                                   choices = c("Demographic.Age.Group.HRP", "Demographic.Age.Partner", "Demographic.Age.Respondent", 
+                                   choices = c("Demographic.Negbud","Demographic.Age.Group.HRP", "Demographic.Age.Partner", "Demographic.Age.Respondent", 
                                                "Demographic.Child.Gender", "Demographic.Child.Tax.Credit", "Demographic.Child.Benefit", 
                                                "Demographic.Cohort", "Demographic.Disabled", "Demographic.Derived.Household.Type.LCFS", 
                                                "Demographic.Derived.Household.Type.LCFS.child", "Demographic.ESA", "Demographic.Expenditure.Decile", 
                                                "Demographic.FishyV3", "Demographic.Housing", "Demographic.Housing.Benefit", "Demographic.Housing.Tenure.LCFS", 
                                                "Demographic.HRP.LCFS", "Demographic.Income.Decile", "Demographic.Income.Support", "Demographic.JSA.Combined", 
-                                               "Demographic.JSA.Contribution.Based", "Demographic.JSA.Income.Based", "Demographic.Means.Tested","Demographic.Negbud", "Demographic.Negbud.LCFS",
+                                               "Demographic.JSA.Contribution.Based", "Demographic.JSA.Income.Based", "Demographic.Means.Tested", "Demographic.Negbud.LCFS",
                                                
                                                "Demographic.PIP.Car", "Demographic.PIP.Mob", "Demographic.Pension.Credit", 
                                                "Demographic.Relationship.LCFS", "Demographic.Role.Type", "Demographic.Role.Type.Partner", 
@@ -825,13 +825,13 @@ shinyApp(ui = shinyUI(
                 column(width = 4,
                        selectInput(inputId = "Tab16Variable1",
                                    label = "Choose a grouping variable:",
-                                   choices = c("Demographic.Age.Group.HRP", "Demographic.Age.Partner", "Demographic.Age.Respondent", 
+                                   choices = c("Demographic.Negbud","Demographic.Age.Group.HRP", "Demographic.Age.Partner", "Demographic.Age.Respondent", 
                                                "Demographic.Child.Gender", "Demographic.Child.Tax.Credit", "Demographic.Child.Benefit", 
                                                "Demographic.Cohort", "Demographic.Disabled", "Demographic.Derived.Household.Type.LCFS", 
                                                "Demographic.Derived.Household.Type.LCFS.child", "Demographic.ESA", "Demographic.Expenditure.Decile", 
                                                "Demographic.FishyV3", "Demographic.Housing", "Demographic.Housing.Benefit", "Demographic.Housing.Tenure.LCFS", 
                                                "Demographic.HRP.LCFS", "Demographic.Income.Decile", "Demographic.Income.Support", "Demographic.JSA.Combined", 
-                                               "Demographic.JSA.Contribution.Based", "Demographic.JSA.Income.Based", "Demographic.Means.Tested","Demographic.Negbud", "Demographic.Negbud.LCFS",
+                                               "Demographic.JSA.Contribution.Based", "Demographic.JSA.Income.Based", "Demographic.Means.Tested", "Demographic.Negbud.LCFS",
                                                
                                                "Demographic.PIP.Car", "Demographic.PIP.Mob", "Demographic.Pension.Credit", 
                                                "Demographic.Relationship.LCFS", "Demographic.Role.Type", "Demographic.Role.Type.Partner", 
@@ -929,13 +929,13 @@ shinyApp(ui = shinyUI(
                          column(4, 
                                 selectInput(inputId = "Tab17Variable1",
                                             label = "Choose a grouping variable:",
-                                            choices = c("Demographic.Age.Group.HRP", "Demographic.Age.Partner", "Demographic.Age.Respondent", 
+                                            choices = c("Demographic.Negbud","Demographic.Age.Group.HRP", "Demographic.Age.Partner", "Demographic.Age.Respondent", 
                                                         "Demographic.Child.Gender", "Demographic.Child.Tax.Credit", "Demographic.Child.Benefit", 
                                                         "Demographic.Cohort", "Demographic.Disabled", "Demographic.Derived.Household.Type.LCFS", 
                                                         "Demographic.Derived.Household.Type.LCFS.child", "Demographic.ESA", "Demographic.Expenditure.Decile", 
                                                         "Demographic.FishyV3", "Demographic.Housing", "Demographic.Housing.Benefit", "Demographic.Housing.Tenure.LCFS", 
                                                         "Demographic.HRP.LCFS", "Demographic.Income.Decile", "Demographic.Income.Support", "Demographic.JSA.Combined", 
-                                                        "Demographic.JSA.Contribution.Based", "Demographic.JSA.Income.Based", "Demographic.Means.Tested",  "Demographic.Negbud", "Demographic.Negbud.LCFS",
+                                                        "Demographic.JSA.Contribution.Based", "Demographic.JSA.Income.Based", "Demographic.Means.Tested",   "Demographic.Negbud.LCFS",
                                                         
                                                         "Demographic.PIP.Car", "Demographic.PIP.Mob", "Demographic.Pension.Credit", 
                                                         "Demographic.Relationship.LCFS", "Demographic.Role.Type", "Demographic.Role.Type.Partner", 
@@ -1008,9 +1008,34 @@ server = shinyServer(function(input,output, session){
     )
   })
   
+  # output$levelPicker <- renderUI({
+  #   req(input$group_var)
+  #   pickerInput('group_levels', 'Select levels:', choices = unique(MART.Dash[, input$group_var]), multiple = TRUE, options = list(`actions-box` = TRUE))
+  # })
+  # 
+  
   output$levelPicker <- renderUI({
     req(input$group_var)
-    pickerInput('group_levels', 'Select levels:', choices = unique(MART.Dash[, input$group_var]), multiple = TRUE, options = list(`actions-box` = TRUE))
+    
+    # Ensure you get a vector, not a dataframe
+    factor_variable <- MART.Dash[[input$group_var]]
+    
+    # Convert to factor if not already
+    if (!is.factor(factor_variable)) {
+      factor_variable <- factor(factor_variable)
+    }
+    
+    # Use levels() to get the factor levels, handling NULL or NA
+    factor_levels <- levels(factor_variable)
+    if (is.null(factor_levels)) {
+      factor_levels <- character(0)  # Empty character vector if no levels
+    }
+    
+    # Generate pickerInput with the correct levels
+    pickerInput('group_levels', 'Select levels:', 
+                choices = factor_levels, 
+                multiple = TRUE, 
+                options = list(`actions-box` = TRUE))
   })
   
 
@@ -2118,8 +2143,7 @@ server = shinyServer(function(input,output, session){
     }
   )
   
-  # # data for plot 10
-  # table10_data <- reactive({
+  #   table10_data <- reactive({
   #   
   #   # x-axis label
   #   Var.Number <- sym(input$Tab10Variable1)
@@ -2127,23 +2151,33 @@ server = shinyServer(function(input,output, session){
   #   # Time Variable
   #   TimeVar <- sym(input$TimeVariable)
   #   
-  #   # data for plot
-  #   dat <- MART.Dash %>% 
-  #     dplyr::filter({{Var.Number}} > 0) %>% 
-  #     dplyr::group_by({{TimeVar}}) %>% 
-  #     dplyr::summarise(Mean = mean({{Var.Number}}, na.rm=TRUE, trim = 0.2),
-  #                      Median = median({{Var.Number}}),
-  #                      n()) %>% 
+  #   # Convert MART.Dash to a survey design object
+  #   survey_data <- as_survey_design(MART.Dash, weights = Weight.LCFS)
+  #   
+  #   # Weighted stats for MART.Dash
+  #   dat <- survey_data %>% 
+  #     filter({{Var.Number}} > 0) %>% 
+  #     group_by({{TimeVar}}) %>% 
+  #     summarise(
+  #       Mean = survey_mean({{Var.Number}}, na.rm=TRUE, trim = 0.2),
+  #       Median = survey_median({{Var.Number}}),
+  #       n()
+  #     ) %>% 
   #     mutate_if(is.numeric,round,2)
   #   
-  #   # create similar table using MART.Dash_original dataframe
-  #   dat2 <- MART.Dash_original %>% 
-  #     dplyr::filter({{Var.Number}} > 0) %>% 
-  #     dplyr::group_by({{TimeVar}}) %>% 
-  #     dplyr::summarise(Mean = mean({{Var.Number}}, na.rm=TRUE, trim = 0.2),
-  #                      Median = median({{Var.Number}}),
-  #                      n()) %>% 
-  #     mutate_if(is.numeric,round,2) 
+  #   # Convert MART.Dash_original to a survey design object
+  #   survey_data_original <- as_survey_design(MART.Dash_original, weights = Weight.LCFS)
+  #   
+  #   # Weighted stats for MART.Dash_original
+  #   dat2 <- survey_data_original %>% 
+  #     filter({{Var.Number}} > 0) %>% 
+  #     group_by({{TimeVar}}) %>% 
+  #     summarise(
+  #       Mean = survey_mean({{Var.Number}}, na.rm=TRUE, trim = 0.2),
+  #       Median = survey_median({{Var.Number}}),
+  #       n()
+  #     ) %>% 
+  #     mutate_if(is.numeric,round,2)
   #   
   #   # Check if the number of rows for MART.Dash is the same as MART.Dash_original
   #   if(nrow(MART.Dash) != nrow(MART.Dash_original)){
@@ -2156,7 +2190,6 @@ server = shinyServer(function(input,output, session){
   #   
   #   dat
   # })
-  # 
   
   table10_data <- reactive({
     
@@ -2169,33 +2202,55 @@ server = shinyServer(function(input,output, session){
     # Convert MART.Dash to a survey design object
     survey_data <- as_survey_design(MART.Dash, weights = Weight.LCFS)
     
-    # Weighted stats for MART.Dash
-    dat <- survey_data %>% 
-      filter({{Var.Number}} > 0) %>% 
-      group_by({{TimeVar}}) %>% 
-      summarise(
-        Mean = survey_mean({{Var.Number}}, na.rm=TRUE, trim = 0.2),
-        Median = survey_median({{Var.Number}}),
-        n()
-      ) %>% 
-      mutate_if(is.numeric,round,2)
+    # Weighted stats for MART.Dash with conditional filtering
+    dat <- if (rlang::as_name(Var.Number) %in% c("Surplus", "Surplus.LCFS")) {
+      survey_data %>%
+        group_by({{TimeVar}}) %>%
+        summarise(
+          Mean = survey_mean({{Var.Number}}, na.rm = TRUE, trim = 0.2),
+          Median = survey_median({{Var.Number}}),
+          n()
+        ) %>%
+        mutate_if(is.numeric, round, 2)
+    } else {
+      survey_data %>%
+        filter({{Var.Number}} > 0) %>% 
+        group_by({{TimeVar}}) %>% 
+        summarise(
+          Mean = survey_mean({{Var.Number}}, na.rm = TRUE, trim = 0.2),
+          Median = survey_median({{Var.Number}}),
+          n()
+        ) %>%
+        mutate_if(is.numeric, round, 2)
+    }
     
     # Convert MART.Dash_original to a survey design object
     survey_data_original <- as_survey_design(MART.Dash_original, weights = Weight.LCFS)
     
-    # Weighted stats for MART.Dash_original
-    dat2 <- survey_data_original %>% 
-      filter({{Var.Number}} > 0) %>% 
-      group_by({{TimeVar}}) %>% 
-      summarise(
-        Mean = survey_mean({{Var.Number}}, na.rm=TRUE, trim = 0.2),
-        Median = survey_median({{Var.Number}}),
-        n()
-      ) %>% 
-      mutate_if(is.numeric,round,2)
+    # Weighted stats for MART.Dash_original with conditional filtering
+    dat2 <- if (rlang::as_name(Var.Number) %in% c("Surplus", "Surplus.LCFS")) {
+      survey_data_original %>%
+        group_by({{TimeVar}}) %>% 
+        summarise(
+          Mean = survey_mean({{Var.Number}}, na.rm = TRUE, trim = 0.2),
+          Median = survey_median({{Var.Number}}),
+          n()
+        ) %>% 
+        mutate_if(is.numeric, round, 2)
+    } else {
+      survey_data_original %>%
+        filter({{Var.Number}} > 0) %>% 
+        group_by({{TimeVar}}) %>% 
+        summarise(
+          Mean = survey_mean({{Var.Number}}, na.rm = TRUE, trim = 0.2),
+          Median = survey_median({{Var.Number}}),
+          n()
+        ) %>% 
+        mutate_if(is.numeric, round, 2)
+    }
     
     # Check if the number of rows for MART.Dash is the same as MART.Dash_original
-    if(nrow(MART.Dash) != nrow(MART.Dash_original)){
+    if (nrow(MART.Dash) != nrow(MART.Dash_original)) {
       dat <- dat %>% mutate(Category = paste0(rlang::as_name(Var.Number), ": Filtered"))
       dat2 <- dat2 %>% mutate(Category = paste0(rlang::as_name(Var.Number), ": All"))
       dat <- bind_rows(dat, dat2) 
@@ -2205,6 +2260,7 @@ server = shinyServer(function(input,output, session){
     
     dat
   })
+  
   
   # plot 10
   table10_plot <- reactive({
@@ -2363,45 +2419,52 @@ server = shinyServer(function(input,output, session){
   )
 
   
-  # table11_data <- reactive({
-  #   
-  #   # x-axis label
-  #   Var.Group <- sym(input$Tab11Variable1)
-  #   Var.Number <- sym(input$Tab11Variable2)
-  #   
-  #   # Time variable
-  #   TimeVar <- sym(input$TimeVariable2)
-  #   
-  #   # data for plot
-  #   dat <- MART.Dash %>% 
-  #     dplyr::filter({{Var.Number}} > 0) %>% 
-  #     dplyr::group_by({{TimeVar}}, {{Var.Group}}) %>% 
-  #     dplyr::summarise(Mean = mean({{Var.Number}}, na.rm=TRUE, trim = 0.2),
-  #                      Median = median({{Var.Number}}),
-  #                      n()) %>% 
-  #     mutate_if(is.numeric,round,2) %>%
-  #     filter(!is.na({{Var.Group}}), !grepl("NA|Other", as.character({{Var.Group}}), ignore.case = TRUE)) 
-  #   
-  #   # overall statistics (group not applied)
-  #   overall <- MART.Dash %>% 
-  #     dplyr::filter({{Var.Number}} > 0) %>% 
-  #     dplyr::group_by({{TimeVar}}) %>% 
-  #     dplyr::summarise(Mean = mean({{Var.Number}}, na.rm=TRUE, trim = 0.2),
-  #                      Median = median({{Var.Number}}),
-  #                      n()) %>% 
-  #     mutate_if(is.numeric,round,2)
-  #   
-  #   # Convert Var.Group to a string and add a new column to overall
-  #   Var.Group.String <- rlang::as_string(Var.Group)
-  #   overall <- overall %>%
-  #     dplyr::mutate(!!Var.Group.String := "All")
-  #   
-  #   # combine the grouped data and the overall data
-  #   combined_dat <- rbind(dat, overall)
-  #   
-  #   combined_dat
-  # })
-  # 
+# table11_data <- reactive({
+#     
+#     # x-axis label
+#     Var.Group <- sym(input$Tab11Variable1)
+#     Var.Number <- sym(input$Tab11Variable2)
+#     
+#     # Time variable
+#     TimeVar <- sym(input$TimeVariable2)
+#     
+#     # Convert MART.Dash to a survey design object
+#     survey_data <- as_survey_design(MART.Dash, weights = Weight.LCFS)
+#     
+#     # Weighted stats for group
+#     dat <- survey_data %>% 
+#       filter({{Var.Number}} > 0) %>% 
+#       group_by({{TimeVar}}, {{Var.Group}}) %>% 
+#       summarise(
+#         Mean = survey_mean({{Var.Number}}, na.rm=TRUE, trim = 0.2),
+#         Median = survey_median({{Var.Number}}),
+#         n()
+#       ) %>% 
+#       mutate_if(is.numeric,round,2) %>%
+#       filter(!is.na({{Var.Group}}), !grepl("NA|Other", as.character({{Var.Group}}), ignore.case = TRUE)) 
+#     
+#     # Weighted stats for overall
+#     overall <- survey_data %>% 
+#       filter({{Var.Number}} > 0) %>% 
+#       group_by({{TimeVar}}) %>% 
+#       summarise(
+#         Mean = survey_mean({{Var.Number}}, na.rm=TRUE, trim = 0.2),
+#         Median = survey_median({{Var.Number}}),
+#         n()
+#       ) %>% 
+#       mutate_if(is.numeric,round,2)
+#     
+#     # Convert Var.Group to a string and add a new column to overall
+#     Var.Group.String <- rlang::as_string(Var.Group)
+#     overall <- overall %>%
+#       dplyr::mutate(!!Var.Group.String := "All")
+#     
+#     # combine the grouped data and the overall data
+#     combined_dat <- rbind(dat, overall)
+#     
+#     combined_dat
+#   })
+#   
   
   table11_data <- reactive({
     
@@ -2415,28 +2478,35 @@ server = shinyServer(function(input,output, session){
     # Convert MART.Dash to a survey design object
     survey_data <- as_survey_design(MART.Dash, weights = Weight.LCFS)
     
+    # Apply conditional filtering
+    filter_condition <- if (rlang::as_name(Var.Number) %in% c("Surplus", "Surplus.LCFS")) {
+      TRUE
+    } else {
+      {{Var.Number}} > 0
+    }
+    
     # Weighted stats for group
     dat <- survey_data %>% 
-      filter({{Var.Number}} > 0) %>% 
+      filter(filter_condition) %>% 
       group_by({{TimeVar}}, {{Var.Group}}) %>% 
       summarise(
-        Mean = survey_mean({{Var.Number}}, na.rm=TRUE, trim = 0.2),
+        Mean = survey_mean({{Var.Number}}, na.rm = TRUE, trim = 0.2),
         Median = survey_median({{Var.Number}}),
         n()
       ) %>% 
-      mutate_if(is.numeric,round,2) %>%
+      mutate_if(is.numeric, round, 2) %>%
       filter(!is.na({{Var.Group}}), !grepl("NA|Other", as.character({{Var.Group}}), ignore.case = TRUE)) 
     
     # Weighted stats for overall
     overall <- survey_data %>% 
-      filter({{Var.Number}} > 0) %>% 
+      filter(filter_condition) %>% 
       group_by({{TimeVar}}) %>% 
       summarise(
-        Mean = survey_mean({{Var.Number}}, na.rm=TRUE, trim = 0.2),
+        Mean = survey_mean({{Var.Number}}, na.rm = TRUE, trim = 0.2),
         Median = survey_median({{Var.Number}}),
         n()
       ) %>% 
-      mutate_if(is.numeric,round,2)
+      mutate_if(is.numeric, round, 2)
     
     # Convert Var.Group to a string and add a new column to overall
     Var.Group.String <- rlang::as_string(Var.Group)
@@ -2753,6 +2823,33 @@ server = shinyServer(function(input,output, session){
   )
   #########################################################
   
+  # table12_data <- reactive({
+  #   
+  #   Var.Group <- sym(input$Tab12Variable1)
+  #   Var.Number <- sym(input$Tab12Variable2)
+  #   
+  #   # Time variable
+  #   TimeVar <- sym(input$TimeVariable3)
+  #   
+  #   # Convert MART.Dash to a survey design object
+  #   survey_data <- as_survey_design(MART.Dash, weights = Weight.LCFS)
+  #   
+  #   # Weighted stats
+  #   dat.plot <- survey_data %>% 
+  #     filter({{Var.Number}} > 0) %>% 
+  #     group_by({{TimeVar}}, {{Var.Group}}) %>% 
+  #     summarise(
+  #       Mean = survey_mean({{Var.Number}}, na.rm=TRUE, trim = 0.2),
+  #       Median = survey_median({{Var.Number}}),
+  #       n()
+  #     ) %>% 
+  #     filter({{TimeVar}} == levels({{TimeVar}})[length(levels({{TimeVar}}))]) %>% 
+  #     filter(!is.na({{Var.Group}}), !grepl("NA|Other", as.character({{Var.Group}}), ignore.case = TRUE)) %>%  # This line filters NA and Other values
+  #     mutate_if(is.numeric,round,2) 
+  #   dat.plot
+  #   
+  # })
+  
   table12_data <- reactive({
     
     Var.Group <- sym(input$Tab12Variable1)
@@ -2764,21 +2861,29 @@ server = shinyServer(function(input,output, session){
     # Convert MART.Dash to a survey design object
     survey_data <- as_survey_design(MART.Dash, weights = Weight.LCFS)
     
-    # Weighted stats
+    # Apply conditional filtering
+    if (rlang::as_name(Var.Number) %in% c("Surplus", "Surplus.LCFS")) {
+      filter_condition <- TRUE
+    } else {
+      filter_condition <- {{Var.Number}} > 0
+    }
+    
+    # Weighted stats with conditional filtering
     dat.plot <- survey_data %>% 
-      filter({{Var.Number}} > 0) %>% 
+      filter(filter_condition) %>% 
       group_by({{TimeVar}}, {{Var.Group}}) %>% 
       summarise(
-        Mean = survey_mean({{Var.Number}}, na.rm=TRUE, trim = 0.2),
+        Mean = survey_mean({{Var.Number}}, na.rm = TRUE, trim = 0.2),
         Median = survey_median({{Var.Number}}),
         n()
       ) %>% 
       filter({{TimeVar}} == levels({{TimeVar}})[length(levels({{TimeVar}}))]) %>% 
-      filter(!is.na({{Var.Group}}), !grepl("NA|Other", as.character({{Var.Group}}), ignore.case = TRUE)) %>%  # This line filters NA and Other values
-      mutate_if(is.numeric,round,2) 
-    dat.plot
+      filter(!is.na({{Var.Group}}), !grepl("NA|Other", as.character({{Var.Group}}), ignore.case = TRUE)) %>%
+      mutate_if(is.numeric, round, 2) 
     
+    dat.plot
   })
+  
   
   
   # plot 12 input
@@ -2856,7 +2961,8 @@ server = shinyServer(function(input,output, session){
         input$Tab12Variable1 == "Demographic.Region.LCFS"|
         input$Tab12Variable1 == "Demographic.Household.Type.LCFS"|
         input$Tab12Variable1 == "Demographic.Derived.Household.Type.LCFS.child"|
-        input$Tab12Variable1 == "Demographic.Derived.Household.Type.LCFS") {
+        input$Tab12Variable1 == "Demographic.Derived.Household.Type.LCFS" |
+        input$Tab12Variable1 == "Demographic.Age.Group.HRP") {
       p <- p + theme(axis.text.x = element_blank())
     } else {
       p <- p + theme(axis.text.x = element_text(color = "#004b88"))
@@ -2887,31 +2993,7 @@ server = shinyServer(function(input,output, session){
     }
   )
   
-  # # data for plot 13
-  # table13_data <- reactive({
-  #   
-  #   Var.Group1 <- sym(input$Tab13Variable1)
-  #   Var.Group2 <- sym(input$Tab13Variable2)
-  #   Var.Number <- sym(input$Tab13Variable3)
-  #   
-  #   # Time variable
-  #   TimeVar <- sym(input$TimeVariable4)
-  #   
-  #   dat.plot <- MART.Dash %>% 
-  #     dplyr::filter({{Var.Number}} > 0) %>% 
-  #     dplyr::group_by({{TimeVar}}, {{Var.Group1}},{{Var.Group2}}) %>% 
-  #     dplyr::summarise(Mean = mean({{Var.Number}}, na.rm=TRUE, trim = 0.2),
-  #                      Median = median({{Var.Number}}),
-  #                      n()) %>% 
-  #     filter({{TimeVar}} == levels({{TimeVar}})[length(levels({{TimeVar}}))]) %>%
-  #     filter(!grepl("Other|NA", as.character({{Var.Group1}}), ignore.case = TRUE), !is.na({{Var.Group1}})) %>% 
-  #     filter(!grepl("Other|NA", as.character({{Var.Group2}}), ignore.case = TRUE), !is.na({{Var.Group2}})) %>% 
-  #     mutate_if(is.numeric,round,2)
-  #   dat.plot
-  # })
-  # 
   
-  # data for plot 13
   table13_data <- reactive({
     
     Var.Group1 <- sym(input$Tab13Variable1)
@@ -2924,12 +3006,19 @@ server = shinyServer(function(input,output, session){
     # Convert MART.Dash to a survey design object
     survey_data <- as_survey_design(MART.Dash, weights = Weight.LCFS)
     
-    # Weighted stats
+    # Apply conditional filtering
+    if (rlang::as_name(Var.Number) %in% c("Surplus", "Surplus.LCFS")) {
+      filter_condition <- TRUE
+    } else {
+      filter_condition <- {{Var.Number}} > 0
+    }
+    
+    # Weighted stats with conditional filtering
     dat.plot <- survey_data %>% 
-      filter({{Var.Number}} > 0) %>% 
+      filter(filter_condition) %>% 
       group_by({{TimeVar}}, {{Var.Group1}}, {{Var.Group2}}) %>% 
       summarise(
-        Mean = survey_mean({{Var.Number}}, na.rm=TRUE, trim = 0.2),
+        Mean = survey_mean({{Var.Number}}, na.rm = TRUE, trim = 0.2),
         Median = survey_median({{Var.Number}}),
         n()
       ) %>% 
@@ -2940,7 +3029,6 @@ server = shinyServer(function(input,output, session){
     
     dat.plot
   })
-  
   
   
   
@@ -3013,11 +3101,12 @@ server = shinyServer(function(input,output, session){
       ylab(input$Tab13Variable3)
     
     # Check condition and remove x axis labels if true
-    if (input$Tab13Variable1 == "Demographic.Housing.Tenure.LCFS"|
-        input$Tab13Variable1 == "Demographic.Region.LCFS"|
-        input$Tab13Variable1 == "Demographic.Household.Type.LCFS"|
-        input$Tab13Variable1 == "Demographic.Derived.Household.Type.LCFS.child"|
-        input$Tab13Variable1 == "Demographic.Derived.Household.Type.LCFS") {
+    if (input$Tab12Variable1 == "Demographic.Housing.Tenure.LCFS"|
+        input$Tab12Variable1 == "Demographic.Region.LCFS"|
+        input$Tab12Variable1 == "Demographic.Household.Type.LCFS"|
+        input$Tab12Variable1 == "Demographic.Derived.Household.Type.LCFS.child"|
+        input$Tab12Variable1 == "Demographic.Derived.Household.Type.LCFS" |
+        input$Tab12Variable1 == "Demographic.Age.Group.HRP") {
       p <- p + theme(axis.text.x = element_blank())
     } else {
       p <- p + theme(axis.text.x = element_text(color = "#004b88"))
@@ -3050,7 +3139,7 @@ server = shinyServer(function(input,output, session){
     }
   )
   
-  # # data for plot 14
+  #  # data for plot 14
   # table14_data <- reactive({
   #   
   #   Var.Group1 <- sym(input$Tab14Variable1)
@@ -3060,22 +3149,26 @@ server = shinyServer(function(input,output, session){
   #   # Time variable
   #   TimeVar <- sym(input$TimeVariable5)
   #   
-  #   dat.plot <- MART.Dash %>%
-  #     dplyr::filter({{Var.Number}} > 0) %>%
-  #     dplyr::group_by({{TimeVar}}, {{Var.Group1}},{{Var.Group2}}) %>%
-  #     dplyr::summarise(Mean = mean({{Var.Number}}, na.rm=TRUE, trim = 0.2),
-  #                      Median = median({{Var.Number}}),
-  #                      n()) %>%
-  #     mutate_if(is.numeric,round,2) %>%
-  #     filter({{TimeVar}} == levels({{TimeVar}})[length(levels({{TimeVar}}))]) %>%
-  #     filter(!grepl("Other|NA", as.character({{Var.Group1}}), ignore.case = TRUE), !is.na({{Var.Group1}})) %>%
+  #   # Convert MART.Dash to a survey design object
+  #   survey_data <- as_survey_design(MART.Dash, weights = Weight.LCFS)
+  #   
+  #   # Compute the weighted statistics
+  #   dat.plot <- survey_data %>% 
+  #     filter({{Var.Number}} > 0) %>% 
+  #     group_by({{TimeVar}}, {{Var.Group1}}, {{Var.Group2}}) %>% 
+  #     summarise(
+  #       Mean = survey_mean({{Var.Number}}, na.rm=TRUE, trim = 0.2),
+  #       Median = survey_median({{Var.Number}}),
+  #       n()
+  #     ) %>% 
+  #     mutate_if(is.numeric, round, 2) %>% 
+  #     filter({{TimeVar}} == levels({{TimeVar}})[length(levels({{TimeVar}}))]) %>% 
+  #     filter(!grepl("Other|NA", as.character({{Var.Group1}}), ignore.case = TRUE), !is.na({{Var.Group1}})) %>% 
   #     filter(!grepl("Other|NA", as.character({{Var.Group2}}), ignore.case = TRUE), !is.na({{Var.Group2}}))
   #   
   #   dat.plot
   # })
-  # 
   
-  # data for plot 14
   table14_data <- reactive({
     
     Var.Group1 <- sym(input$Tab14Variable1)
@@ -3088,12 +3181,19 @@ server = shinyServer(function(input,output, session){
     # Convert MART.Dash to a survey design object
     survey_data <- as_survey_design(MART.Dash, weights = Weight.LCFS)
     
-    # Compute the weighted statistics
+    # Apply conditional filtering
+    filter_condition <- if (rlang::as_name(Var.Number) %in% c("Surplus", "Surplus.LCFS")) {
+      TRUE
+    } else {
+      {{Var.Number}} > 0
+    }
+    
+    # Compute the weighted statistics with conditional filtering
     dat.plot <- survey_data %>% 
-      filter({{Var.Number}} > 0) %>% 
+      filter(filter_condition) %>% 
       group_by({{TimeVar}}, {{Var.Group1}}, {{Var.Group2}}) %>% 
       summarise(
-        Mean = survey_mean({{Var.Number}}, na.rm=TRUE, trim = 0.2),
+        Mean = survey_mean({{Var.Number}}, na.rm = TRUE, trim = 0.2),
         Median = survey_median({{Var.Number}}),
         n()
       ) %>% 
@@ -3104,6 +3204,7 @@ server = shinyServer(function(input,output, session){
     
     dat.plot
   })
+  
   
   
   
@@ -3176,11 +3277,12 @@ server = shinyServer(function(input,output, session){
       ylab(input$Tab14Variable3)
     
     # Check condition and remove x axis labels if true
-    if (input$Tab14Variable1 == "Demographic.Housing.Tenure.LCFS"|
-        input$Tab14Variable1 == "Demographic.Region.LCFS"|
-        input$Tab14Variable1 == "Demographic.Household.Type.LCFS"|
-        input$Tab14Variable1 == "Demographic.Derived.Household.Type.LCFS.child"|
-        input$Tab14Variable1 == "Demographic.Derived.Household.Type.LCFS") {
+    if (input$Tab12Variable1 == "Demographic.Housing.Tenure.LCFS"|
+        input$Tab12Variable1 == "Demographic.Region.LCFS"|
+        input$Tab12Variable1 == "Demographic.Household.Type.LCFS"|
+        input$Tab12Variable1 == "Demographic.Derived.Household.Type.LCFS.child"|
+        input$Tab12Variable1 == "Demographic.Derived.Household.Type.LCFS" |
+        input$Tab12Variable1 == "Demographic.Age.Group.HRP") {
       p <- p + theme(axis.text.x = element_blank())
     } else {
       p <- p + theme(axis.text.x = element_text(color = "#004b88"))
@@ -3211,34 +3313,6 @@ server = shinyServer(function(input,output, session){
     }
   )
   
-  # # data for plot 15
-  # table15_data <- reactive({
-  #   
-  #   Var.Group <- input$Tab15Variable1
-  #   Var.Number <- input$Tab15Variable2
-  #   TimeVar <- sym(input$TimeVariable6)
-  #   
-  #   dat.plot <- MART.Dash %>%
-  #     dplyr::filter((!!sym(Var.Number)) > 0)
-  #   
-  #   # If TimeVar is "Year", transform it to a specific format (e.g. append quarter information)
-  #   if (as.character(TimeVar) == "Year") {
-  #     dat.plot <- dat.plot %>%
-  #       mutate(!!TimeVar := as.integer(Year) + 2018)
-  #   }
-  #   
-  #   dat.plot <- dat.plot %>%
-  #     dplyr::group_by(!!TimeVar, (!!sym(Var.Group))) %>%
-  #     dplyr::summarise(Mean = mean((!!sym(Var.Number)), na.rm=TRUE, trim = 0.2),
-  #                      Median = median((!!sym(Var.Number))),
-  #                      n()) %>%
-  #     mutate_if(is.numeric, round, 2) %>%
-  #     filter(!grepl("Other|NA", as.character((!!sym(Var.Group))), ignore.case = TRUE), !is.na((!!sym(Var.Group))))
-  #   
-  #   dat.plot
-  # })
-  
-  # data for plot 15
   table15_data <- reactive({
     
     Var.Group <- sym(input$Tab15Variable1)
@@ -3248,15 +3322,15 @@ server = shinyServer(function(input,output, session){
     # Convert MART.Dash to a survey design object
     survey_data <- as_survey_design(MART.Dash, weights = Weight.LCFS)
     
-    dat.plot <- survey_data %>%
-      filter((!!Var.Number) > 0)
+    # Apply conditional filtering
+    if (rlang::as_name(Var.Number) %in% c("Surplus", "Surplus.LCFS")) {
+      dat.plot <- survey_data
+    } else {
+      dat.plot <- survey_data %>%
+        filter((!!Var.Number) > 0)
+    }
     
-    # # If TimeVar is "Year", transform it to a specific format (e.g. append quarter information)
-    # if (as.character(TimeVar) == "Year") {
-    #   dat.plot <- dat.plot %>%
-    #     mutate(!!TimeVar := as.integer(Year) + 2018)
-    # }
-    
+    # Transform Financial Year to specific format
     if (as.character(TimeVar) == "Financial.Year") {
       dat.plot <- dat.plot %>%
         ungroup() %>%
@@ -3280,6 +3354,7 @@ server = shinyServer(function(input,output, session){
     
     dat.plot
   })
+  
   
   
   # plot 15 input
